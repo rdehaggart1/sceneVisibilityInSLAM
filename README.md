@@ -5,20 +5,18 @@ to format data and present results. There are two folders contained in this root
 - MidAir
 
 
-# Getting Started
-The code processes these datasets for use with the V-SLAM algorithm, ORB-SLAM2, and the VI-SLAM algorithm, VINS-Mono. The latter requires that you have Robot
-Operating System (ROS) installed, and this is most stable on Linux platforms and it is therefore recommended that Linux is used.
-## Prerequisites 
-- ROS
-- ORB-SLAM2
-- VINS-Mono
-- Python
-- Packages
-## Installation
+# 1. Prerequisites 
+## ROS
+## ORB-SLAM2
+## VINS-Mono
+## Python
+## Packages
 
-# Usage
+# 2. Installation
 
-# Contact
+# 3. Usage
+
+# 4. Contact
 Rory Haggart - [rdeh10@googlemail.com](mailto:rdeh10@googlemail.com)
 
 # Acknowledgements
