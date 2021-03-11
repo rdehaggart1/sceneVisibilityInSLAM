@@ -1,0 +1,12 @@
+# cd to catkin_ws
+# run the following:
+catkin_make                 # build the workspace
+source devel/steup.bash     # run the setup
+
+
+# now open 3 new terminal tabs, and run each of the following commands in its own tab
+roslaunch vins_estimator malaga.launch  # start vins estimator using the malaga configuration file
+rosrun rviz rviz                        # open the rviz gui to visualise the images and the tracking
+    # once rviz is open, go to file > open config, and open /catkin_ws/src/VINS-Mono/config/vins_rviz_config.rviz
+rosbag play <path to malaga .bag file>  # play the .bag file of interest
+
