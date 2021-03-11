@@ -39,12 +39,9 @@ trajectory = '0001' # the particular trajectory number
 camera = 'color_down' # the camera that we're using
 
 # define the path to the folder containing our sensor records
-sensorRecordsPath = '/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/MidAir/' + environment + '/' + condition
+sensorRecordsPath = os.path.abspath(os.getcwd() + "/MidAir/" + environment + '/' + condition)
 
-# just make sure we're in the right place before we go calling for image paths
-os.chdir(sensorRecordsPath)
-
-f1 = h5py.File('sensor_records.hdf5','r+')   # open sensor_records.hdf5
+f1 = h5py.File((sensorRecordsPath + 'sensor_records.hdf5'),'r+')   # open sensor_records.hdf5
 
 # list(f1['trajectory_0001'].keys()) to see keys in file
 
