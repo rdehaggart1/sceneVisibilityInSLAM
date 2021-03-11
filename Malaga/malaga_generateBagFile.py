@@ -72,7 +72,7 @@ imuDataGyrX = [float(row[6]) for row in imuData[1:]]    # x is forward (roll)
 imuDataGyrY = [float(row[5]) for row in imuData[1:]]    # y is left (pitch)
 imuDataGyrZ = [float(row[4]) for row in imuData[1:]]    # z is upward (yaw)
 
-# concatenate the x,y,z readings into individual rows
+# concatenate each set of x,y,z readings into rows
 accelerometerData = [[imuDataAccX[i], imuDataAccY[i], imuDataAccZ[i]] for i in range(len(imuDataTimestamps))]
 gyroscopeData = [[imuDataGyrX[i], imuDataGyrY[i], imuDataGyrZ[i]] for i in range(len(imuDataTimestamps))]
 

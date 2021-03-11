@@ -38,8 +38,6 @@ extrinsicRotation: !!opencv-matrix
           0, 1, 0, 
           0, 0, 1]
 
-#TODO:: ROTATE CAMERA FROM BODY FRAME!! currently camera and body frame are at same rotation but need to match the website info???
-
 #Translation from camera frame to imu frame, imu^T_cam
 extrinsicTranslation: !!opencv-matrix
    rows: 3
