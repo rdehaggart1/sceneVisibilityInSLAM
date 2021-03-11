@@ -23,6 +23,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import re
+import shlex
 
 extractNumber = 15; # the number of the malaga dataset extract
 
@@ -51,7 +52,30 @@ for img in stereoPaths:
 # image dimensions
 imWidth = 1024
 imHeight = 768
-        
+
+# read the collected imu data into a list
+imuDataPath = extractPath + "/malaga-urban-dataset-extract-{}_all-sensors_IMU.txt".format(extractNumber)
+with open(imuDataPath) as f1:
+    imuDataFile = f1.readlines()
+    
+# split the list items by spaces
+imuData = []
+for line in imuDataFile:
+    imuData.append(shlex.split(line))
+
+# get particular readings of interest
+imuDataTimestamps = [float(row[0]) for row in imuData[1:]]
+imuDataAccX = [float(row[1]) for row in imuData[1:]]
+imuDataAccY = [float(row[2]) for row in imuData[1:]]
+imuDataAccZ = [float(row[3]) for row in imuData[1:]]
+imuDataGyrX = [float(row[6]) for row in imuData[1:]]    # x is forward (roll)
+imuDataGyrY = [float(row[5]) for row in imuData[1:]]    # y is left (pitch)
+imuDataGyrZ = [float(row[4]) for row in imuData[1:]]    # z is upward (yaw)
+
+# concatenate the x,y,z readings into individual rows
+accelerometerData = [[imuDataAccX[i], imuDataAccY[i], imuDataAccZ[i]] for i in range(len(imuDataTimestamps))]
+gyroscopeData = [[imuDataGyrX[i], imuDataGyrY[i], imuDataGyrZ[i]] for i in range(len(imuDataTimestamps))]
+
 seq = 0 # each image should be given an index in the sequence    
 
 # open our .bag file to write to
@@ -103,6 +127,66 @@ for imagePath, imageTimestamp in zip(leftCameraPaths, leftCameraTimestamps):
         
         # increment seq num
         seq = seq + 1
+
+# reset sequence ID for IMU recording
+seq = 0
+
+for measurementTimestamp, accelLine, gyroLine in zip(imuDataTimestamps, accelerometerData, gyroscopeData):
+    # get the timestamp of this frame
+    timestamp = measurementTimestamp
+    # the seconds part of the timestamp is just the whole number
+    timestampSec = math.floor(timestamp)
+    # the nanoseconds part of the timestamp is then the decimal part
+    timestampnSec = int((timestamp - timestampSec) * pow(10, 9))
+    
+    # create an imu_msg for our inertial data
+    imu_msg = Imu()
+    
+    # imu_msg format: 
+    # http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/Imu.html
+    
+    # ---------- IMU RECORD ---------- #
+    # header info
+    imu_msg.header.frame_id = "imu0"
+    imu_msg.header.seq = seq
+    imu_msg.header.stamp.secs = timestampSec
+    # microseconds to nanoseconds again
+    imu_msg.header.stamp.nsecs = timestampnSec
+    
+    # linear accelerations (m/s^2)
+    imu_msg.linear_acceleration.x = accelLine[0]
+    imu_msg.linear_acceleration.y = accelLine[1]
+    imu_msg.linear_acceleration.z = accelLine[2]
+    
+    # angular rates (rad/s)
+    imu_msg.angular_velocity.x = gyroLine[0]
+    imu_msg.angular_velocity.y = gyroLine[1]
+    imu_msg.angular_velocity.z = gyroLine[2]
+    
+    # TODO: attitude
+    
+    # get the roll/pitch/yaw values (radians)
+    #roll = float(splitLine[17])
+    #pitch = float(splitLine[18])
+    #yaw = float(splitLine[19])
+ 
+    # generate quaternions from euler angles & assign
+    #qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    #qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+    #qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+    #qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    #imu_msg.orientation.x = attitudeLine[1]
+    #imu_msg.orientation.y = attitudeLine[2]
+    #imu_msg.orientation.z = attitudeLine[3]
+    #imu_msg.orientation.w = attitudeLine[0]
+    
+    imu_msg.orientation_covariance = [-1 for i in imu_msg.orientation_covariance]
+    
+    # write the imu_msg to the bag file
+    bag.write("imu0", imu_msg, imu_msg.header.stamp) 
+
+    # increment the sequence counter
+    seq = seq + 1
 
 # close the .bag file
 bag.close()

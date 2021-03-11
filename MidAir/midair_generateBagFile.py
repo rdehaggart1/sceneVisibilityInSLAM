@@ -156,7 +156,7 @@ for accelLine, gyroLine, attitudeLine in zip(accelerometerData, gyroscopeData, g
     imu_msg.header.frame_id = "imu0"
     imu_msg.header.seq = seq
     imu_msg.header.stamp.secs = timestampSec
-    # microseconds to nanoseconds again :o
+    # microseconds to nanoseconds again
     imu_msg.header.stamp.nsecs = timestampnSec
     
     # linear accelerations (m/s^2)
