@@ -21,23 +21,29 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 ## Getting Datasets
 Once you have the repository on your machine, you will need some data from the Malaga and MidAir datasets to run the code on
 ### Malaga
-
+To download some data for the Malaga dataset:
+1. Go to [https://www.mrpt.org/MalagaUrbanDataset#6_Additional_info](https://www.mrpt.org/MalagaUrbanDataset#6_Additional_info)
+2. Use this page to browse the previews of the various extracts and download the .zip files that you are interested in to the repository folder: <i>RoryHaggart_SceneVisibilityInSLAM/Malaga/Malaga</i>. This is the folder that will contain the Malaga dataset
+3. Lastly, uncompress the files to the same location
 ### MidAir
 To download some data for the MidAir dataset:
-1. Go to https://midair.ulg.ac.be/download.html
-2. Select all the image types that you are interested in (this code has been tested only on the RGB images), and select the segments from the different environments that you would like to test. Note: the 'Test data for benchmarks' section at the bottom may be a useful starting point as these are short segments that are useful for establishing a good baseline
-3. Click get download links and enter your email address. You will recieve a file containing the links to the data you have selected - download this file into the repository folder: <i>RoryHaggart_SceneVisibilityInSLAM/MidAir/MidAir</i>. This is the folder that will contain the MidAir dataset
+1. Go to [https://midair.ulg.ac.be/download.html](https://midair.ulg.ac.be/download.html)
+2. Select all the image types that you are interested in (this code has been tested only on the RGB images), and select the segments from the different environments that you would like to test. <b>Note: the 'Test data for benchmarks' section at the bottom may be a useful starting point as these are short segments that are useful for establishing a good baseline</b>
+3. Click <b>Get download links</b> and enter your email address. You will recieve a file containing the links to the data you have selected - download this file into the repository folder: <i>RoryHaggart_SceneVisibilityInSLAM/MidAir/MidAir</i>. This is the folder that will contain the MidAir dataset
 4. From this folder, open a terminal and run the following command to download the data you have selected:
 
     ```c
     wget --content-disposition -x -nH -i download_config.txt`
     ```
 
-5. Lastly, uncompress all of the downloaded files by running the following command:
+5. Lastly, uncompress all of the downloaded files by running the following command from the same terminal:
     
     ```c
     find . -name "*.zip" | while read filename; do unzip -o -d $(dirname "$filename") "$filename"; done;`
     ```
+
+## Configuring Datasets for Use with the Algorithms
+[e.g. copying the config files, creating .cc, rebuilding, etc]
 
 # 3. Usage
 
