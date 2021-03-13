@@ -30,7 +30,7 @@ eval $poseCMD & # again, put this in the background on the main tab
 
 # TODO: switch to mate terminal?
 # open a new tab and play the .bag file. --wait holds off on further execution until this tab closes 
-gnome-terminal --wait --tab -- rosbag play /media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/MidAir/Kite_test/sunny/trajectory_0001_color_left.bag
+gnome-terminal --wait --tab -- rosbag play $1
 
 sleep 5         # wait for the estimator to update 
 

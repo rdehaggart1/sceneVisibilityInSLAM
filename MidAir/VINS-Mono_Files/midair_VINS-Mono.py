@@ -30,29 +30,26 @@ import numpy as np
 import re
 import sys
 import subprocess
-
+import os 
 def main(arg1):
     # the input argument is the path to the bag file that is being run in this test
     bagFilePath = arg1
     # example: "/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/MidAir/Kite_test/sunny/trajectory_0001_color_down.bag" 
     
-    subprocess.run(["chmod", "+x", "/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/midair_VINS-Mono.sh"], shell=True, executable='/bin/bash')
-    subprocess.run("/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/midair_VINS-Mono.sh", shell=True, executable='/bin/bash')
+    shellFile = os.path.abspath(os.getcwd() + "/midair_VINS-Mono.sh")
+    
+    subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash')
+    # run the shell file with the selected bag file as an input argument
+    subprocess.run(shellFile + " " + bagFilePath, shell=True, executable='/bin/bash')
     
     # TODO: if .bag doesn't exist, prompt to create it?
     # TODO: add a 'show graphs' option to the call
     
-    # the environment of the simulation (kite, ple, vo; each _test or _training)
-    environment = re.search("MidAir/MidAir/(.*?)/", bagFilePath).group(1)
-    # the weather/season we're interested in 
-    condition = re.search(environment + "/(.*?)/", bagFilePath).group(1) 
     # the particular trajectory number
     trajectory = re.search("trajectory_(.*?)_", bagFilePath).group(1)
-    # the camera that we're using
-    camera = re.search(trajectory + "_(.*)\.", bagFilePath).group(1) 
     
     # define the path to the folder containing our sensor records
-    sensorRecordsPath = '/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/MidAir/' + environment + '/' + condition
+    sensorRecordsPath = os.path.abspath(os.path.dirname(bagFilePath))  
 
     # open sensor_records.hdf5 (for ground truth info)
     f1 = h5py.File(sensorRecordsPath + '/sensor_records.hdf5','r+')   
