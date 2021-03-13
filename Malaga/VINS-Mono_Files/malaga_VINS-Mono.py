@@ -33,15 +33,15 @@ import os
 import shlex
 import math
 
-def main():
+def main(arg1):
     # the input argument is the path to the bag file that is being run in this test
-    bagFilePath = "/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/RoryHaggart_SceneVisibilityInSLAM/Malaga/Malaga/malaga_15/malaga_15.bag"
-    #arg1
+    bagFilePath = arg1
 
     shellFile = os.path.abspath(os.getcwd() + "/malaga_VINS-Mono.sh")
     
     subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash')
-    subprocess.run(shellFile, shell=True, executable='/bin/bash')
+    # run the shell file passing the selected bag as an input arg
+    subprocess.run(shellFile + " " + bagFilePath, shell=True, executable='/bin/bash')
     
     # TODO: if .bag doesn't exist, prompt to create it?
     # TODO: add a 'show graphs' option to the call
@@ -144,20 +144,21 @@ def main():
     #timeStartLineStyle = {"x": poseGraphTimestamp[1], "color": "red", "linestyle": "dashed", "linewidth": 0.5}
     
     ### PLOTS ###
-    # get the heading in degrees
-    rotationGT = [float(row[7]) for row in GPSData[1:]]
-    # get the start time of the pose estimation
-    estStartTime = timestampEst[0]
+    # get the groundtruth heading and timestamp at some index
+    """
+    indexGT = 60
+    headingGT = math.tan(poseGT[1][indexGT]/poseGT[0][indexGT])
+    headingTimestampGT = timestampGT[indexGT]
     
-    # get the ground truth timestamp closest to the estimation start time
-    correspondingGTStart = timestampGT.index(min(timestampGT, key=lambda x:abs(x-estStartTime)))
-    
-    rotationGT
-    
+    indexEst = timestampEst.index(min(timestampEst, key=lambda x:abs(x-headingTimestampGT)))
+    headingEst = math.tan(poseEst[1][indexEst]/poseEst[0][indexEst])
+    """
     angle = 45
+    #angleRadian = headingGT - headingEst
     angleRadian = angle*(math.pi/180)
     poseEst[0] = [x * math.cos(angleRadian) + y * math.sin(angleRadian) for x,y in zip(poseEst[0], poseEst[1])]
     poseEst[1] = [-x * math.sin(angleRadian) + y * math.cos(angleRadian) for x,y in zip(poseEst[0], poseEst[1])]
+    
     
     # 3x2 grid of subplots for pose time series comparison
     fig, axs = plt.subplots(3, 2)   
@@ -250,7 +251,7 @@ def main():
     return(SSE)
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1])
     
 """    
 def rotate_origin_only(xy, radians):

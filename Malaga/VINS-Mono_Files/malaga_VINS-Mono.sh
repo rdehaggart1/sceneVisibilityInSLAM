@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#TODO: replace the fixed file names with variables. inputs? or singly defined variables at the top (or in some external setup)
-
 set -m
 
 cd              # go home
@@ -30,7 +28,7 @@ eval $poseCMD & # again, put this in the background on the main tab
 
 # TODO: switch to mate terminal?
 # open a new tab and play the .bag file. --wait holds off on further execution until this tab closes 
-gnome-terminal --wait --tab -- rosbag play /media/rory_haggart/ENDLESS_BLU/SLAM_datasets/RoryHaggart_SceneVisibilityInSLAM/Malaga/Malaga/malaga_15/malaga_15.bag
+gnome-terminal --wait --tab -- rosbag play $1
 
 sleep 5         # wait for the estimator to update 
 
