@@ -29,11 +29,15 @@ To download some data for the MidAir dataset:
 3. Click get download links and enter your email address. You will recieve a file containing the links to the data you have selected - download this file into the repository folder: <i>RoryHaggart_SceneVisibilityInSLAM/MidAir/MidAir</i>. This is the folder that will contain the MidAir dataset
 4. From this folder, open a terminal and run the following command to download the data you have selected:
 
-`wget --content-disposition -x -nH -i download_config.txt`
+    ```c
+    wget --content-disposition -x -nH -i download_config.txt`
+    ```
+
 5. Lastly, uncompress all of the downloaded files by running the following command:
-
-`find . -name "*.zip" | while read filename; do unzip -o -d $(dirname "$filename") "$filename"; done;`
-
+    
+    ```c
+    find . -name "*.zip" | while read filename; do unzip -o -d $(dirname "$filename") "$filename"; done;`
+    ```
 
 # 3. Usage
 
