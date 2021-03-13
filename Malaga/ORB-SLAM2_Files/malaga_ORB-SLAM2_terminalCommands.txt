@@ -1,5 +1,8 @@
-# open 3 new terminal tabs, and run each of the following commands in its own tab
+# move into the ORB-SLAM2 directory
+cd ORB_SLAM2
+
+# then open 3 new terminal tabs, and run each of the following commands in its own tab
 roscore                                                                             # start ROS
-rosrun ORB_SLAM2 Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/Malaga.yaml        # setup ORB-SLAM with the malaga parameters
+rosrun ORB_SLAM2 Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/Malaga.yaml        # setup ORB-SLAM with the malaga parameters & start the visualiser
 rosbag play --pause <path to malaga .bag file> /cam0/image_raw:=/camera/image_raw   # play the .bag file of interest
 
