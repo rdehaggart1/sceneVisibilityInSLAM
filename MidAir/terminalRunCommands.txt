@@ -1,9 +1,0 @@
-# cd to catkin workspace
-# catkin_make then source devel/setup.bash
-
-# open three new terminal windows and run each command in it's own terminal
-roslaunch vins_estimator midair.launch              # start the vins estimator using the midair config file
-rosrun rviz rviz                                    # open rviz to visualise the images and the trajectory
-    # once rviz is open, file > open config, and then open catkin_ws/src/VINS-Mono/config/vins_rviz_config.rviz
-rosbag play <path to midair trajectory .bag file>   # play the particular .bag file of interest for this test
-
