@@ -6,17 +6,12 @@ Created on Sat Feb 20 12:05:55 2021
 @author: rory_haggart
     This file is acting as the 'setup' wrapper to the automated test process
     The tests in particular deal with the Malaga dataset on VINS_Mono
-    This file chooses environment, condition, trajectory, camera, and then
-        passes into the 'runAndCompare' function to execute the ROS process,
+    This file is used for configurations and then passes the bag path 
+        into the 'malaga_VINS-Mono' function to execute the ROS process,
         store the estimated pose output, and compare this to the available
         ground truth. this function should then return a 'score' for each
         axis, where a high score means high deviation from the ground truth.
-    This file can then also act as a method for optimisation. Using Dakota
-        or similar, this file should be able to modify the various VINS
-        parameters, and run some number of tests with each set and take
-        an average score. The parameters should be tuned within specified 
-        ranges, and the score minimised.
-        
+
     # TODO: can we just put the config file at our level and keep away from
         VINS src?
 """
@@ -96,9 +91,9 @@ def main():
                       malaga_01
                       etc.
     """
-    root = os.path.abspath(os.path.dirname(os.getcwd())) + "Malaga"
+    root = os.path.abspath(os.path.dirname(os.getcwd()))
     
-    bagFilePath = root + "Malaga_".format(extractNumber) + ".bag"
+    bagFilePath = root + "/Malaga" + "/malaga_{}".format(extractNumber) + "/malaga_{}".format(extractNumber) + ".bag"
     
     # TODO: check if the bag file exists, if not, create it
     
