@@ -9,7 +9,7 @@ Link to research paper:
 # 1. Prerequisites 
 ## ROS
 ## ORB-SLAM2 (and associated prerequisites)
-[https://github.com/raulmur/ORB_SLAM2](ORB-SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. 
+[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. 
 [Cite paper]
 ## VINS-Mono (and associated prerequisites)
 ## Python
