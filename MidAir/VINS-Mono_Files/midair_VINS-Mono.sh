@@ -9,7 +9,7 @@ cd catkin_ws    # get into the catkin workspace
 catkin_make     # build the code that lives there
 
 # setup the workspace
-source /home/rory_haggart/catkin_ws/devel/setup.bash
+source ~/catkin_ws/devel/setup.bash
 
 sleep 10        # wait whilst the setup executes
 
@@ -25,7 +25,8 @@ roslaunch vins_estimator midair.launch &
 sleep 20
 
 # a command to write the camera_pose estimate to a .txt file that we can later read
-poseCMD="rostopic echo -p /vins_estimator/camera_pose > /media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/poseGraph.txt"
+# TODO: verify that the simple 'poseGraph.txt' works
+poseCMD="rostopic echo -p /vins_estimator/camera_pose > poseGraph.txt"
 eval $poseCMD & # again, put this in the background on the main tab
 
 # TODO: switch to mate terminal?
