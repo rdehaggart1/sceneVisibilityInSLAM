@@ -9,7 +9,7 @@ Link to research paper:
 # 1. Prerequisites 
 ## ROS
 ## ORB-SLAM2 associated prerequisites)
-[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions.
+[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions. <b>Note: please install these dependencies to your <i>Home</i> directory as they should be useful for more than just this project!</b>
 
 [Cite paper]
 ## VINS-Mono (and associated prerequisites)
@@ -23,7 +23,7 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
 
 ## Cloning ORB-SLAM2 with Scene Visibility Estimation
-To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2) that includes components for scene visibility estimation, move to the 'ORB-SLAM2_withVisibilityEstimation' folder, and run the command:
+To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2) that includes components for scene visibility estimation, move to the <i>ORB-SLAM2_withVisibilityEstimation</i> folder, and run the command:
 
 `git clone https://github.com/rdehaggart1/ORB_SLAM2.git`
 
