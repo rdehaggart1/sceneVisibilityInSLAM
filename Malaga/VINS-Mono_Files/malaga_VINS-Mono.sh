@@ -23,8 +23,9 @@ roslaunch vins_estimator malaga.launch &
 sleep 20
 
 # a command to write the camera_pose estimate to a .txt file that we can later read
-# TODO: verify that the simple 'poseGraph.txt' works
-poseCMD="rostopic echo -p /vins_estimator/camera_pose > poseGraph.txt"
+# TODO: verify that the basedir works
+BASEDIR=BASEDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+poseCMD="rostopic echo -p /vins_estimator/camera_pose > $BASEDIR/poseGraph.txt"
 eval $poseCMD & # again, put this in the background on the main tab
 
 # TODO: switch to mate terminal?
