@@ -8,18 +8,24 @@ Link to research paper:
 
 # 1. Prerequisites 
 ## ROS
-## ORB-SLAM2 (and associated prerequisites)
-[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. 
+## ORB-SLAM2 associated prerequisites)
+[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions.
+
 [Cite paper]
 ## VINS-Mono (and associated prerequisites)
 ## Python
 ## Packages
 
 # 2. Installation
-## Cloning
+## Cloning the Base Repository
 To clone this repository onto your machine, open a terminal in the desired cloning location and run the command:
 
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
+
+## Cloning ORB-SLAM2 with Scene Visibility Estimation
+To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2) that includes components for scene visibility estimation, move to the 'ORB-SLAM2_withVisibilityEstimation' folder, and run the command:
+
+`git clone https://github.com/rdehaggart1/ORB_SLAM2.git`
 
 ## Getting Datasets
 Once you have the repository on your machine, you will need some data from the Malaga and MidAir datasets to run the code on
