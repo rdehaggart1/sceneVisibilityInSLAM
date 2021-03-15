@@ -23,9 +23,25 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
 
 ## Cloning ORB-SLAM2 with Scene Visibility Estimation
-To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2) that includes components for scene visibility estimation, move to the <i>ORB-SLAM2_withVisibilityEstimation</i> folder, and run the command:
+To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_withVisibilityEstimation) that includes components for scene visibility estimation, move to the <i>ORB-SLAM2_withVisibilityEstimation</i> folder, and run the command:
 
-`git clone https://github.com/rdehaggart1/ORB_SLAM2.git`
+```
+cd <localRepoPath>/
+git clone https://github.com/rdehaggart1/ORB_SLAM2.git
+```
+
+This will provide you with a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name 'ORB_SLAM2_withVisibilityEstimation'. ROS needs access to this new package, so you must edit your <i>.bashrc</i> file to allow for this. This can be done using a text editor like nano in the following way:
+
+```
+cd
+nano .bashrc
+```
+
+and then moving down to the bottom of the file and pasting the following line (where PATH is the folder that the modified ORB-SLAM2 code lives):
+
+```
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/ORB_SLAM2_withVisibilityEstimation/Examples/ROS
+```
 
 ## Getting Datasets
 Once you have the repository on your machine, you will need some data from the Malaga and MidAir datasets to run the code on
