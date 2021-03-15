@@ -23,7 +23,7 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
 
 ## Cloning ORB-SLAM2 with Scene Visibility Estimation
-To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_withVisibilityEstimation) that includes components for scene visibility estimation, move to the <i>ORB-SLAM2_withVisibilityEstimation</i> folder, and run the command (where <PATH> is the folder that the <i>sceneVisibilityInSLAM</i> repository lives in:
+To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_withVisibilityEstimation) that includes components for scene visibility estimation, move to the <i>ORB-SLAM2_withVisibilityEstimation</i> folder, and run the command (where `<PATH>` is the folder that the <i>sceneVisibilityInSLAM</i> repository lives in:
 
 ```
 cd <PATH>/sceneVisibilityInSLAM/ORB_SLAM2_withVisibilityEstimation
@@ -59,7 +59,7 @@ echo $ROS_PACKAGE_PATH
 
 and in the string that is returned, you should see the path that you just added to the new package.
 
-## Building ORB-SLAM2 with Scene Visibility Estimation
+## Building ORB-SLAM2 with Scene Visibility Estimation for ROS
 Finally, you need to build the modified ORB-SLAM2 code for ROS. This is simply done by moving to the base level of the modified ORB-SLAM2 repository and running the following:
 
 ```
