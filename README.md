@@ -8,13 +8,24 @@ Link to research paper:
 
 # 1. Prerequisites 
 ## ROS
-## ORB-SLAM2 associated prerequisites)
-[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions. <b>Note: please install these dependencies to your <i>Home</i> directory as they should be useful for more than just this project!</b>
+The method of running datasets for this work was using the [Robot Operating System (ROS)](https://www.ros.org/). This software is only stable for Linux machines, and so it is a soft requirement that this work is only tested on a Linux machine. 
+
+## Prerequisites associated with ORB-SLAM2
+[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions.
 
 [Cite paper]
-## VINS-Mono (and associated prerequisites)
+## Prerequisites associated with VINS-Mono
 ## Python
-## Packages
+The files for processing or formatting the datasets in this repository are primarily Python files, and so you will need a Python compiler on your machine to run them.
+
+[version?]
+## Python Packages
+
+## Notes
+The following are some specifications for the setup used during the development process for this project
+- Linux Mint 19 ("Tara") Cinnamon partition on a HP Pavilion 15-p209na with Intel© Core™ i3-5010U CPU @ 2.10GHz and 6GB RAM
+- ROS Melodic distribution
+- Python 3.8.5 compiled with GCC 7.3.0
 
 # 2. Installation
 ## Cloning the Base Repository
@@ -80,10 +91,10 @@ Once this has completed, restart your terminal again and run:
 rospack list
 ```
 
-to verify that the ORB_SLAM2_withVisibilityEstimation package is now avaialable to ROS
+to verify that the ORB_SLAM2_withVisibilityEstimation package is now available to ROS
 
 ## Getting Datasets
-Once you have the repository on your machine, you will need some data from the Malaga and MidAir datasets to run the code on
+Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the Malaga and MidAir datasets to run the code on
 ### Malaga
 To download some data for the Malaga dataset:
 1. Go to [https://www.mrpt.org/MalagaUrbanDataset](https://www.mrpt.org/MalagaUrbanDataset)
