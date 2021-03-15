@@ -54,7 +54,7 @@ To download some data for the MidAir dataset:
 Rory Haggart - [rdeh10@googlemail.com](mailto:rdeh10@googlemail.com)
 
 # Acknowledgements
-- **The Authors of ORB-SLAM2:** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/), [J. M. M. Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/).
+- **The Authors of ORB-SLAM2:** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan Domingo Tardós Solano](http://webdiis.unizar.es/~jdtardos/), [José María Martínez Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/).
 - **The Authors of VINS-Mono:**
 - **The Authors of the MidAir Dataset:**
 - **The Authors of the Malaga Dataset:** [Jose-Luis Blanco-Claraco](https://scholar.google.co.uk/citations?user=bhDtzKgAAAAJ&hl=en), [Francisco-Angel Moreno-Duenas](http://mapir.isa.uma.es/mapirwebsite/index.php/people/199-francisco-moreno-due%C3%B1as) and [Javier Gonzalez-Jimenez](http://mapir.isa.uma.es/mapirwebsite/index.php/people/95-javier-gonzalez-jimenez)
