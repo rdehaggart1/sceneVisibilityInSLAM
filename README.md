@@ -39,7 +39,7 @@ cd
 nano .bashrc
 ```
 
-and then moving down to the bottom of the file and pasting the following line (where "<PATH>" is the folder that the <i>ORB_SLAM2_withVisibilityEstimation</i> repository lives in):
+and then moving down to the bottom of the file and pasting the following line (where "\<PATH\>" is the folder that the <i>ORB_SLAM2_withVisibilityEstimation</i> repository lives in):
 
 ```
 export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:<PATH>/ORB_SLAM2_withVisibilityEstimation/Examples/ROS
