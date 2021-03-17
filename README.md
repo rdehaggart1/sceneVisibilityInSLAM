@@ -74,7 +74,8 @@ and in the string that is returned, you should see the path that you just added 
 Finally, you need to build the modified ORB-SLAM2 code for ROS. This means first building the codebase by moving to the base level of the modified ORB-SLAM2 repository and running:
 
 ```
-chmod +x build_ros.sh
+cd <PATH>/ORB_SLAM2_SVE
+chmod +x build.sh
 ./build.sh
 ```
 
