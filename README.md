@@ -34,26 +34,26 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
 
 ## Cloning ORB-SLAM2 with Scene Visibility Estimation
-To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_withVisibilityEstimation) that includes components for scene visibility estimation, move to the location that you'd like to clone the modified ORB-SLAM2 code into, and clone by running the following commands:
+To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_SVE) that includes components for scene visibility estimation, move to the location that you'd like to clone the modified ORB-SLAM2 code into, and clone by running the following commands:
 
 ```
 cd <PATH>
-git clone https://github.com/rdehaggart1/ORB_SLAM2_withVisibilityEstimation.git
+git clone https://github.com/rdehaggart1/ORB_SLAM2_SVE.git
 ```
 
 ## Preparing to use ORB-SLAM2 with Scene Visibility Estimation
 
-You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name 'ORB_SLAM2_withVisibilityEstimation'. ROS needs access to this new package, so you must edit your <i>.bashrc</i> file to allow for this. This can be done using a text editor like nano to open this file in the following way:
+You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name 'ORB_SLAM2_SVE'. ROS needs access to this new package, so you must edit your <i>.bashrc</i> file to allow for this. This can be done using a text editor like nano to open this file in the following way:
 
 ```
 cd
 nano .bashrc
 ```
 
-and then moving down to the bottom of the file and pasting the following line (where `<PATH>` is the folder that the <i>ORB_SLAM2_withVisibilityEstimation</i> repository lives in, the same as the one that you `cd`'d to above):
+and then moving down to the bottom of the file and pasting the following line (where `<PATH>` is the folder that the <i>ORB_SLAM2_SVE</i> repository lives in, the same as the one that you `cd`'d to above):
 
 ```
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:<PATH>/ORB_SLAM2_withVisibilityEstimation/Examples/ROS
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:<PATH>/ORB_SLAM2_SVE/Examples/ROS
 ```
 
 Save the changes and exit, and then source your <i>.bashrc</i> file to execute the changes:
@@ -91,7 +91,7 @@ Once this has completed, restart your terminal again and run:
 rospack list
 ```
 
-to verify that the ORB_SLAM2_withVisibilityEstimation package is now available to ROS
+to verify that the ORB_SLAM2_SVE package is now available to ROS
 
 ## Getting Datasets
 Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the Malaga and MidAir datasets to run the code on
