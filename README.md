@@ -122,6 +122,24 @@ To download some data for the MidAir dataset:
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
 # 3. Usage
+## ORB_SLAM2_SVE
+To run one of the datasets through the modified ORB-SLAM2 algorithm, move your terminal to the <i>ORB_SLAM2_SVE</i> folder and open 3 terminal tabs.
+
+In the first terminal tab, execute <i>roscore</i> to begin the process and allow ROS nodes to communicate with one another:
+```
+roscore
+```
+
+In the second terminal tab, execute <i>rosrun</i> to run the executable in the ORB_SLAM2_SVE ROS package, using the provided setup file for the dataset under test:
+```
+rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/Malaga.yaml # for the Malaga dataset
+rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/MidAir.yaml # for the MidAir dataset
+ ```
+
+And finally, in the third terminal, execute <i>rosbag play</i> to playback the .bag file containing all of the dataset extract information, where `<BAG_PATH>` is the full file path to the .bag file of the particular extract of the dataset under test:
+```
+rosbag play --pause <BAG_PATH> /cam0/image_raw:=/camera/image_raw
+```
 
 # 4. Contact
 Rory Haggart - [rdeh10@googlemail.com](mailto:rdeh10@googlemail.com)
