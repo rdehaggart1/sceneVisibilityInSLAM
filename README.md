@@ -34,10 +34,9 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
 
 ## Cloning ORB-SLAM2 with Scene Visibility Estimation
-To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_SVE) that includes components for scene visibility estimation, move to the location that you'd like to clone the modified ORB-SLAM2 code into, and clone by running the following commands:
+To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_SVE) that includes components for scene visibility estimation, open a terminal in the desired cloning location and run the command:
 
 ```
-cd <PATH>
 git clone https://github.com/rdehaggart1/ORB_SLAM2_SVE.git
 ```
 
@@ -50,7 +49,7 @@ cd
 nano .bashrc
 ```
 
-and then moving down to the bottom of the file and pasting the following line (where `<PATH>` is the folder that the <i>ORB_SLAM2_SVE</i> repository lives in, the same as the one that you `cd`'d to above):
+and then moving down to the bottom of the file and pasting the following line (where `<PATH>` is the folder that you cloned <i>ORB_SLAM2_SVE</i> into):
 
 ```
 export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:<PATH>/ORB_SLAM2_SVE/Examples/ROS
@@ -62,7 +61,7 @@ Save the changes and exit, and then source your <i>.bashrc</i> file to execute t
 source ./.bashrc
 ```
 
-To check that the operation was successful, you can restart your terminal to all the changes to take effect, then run:
+To check that the operation was successful, you can restart your terminal to allow the changes to take effect, then run:
 
 ```
 echo $ROS_PACKAGE_PATH
@@ -74,9 +73,9 @@ and in the string that is returned, you should see the path that you just added 
 Finally, you need to build the modified ORB-SLAM2 code for ROS. This means first building the codebase by moving to the base level of the modified ORB-SLAM2 repository and running:
 
 ```
-cd <PATH>/ORB_SLAM2_SVE
-chmod +x build.sh
-./build.sh
+cd <PATH>/ORB_SLAM2_SVE     # move into the ORB_SLAM2_SVE root
+chmod +x build.sh           # make the build file executable
+./build.sh                  # execute the file (i.e. build the code)
 ```
 
 and then running the following to build for use with ROS:
