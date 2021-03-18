@@ -85,13 +85,11 @@ chmod +x build_ros.sh
 ./build_ros.sh
 ```
 
-Once this has completed, restart your terminal again and run:
+Once this has completed, restart your terminal again and run the following to verify that the ORB_SLAM2_SVE package is now available to ROS:
 
 ```
 rospack list
 ```
-
-to verify that the ORB_SLAM2_SVE package is now available to ROS
 
 ## Getting Datasets
 Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the Malaga and MidAir datasets to run the code on
@@ -124,18 +122,18 @@ To download some data for the MidAir dataset:
 ## ORB_SLAM2_SVE
 To run one of the datasets through the modified ORB-SLAM2 algorithm, move your terminal to the <i>ORB_SLAM2_SVE</i> folder and open 3 terminal tabs.
 
-In the first terminal tab, execute <i>roscore</i> to begin the process and allow ROS nodes to communicate with one another:
+In the first terminal tab, execute `roscore` to begin the process and allow ROS nodes to communicate with one another:
 ```
 roscore
 ```
 
-In the second terminal tab, execute <i>rosrun</i> to run the executable in the ORB_SLAM2_SVE ROS package, using the provided setup file for the dataset under test:
+In the second terminal tab, execute `rosrun` to run the executable in the ORB_SLAM2_SVE ROS package, using the provided setup file for the dataset under test. This will setup the algorithm for use and open the visualiser.
 ```
 rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/Malaga.yaml # for the Malaga dataset
 rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/MidAir.yaml # for the MidAir dataset
  ```
 
-And finally, in the third terminal, execute <i>rosbag play</i> to playback the .bag file containing all of the dataset extract information, where `<BAG_PATH>` is the full file path to the .bag file of the particular extract of the dataset under test:
+And finally, in the third terminal, execute `rosbag play` to playback the .bag file containing all of the dataset extract information, where `<BAG_PATH>` is the full file path to the .bag file of the particular extract of the dataset under test:
 ```
 rosbag play --pause <BAG_PATH> /cam0/image_raw:=/camera/image_raw
 ```
