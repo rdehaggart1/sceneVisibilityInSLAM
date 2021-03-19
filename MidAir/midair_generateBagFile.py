@@ -33,15 +33,15 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-environment = 'Kite_test' # the environment of the simulation
+environment = 'Kite_training' # the environment of the simulation
 condition = 'sunny' # the weather we're interested in
-trajectory = '0001' # the particular trajectory number
-camera = 'color_down' # the camera that we're using
+trajectory = '0002' # the particular trajectory number
+camera = 'color_left' # the camera that we're using
 
 # define the path to the folder containing our sensor records
 sensorRecordsPath = os.path.abspath(os.getcwd() + "/MidAir/" + environment + '/' + condition)
 
-f1 = h5py.File((sensorRecordsPath + 'sensor_records.hdf5'),'r+')   # open sensor_records.hdf5
+f1 = h5py.File((sensorRecordsPath + '/sensor_records.hdf5'),'r+')   # open sensor_records.hdf5
 
 # list(f1['trajectory_0001'].keys()) to see keys in file
 
@@ -83,7 +83,7 @@ imHeight = 1024
 imWidth = 1024
 
 for line in imagePaths:
-    absImg = str(os.path.abspath(line))  # get the absolute file path
+    absImg = sensorRecordsPath + "/" + line # get the absolute file path
     
     # ---------- IMAGE RECORD ---------- #
     # if the image exists and isn't a dud

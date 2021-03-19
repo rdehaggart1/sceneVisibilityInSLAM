@@ -106,13 +106,13 @@ To download some data for the MidAir dataset:
 4. From this folder, open a terminal and run the following command to download the data you have selected:
 
     ```c
-    wget --content-disposition -x -nH -i download_config.txt`
+    wget --content-disposition -x -nH -i download_config.txt
     ```
 
 5. Lastly, uncompress all of the downloaded files by running the following command from the same terminal:
     
     ```c
-    find . -name "*.zip" | while read filename; do unzip -o -d $(dirname "$filename") "$filename"; done;`
+    find . -name "*.zip" | while read filename; do unzip -o -d $(dirname "$filename") "$filename"; done;
     ```
 
 ## Configuring Datasets for Use with the Algorithms
