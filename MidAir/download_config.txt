@@ -1,0 +1,11 @@
+https://midair.ulg.ac.be/MidAir/VO_test/sunny/color_left/trajectory_0001/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunny/color_down/trajectory_0001/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunny/color_left/trajectory_0002/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunny/color_down/trajectory_0002/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunset/sensor_records.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunset/color_left/trajectory_2000/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunset/color_down/trajectory_2000/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunset/color_left/trajectory_2001/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunset/color_down/trajectory_2001/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunset/color_left/trajectory_2002/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764
+https://midair.ulg.ac.be/MidAir/VO_test/sunset/color_down/trajectory_2002/frames.zip?id=55249831cfe400a0c5a75f741cb4fc089b55772273e71764

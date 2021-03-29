@@ -6,18 +6,18 @@ Created on Fri Mar 12 09:51:01 2021
 @author: rory_haggart
 
 BRIEF:  This script self-contains the full process of running a segment of 
-        the malaga dataset on the VI-SLAM algorithm, VINS-Mono. 
+        the malaga dataset on the V-SLAM algorithm, ORB-SLAM2. 
 
         The script requires a single input argument, and this is the full 
-        path to a .bag file of a midair segment 
+        path to a .bag file of a malaga segment 
         (e.g. [ROOT]/Malaga/malaga_15/malaga_15.bag)
 
 The script takes this bag file and passes it to the .sh file which handles
-the VINS-Mono process. This includes building the workspace, launching the 
+the ORB-SLAM2 process. This includes building the workspace, launching the 
 estimator using the config file, running the .bag file, and saving the output
 pose estimate to a .txt file.
 With this info, it then plots the ground truth (contained in the provided 
-.hdf5 sensor files) and the pose estimate for each of the 3 axes. 
+sensor files) and the pose estimate for each of the 3 axes. 
 
 TODO:
     Ensure portability and readability
@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 import sys
+from pyquaternion import Quaternion
 import subprocess
 import os
 import shlex
@@ -37,7 +38,7 @@ def main(arg1):
     # the input argument is the path to the bag file that is being run in this test
     bagFilePath = arg1
 
-    shellFile = os.path.abspath(os.getcwd() + "/malaga_VINS-Mono.sh")
+    shellFile = os.path.abspath(os.getcwd() + "/malaga_ORB-SLAM2.sh")
     
     subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash')
     # run the shell file passing the selected bag as an input arg
@@ -71,8 +72,30 @@ def main(arg1):
     poseGT[1] = [float(row[9]) for row in GPSData[1:]]  # y
     poseGT[2] = [float(row[10]) for row in GPSData[1:]] # z
     
+    # Get the rotation data so we can compensate the estimation
+    IMUFile = extractFolder + "/malaga-urban-dataset-extract-{}_all-sensors_IMU.txt".format(extractNumber)
+    
+    # read the collected IMU data into a list
+    with open(IMUFile) as f1:
+        IMUDataFile = f1.readlines()
+    
+    # split the list items by spaces
+    IMUData = []
+    for line in IMUDataFile:
+        IMUData.append(shlex.split(line))
+
+    # get ground truth timestamps
+    timestampIMU = [float(row[0]) for row in IMUData[1:]]
+
+    bearingGT = [None] * 3 # initialise a list for the ground truth bearing
+    
+    # get the rotation information
+    bearingGT[0] = [float(row[12]) for row in IMUData[1:]]  # x
+    bearingGT[1] = [float(row[11]) for row in IMUData[1:]]  # y
+    bearingGT[2] = [float(row[10]) for row in IMUData[1:]]  # z
+    
     # the .sh script writes the pose estimate to this .txt file
-    poseGraphPath = os.path.abspath(os.getcwd() + "/poseGraph.txt")
+    poseGraphPath = os.path.abspath(os.getcwd() + "/KeyFrameTrajectory.txt")
     
     # open the .txt file and grab the lines of output from rostopic
     with open(poseGraphPath, "r") as f2:
@@ -82,29 +105,48 @@ def main(arg1):
         return([-1, -1, -1])
     
     # split into lists by comma
-    poseGraphEstimate = [line.split(',') for line in poseGraphEstimate]
-    # remove the first value as it is just headings
-    poseGraphEstimate = poseGraphEstimate[1:-1]
+    poseGraphEstimate = [line.split(' ') for line in poseGraphEstimate]
     
     poseEst = [None] * 3 # initialise a list for the estimated pose graphs
     
-    # format: (0)time, (1)seq, (2)stamp, (3)frame_id, (4)child_frame_id, (5)x, (6)y, (7)z, (8)orientation.x,orientation.y,orientation.z,orientation.w,covariance0,field.pose.covariance1,field.pose.covariance2,field.pose.covariance3,field.pose.covariance4,field.pose.covariance5,field.pose.covariance6,field.pose.covariance7,field.pose.covariance8,field.pose.covariance9,field.pose.covariance10,field.pose.covariance11,field.pose.covariance12,field.pose.covariance13,field.pose.covariance14,field.pose.covariance15,field.pose.covariance16,field.pose.covariance17,field.pose.covariance18,field.pose.covariance19,field.pose.covariance20,field.pose.covariance21,field.pose.covariance22,field.pose.covariance23,field.pose.covariance24,field.pose.covariance25,field.pose.covariance26,field.pose.covariance27,field.pose.covariance28,field.pose.covariance29,field.pose.covariance30,field.pose.covariance31,field.pose.covariance32,field.pose.covariance33,field.pose.covariance34,field.pose.covariance35,field.twist.twist.linear.x,field.twist.twist.linear.y,field.twist.twist.linear.z,field.twist.twist.angular.x,field.twist.twist.angular.y,field.twist.twist.angular.z,field.twist.covariance0,field.twist.covariance1,field.twist.covariance2,field.twist.covariance3,field.twist.covariance4,field.twist.covariance5,field.twist.covariance6,field.twist.covariance7,field.twist.covariance8,field.twist.covariance9,field.twist.covariance10,field.twist.covariance11,field.twist.covariance12,field.twist.covariance13,field.twist.covariance14,field.twist.covariance15,field.twist.covariance16,field.twist.covariance17,field.twist.covariance18,field.twist.covariance19,field.twist.covariance20,field.twist.covariance21,field.twist.covariance22,field.twist.covariance23,field.twist.covariance24,field.twist.covariance25,field.twist.covariance26,field.twist.covariance27,field.twist.covariance28,field.twist.covariance29,field.twist.covariance30,field.twist.covariance31,field.twist.covariance32,field.twist.covariance33,field.twist.covariance34,field.twist.covariance35']
-    timestampEst = [(float(row[0])*pow(10,-9)) for row in poseGraphEstimate]
-    poseEst[0] = [float(row[5]) for row in poseGraphEstimate]
-    poseEst[1] = [float(row[6]) for row in poseGraphEstimate]
-    poseEst[2] = [float(row[7]) for row in poseGraphEstimate]
+    # format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
+    timestampEst = [float(row[0]) for row in poseGraphEstimate]
+    poseEst[0] = [float(row[1]) for row in poseGraphEstimate]
+    poseEst[1] = [float(row[2]) for row in poseGraphEstimate]
+    poseEst[2] = [float(row[3]) for row in poseGraphEstimate]
     
-    """
-    # add cushions to the timestamps to keep the est and GT the same length    
-    minCushion = np.linspace(0, min(timestampEst), 10).tolist()
-    maxCushion = np.linspace(max(timestampEst), max(timestampGT), 10).tolist()
-    timestampEst = minCushion + timestampEst + maxCushion
-    minCushionSize = len(minCushion)
-    maxCushionSize = len(maxCushion)
+    # find corresponding matches in the ground truth for the start and end of the estimation portion
+    GTStartIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[0])))
+    GTEndIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[-1])))
     
-    # fill the start/end cushions with the same start/end pose est values
-    for j in range(3):
-        poseEst[j] = ([poseEst[j][0]] * minCushionSize) + poseEst[j] + ([poseEst[j][-1]] * maxCushionSize)
+    # truncate ground truth to only the portion that was tracked
+    timestampGT = timestampGT[GTStartIdx:GTEndIdx]
+    poseGT = [line[GTStartIdx:GTEndIdx] for line in poseGT]
+    
+    poseGT[0] = [(a - poseGT[0][0]) for a in poseGT[0]]
+    poseGT[1] = [(a - poseGT[1][0]) for a in poseGT[1]]
+    poseGT[2] = [(a - poseGT[2][0]) for a in poseGT[2]]
+    
+    IMUStartIdx = timestampIMU.index(min(timestampIMU, key=lambda x:abs(x-timestampEst[0])))
+    initialBearing = bearingGT[2][IMUStartIdx]# - bearingGT[2][0]
+    
+    initialQuaternion = Quaternion(axis=[0,0,1], angle=initialBearing)
+    
+    xyz = [[poseEst[0][a], poseEst[1][a], poseEst[2][a]] for a in range(len(poseEst[0]))]
+    
+    for i in range(len(xyz)):
+        rotatedPose = initialQuaternion.rotate(xyz[i])
+        poseEst[0][i] = rotatedPose[0]
+        poseEst[1][i] = rotatedPose[1]
+        poseEst[2][i] = rotatedPose[2]
+        
+    poseEst[0] = [a * (max(poseGT[0])-min(poseGT[0]))/(max(poseEst[0])-min(poseEst[0])) for a in poseEst[0]]
+    poseEst[1] = [a * (max(poseGT[1])-min(poseGT[1]))/(max(poseEst[1])-min(poseEst[1])) for a in poseEst[1]]
+    
+    #initialBearing = -0.2
+    #poseEst[0] = [x * math.cos(initialBearing) + y * math.sin(initialBearing) for x,y in zip(poseEst[0], poseEst[1])]
+    #poseEst[1] = [-x * math.sin(initialBearing) + y * math.cos(initialBearing) for x,y in zip(poseEst[0], poseEst[1])]
+    
     
     #TODO: better solution here. what if there's an offset near a zero crossing?
     if(poseEst[0][-1]*poseGT[0][-1] > 0):
@@ -125,41 +167,9 @@ def main(arg1):
     poseEst[0] = [el*xSign for el in poseEst[0]]
     poseEst[1] = [el*ySign for el in poseEst[1]]
     poseEst[2] = [el*zSign for el in poseEst[2]]
-    
-    
-    evenlySpacedVals = lambda m, n: [i*n//m + n//(2*m) for i in range(m)]
-    
-    numVals = 500
-    
-    #timestampGT_idxList = evenlySpacedVals(numVals, len(timestampGT))
-    #timestampGT = [timestampGT[i] for i in timestampGT_idxList]
-    timestampEst_idxList = evenlySpacedVals(numVals, len(timestampEst))
-    timestampEst = [timestampEst[i] for i in timestampEst_idxList]
 
-    for axisIdx in range(3):
-        poseEst_idxList = evenlySpacedVals(numVals, len(poseEst[axisIdx]))
-        poseEst[axisIdx] = [poseEst[axisIdx][i] for i in poseEst_idxList]
-
-    """
-    #timeStartLineStyle = {"x": poseGraphTimestamp[1], "color": "red", "linestyle": "dashed", "linewidth": 0.5}
-    
     ### PLOTS ###
-    # get the groundtruth heading and timestamp at some index
-    """
-    indexGT = 60
-    headingGT = math.tan(poseGT[1][indexGT]/poseGT[0][indexGT])
-    headingTimestampGT = timestampGT[indexGT]
-    
-    indexEst = timestampEst.index(min(timestampEst, key=lambda x:abs(x-headingTimestampGT)))
-    headingEst = math.tan(poseEst[1][indexEst]/poseEst[0][indexEst])
-    """
-    angle = 45
-    #angleRadian = headingGT - headingEst
-    angleRadian = angle*(math.pi/180)
-    poseEst[0] = [x * math.cos(angleRadian) + y * math.sin(angleRadian) for x,y in zip(poseEst[0], poseEst[1])]
-    poseEst[1] = [-x * math.sin(angleRadian) + y * math.cos(angleRadian) for x,y in zip(poseEst[0], poseEst[1])]
-    
-    
+
     # 3x2 grid of subplots for pose time series comparison
     fig, axs = plt.subplots(3, 2)   
     
@@ -251,7 +261,7 @@ def main(arg1):
     return(SSE)
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main("/media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/Malaga/Malaga/malaga_15/malaga_15.bag")
     
 """    
 def rotate_origin_only(xy, radians):
