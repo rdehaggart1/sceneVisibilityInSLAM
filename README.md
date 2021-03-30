@@ -134,6 +134,15 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
     │                   └── ...
     └── ...
 ```
+
+#### Generating IMU Data
+Firstly, with the dataset presented as it is immediately after download, some analyses of the sensor_records.hdf5 file found that the synthesised IMU data was not in a useful format for the use with VI-SLAM algorithms. In particular, the different axes experienced different levels of noise, whereas VI-SLAM algorithms typically expect a single noise standard deviation that is applied across the three axes. In order to address this, [this code presented by the authors](https://github.com/montefiore-ai/midair-dataset/blob/master/tools/IMU-data_generator.py) was modified to produce more consistent IMU data. 
+
+To generate a new sensor_records.hdf5 file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, loacted at <i>sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py</i>
+
+#### Creating a .bag file
+As we have described, the format used in the development of this work was ROS .bag files
+
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
 # 3. Usage
