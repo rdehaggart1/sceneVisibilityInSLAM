@@ -4,7 +4,9 @@ to format data and present results.
 ## Summary
 This project was primarily surrounding simultaneous localisation and mapping (SLAM) systems, and how to estimate the visibility of the scene to a camera in a SLAM system. If the visibility is low, the tracking may decrease in accuracy or be lost entirely. If the visibility can be estimated in some way, the effect that visibility has on the tracking accuracy can be better understood. This could then potentially be used to provide user-facing feedback to take corrective action to improve the visibility, or to develop the path planning strategy in an autonomous system.
 
-Link to research paper:
+Link to final paper:
+
+[1. Pre](#Prerequisites)
 
 # 1. Prerequisites 
 ## ROS
