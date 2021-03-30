@@ -7,12 +7,18 @@ This project was primarily surrounding simultaneous localisation and mapping (SL
 Link to final paper:
 
 [1. Pre](#prereq)
+    [2. test](#ROS)
 
 <a name="prereq"/>
 
 # 1. Prerequisites 
+
+<a name="ROS"/>
+
 ## ROS
 The method of running datasets for this work was using the [Robot Operating System (ROS)](https://www.ros.org/). This software is only stable for Linux machines, and so it is a soft requirement that this work is only tested on a Linux machine. 
+
+<a name="ORB-SLAM2"/>
 
 ## Prerequisites associated with ORB-SLAM2
 [ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions.
