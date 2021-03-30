@@ -6,8 +6,8 @@ This project was primarily surrounding simultaneous localisation and mapping (SL
 
 Link to final paper:
 
-[1. Pre](#prereq)
-    [2. test](#ROS)
+- [1. Pre](#prereq)
+    - [2. test](#ROS)
 
 <a name="prereq"/>
 
