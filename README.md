@@ -6,36 +6,55 @@ This project was primarily surrounding simultaneous localisation and mapping (SL
 
 Link to final paper:
 
-- [1. Pre](#prereq)
-    - [2. test](#ROS)
+- [1. Prerequisites](#prereq)
+    - [ROS](#ROSPreq)
+    - [ORB-SLAM2](#ORB-SLAM2Preq)
+    - [VINS-Mono](#VINS-MonoPreq)
+    - [Python](#PythonPreq)
+        - [Packages](#PyPackPreq)
+    - [Notes](#PreqNotes)
+- [2. Installation](#install)
 
 <a name="prereq"/>
 
 # 1. Prerequisites 
 
-<a name="ROS"/>
+<a name="ROSPreq"/>
 
 ## ROS
 The method of running datasets for this work was using the [Robot Operating System (ROS)](https://www.ros.org/). This software is only stable for Linux machines, and so it is a soft requirement that this work is only tested on a Linux machine. 
 
-<a name="ORB-SLAM2"/>
+<a name="ORB-SLAM2Preq"/>
 
 ## Prerequisites associated with ORB-SLAM2
 [ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions.
 
 [Cite paper]
+
+<a name="VINS-MonoPreq"/>
+
 ## Prerequisites associated with VINS-Mono
+
+<a name="PythonPreq"/>
+
 ## Python
 The files for processing or formatting the datasets in this repository are primarily Python files, and so you will need a Python compiler on your machine to run them.
 
 [version?]
-## Python Packages
+
+<a name="PyPackPreq"/>
+
+### Python Packages
+
+<a name="PreqNotes"/>
 
 ## Notes
 The following are some specifications for the setup used during the development process for this project
 - Linux Mint 19 ("Tara") Cinnamon partition on a HP Pavilion 15-p209na with Intel© Core™ i3-5010U CPU @ 2.10GHz and 6GB RAM
 - ROS Melodic distribution (ROS version 1.4.10)
 - Python 3.8.5 compiled with GCC 7.3.0
+
+<a name="install"/>
 
 # 2. Installation
 ## Cloning the Base Repository
