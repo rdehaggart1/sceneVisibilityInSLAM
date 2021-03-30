@@ -120,6 +120,7 @@ To download some data for the MidAir dataset:
 ### 
 ### MidAir
 Once the data are downloaded and the archives uncompressed, as per the above instructions, the files should be presented as displayed below.
+```   
     .
     ├── ...
     ├── MidAir                              # All data live in the 'MidAir' folder
@@ -132,7 +133,7 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
     │                   ├── 000001.JPEG
     │                   └── ...
     └── ...
-
+```
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
 # 3. Usage
