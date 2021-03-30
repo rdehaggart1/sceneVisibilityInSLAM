@@ -6,8 +6,9 @@ This project was primarily surrounding simultaneous localisation and mapping (SL
 
 Link to final paper:
 
-[1. Pre](#1. Prerequisites)
+[1. Pre](#prereq)
 
+<a name="prereq"/>
 # 1. Prerequisites 
 ## ROS
 The method of running datasets for this work was using the [Robot Operating System (ROS)](https://www.ros.org/). This software is only stable for Linux machines, and so it is a soft requirement that this work is only tested on a Linux machine. 
