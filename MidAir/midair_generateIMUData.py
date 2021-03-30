@@ -22,10 +22,10 @@ import os
 import sys
 
 if __name__ == '__main__':
-    environment = 'Kite_test'   # the environment of the simulation
+    environment = 'VO_test'   # the environment of the simulation
     condition = 'sunny'         # the weather we're interested in
-    trajectory = '0001'         # the particular trajectory number
-    camera = 'color_down'       # the camera that we're using
+    trajectory = '0000'         # the particular trajectory number
+    camera = 'color_left'       # the camera that we're using
 
     accStdDev = 0.08        # [m/s^2] standard deviation of accelerometer noise (gaussian)
     gyrStdDev = 0.004       # [rad/s] standard deviation of gyroscope noise (gaussian)
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     gyrRWStdDev = 2.0e-6    # [rad/s] gyroscope bias random walk noise standard deviation 
     
     # define the path to the folder containing our sensor records
-    sensorRecords = '/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/MidAir/' + environment + '/' + condition
+    sensorRecords = os.getcwd() + '/MidAir/' + environment + '/' + condition + '/sensor_records.hdf5'
     
     answer = str(input("Warning: this script will overwrite IMU measurements stored in the given hdf5 dataset. \n"+ \
                        "Do you want to proceed? (y/n): "))
