@@ -6,7 +6,7 @@ This project was primarily surrounding simultaneous localisation and mapping (SL
 
 Link to final paper:
 
-[1. Pre](#Prerequisites)
+[1. Pre](#1. Prerequisites)
 
 # 1. Prerequisites 
 ## ROS
