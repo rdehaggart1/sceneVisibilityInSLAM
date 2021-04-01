@@ -152,8 +152,8 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
     ├── MidAir                              # All data live in the 'MidAir' folder
     │   ├── environment                     # The virtual environment map (e.g. Kite_test, VO_test, PLE_training, ...)
     │       ├── condition                   # The condition in the environment (e.g. sunny, winter, foggy, ...)
-    │           ├── camera                  # The onboard camera used (e.g. color_down, color_left)
     │           ├── sensor_records.hdf5     # The .hdf5 dataset file that contains things like IMU data, GPS data, ground truth for each trajectory
+    │           ├── camera                  # The onboard camera used (e.g. color_down, color_left)
     │               ├── trajectory          # The trajectory number (e.g. trajectory_0000)
     │                   ├── 000000.JPEG     # The .JPEG image files for the selected extract
     │                   ├── 000001.JPEG
