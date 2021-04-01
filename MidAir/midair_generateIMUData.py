@@ -90,8 +90,16 @@ if __name__ == '__main__':
     accRWStdDev = 0.00004   # [m/s^2] accelerometer bias random walk noise standard deviation 
     gyrRWStdDev = 2.0e-6    # [rad/s] gyroscope bias random walk noise standard deviation 
     
+    print("""Sensor Parameters:\n
+    Accelerometer Noise Standard Deviation: {}
+    Gyroscope Noise Standard Deviation: {}
+    Accelerometer Bias Random Walk Noise Standard Deviation: {}
+    Gyroscope Bias Random Walk Noise Standard Deviation: {}\n""".format(accStdDev,gyrStdDev,accRWStdDev,gyrRWStdDev))
+    
     # define the path to the folder containing our sensor records
     sensorRecords = os.getcwd() + '/MidAir/' + environment + '/' + condition + '/sensor_records.hdf5'
+    
+    assert os.path.exists(sensorRecords), "\nI did not find the file: " + sensorRecords + """\n\nThis could mean that you haven't downloaded this segment, or that the sensor_records file hasn't been unzipped yet"""
     
     answer = str(input("Warning: this script will overwrite IMU measurements stored in the given hdf5 dataset. \n"+ \
                        "Do you want to proceed? (y/n): "))
