@@ -22,10 +22,99 @@ import os
 import sys
 
 if __name__ == '__main__':
-    environment = 'VO_test'   # the environment of the simulation
-    condition = 'sunny'         # the weather we're interested in
-    trajectory = '0000'         # the particular trajectory number
-    camera = 'color_left'       # the camera that we're using
+    answer = int(input("""Please enter the environment you are testing in:\n
+    1. Kite_test
+    2. Kite_training               
+    3. PLE_test
+    4. PLE_training
+    5. VO_test\n\n"""))
+    
+    if (answer==1):
+        environment="Kite_test"
+    elif(answer==2):
+        environment="Kite_training"
+    elif(answer==3):
+        environment="PLE_test"
+    elif(answer==4):
+        environment="PLE_training"
+    elif(answer==5):
+        environment="VO_test"
+    else:
+        sys.exit(0)
+        
+    if "Kite" in environment:
+        range = "0-4" if("test" in environment) else "0-29"
+        trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
+        
+        answer = int(input("""Please enter the condition you are testing in:\n
+    1. cloudy
+    2. foggy               
+    3. sunny
+    4. sunset\n\n"""))
+        if (answer==1):
+            condition="cloudy"
+            trajectory = "3" + str(trajNo).zfill(3)
+        elif(answer==2):
+            condition="foggy"
+            trajectory = "2" + str(trajNo).zfill(3)
+        elif(answer==3):
+            condition="sunny"
+            trajectory = "0" + str(trajNo).zfill(3)
+        elif(answer==4):
+            condition="sunset"
+            trajectory = "1" + str(trajNo).zfill(3)
+        else:
+            sys.exit(0)
+    elif "PLE" in environment:
+        range = "0-5" if("test" in environment) else "0-23"
+        trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
+        trajectory = "4" + str(trajNo).zfill(3)
+        
+        answer = int(input("""Please enter the condition you are testing in:\n
+    1. fall
+    2. spring               
+    3. winter\n\n"""))
+        if (answer==1):
+            condition="fall"
+        elif(answer==2):
+            condition="spring"
+        elif(answer==3):
+            condition="winter"
+        else:
+            sys.exit(0)    
+    elif(environment=="VO_test"):
+        range = "0-2"
+        trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
+        
+        answer = int(input("""Please enter the condition you are testing in:\n
+    1. foggy               
+    2. sunny
+    3. sunset\n\n"""))
+        if(answer==1):
+            condition="foggy"
+            trajectory = "1" + str(trajNo).zfill(3)
+        elif(answer==2):
+            condition="sunny"
+            trajectory = "0" + str(trajNo).zfill(3)
+        elif(answer==3):
+            condition="sunset"
+            trajectory = "2" + str(trajNo).zfill(3)
+        else:
+            sys.exit(0)
+        
+    answer = int(input("""Please enter the camera you are testing with:\n
+    1. color_left
+    2. color_right               
+    3. color_down\n\n"""))
+
+if (answer==1):
+    camera="color_left"
+elif(answer==2):
+    camera="color_right"
+elif(answer==3):
+    camera="color_down"
+else:
+    sys.exit(0)    
 
     accStdDev = 0.08        # [m/s^2] standard deviation of accelerometer noise (gaussian)
     gyrStdDev = 0.004       # [rad/s] standard deviation of gyroscope noise (gaussian)

@@ -23,13 +23,13 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-environment = 'Kite_test' # the environment of the simulation
+environment = 'VO_test' # the environment of the simulation
 condition = 'sunny' # the weather we're interested in
-trajectory = '0001' # the particular trajectory number
-camera = 'color_down' # the camera that we're using
+trajectory = '0000' # the particular trajectory number
+camera = 'color_left' # the camera that we're using
 
 # define the path to the folder containing our sensor records
-sensorRecordsPath = '/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/MidAir/' + environment + '/' + condition
+sensorRecordsPath = os.getcwd() + '/MidAir/' + environment + '/' + condition
 
 f1 = h5py.File(sensorRecordsPath + '/sensor_records.hdf5','r+')   # open sensor_records.hdf5
 

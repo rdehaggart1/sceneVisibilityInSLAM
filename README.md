@@ -50,7 +50,7 @@ The files for processing or formatting the datasets in this repository are prima
 
 ## Notes
 The following are some specifications for the setup used during the development process for this project
-- Linux Mint 19 ("Tara") Cinnamon partition on a HP Pavilion 15-p209na with Intel© Core™ i3-5010U CPU @ 2.10GHz and 6GB RAM
+- Linux Mint 19 ("Tara") Cinnamon partition on a HP Pavilion 15-p209na with Intel© Core™ i3-5010U CPU @ 2.10GHz and 8GB RAM
 - ROS Melodic distribution (ROS version 1.4.10)
 - Python 3.8.5 compiled with GCC 7.3.0
 
