@@ -43,9 +43,6 @@ if __name__ == '__main__':
         sys.exit(0)
         
     if "Kite" in environment:
-        range = "0-4" if("test" in environment) else "0-29"
-        trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
-        
         answer = int(input("""Please enter the condition you are testing in:\n
     1. cloudy
     2. foggy               
@@ -53,23 +50,15 @@ if __name__ == '__main__':
     4. sunset\n\n"""))
         if (answer==1):
             condition="cloudy"
-            trajectory = "3" + str(trajNo).zfill(3)
         elif(answer==2):
             condition="foggy"
-            trajectory = "2" + str(trajNo).zfill(3)
         elif(answer==3):
             condition="sunny"
-            trajectory = "0" + str(trajNo).zfill(3)
         elif(answer==4):
             condition="sunset"
-            trajectory = "1" + str(trajNo).zfill(3)
         else:
             sys.exit(0)
     elif "PLE" in environment:
-        range = "0-5" if("test" in environment) else "0-23"
-        trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
-        trajectory = "4" + str(trajNo).zfill(3)
-        
         answer = int(input("""Please enter the condition you are testing in:\n
     1. fall
     2. spring               
@@ -82,39 +71,19 @@ if __name__ == '__main__':
             condition="winter"
         else:
             sys.exit(0)    
-    elif(environment=="VO_test"):
-        range = "0-2"
-        trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
-        
+    elif(environment=="VO_test"):        
         answer = int(input("""Please enter the condition you are testing in:\n
     1. foggy               
     2. sunny
     3. sunset\n\n"""))
         if(answer==1):
             condition="foggy"
-            trajectory = "1" + str(trajNo).zfill(3)
         elif(answer==2):
             condition="sunny"
-            trajectory = "0" + str(trajNo).zfill(3)
         elif(answer==3):
             condition="sunset"
-            trajectory = "2" + str(trajNo).zfill(3)
         else:
             sys.exit(0)
-        
-    answer = int(input("""Please enter the camera you are testing with:\n
-    1. color_left
-    2. color_right               
-    3. color_down\n\n"""))
-
-if (answer==1):
-    camera="color_left"
-elif(answer==2):
-    camera="color_right"
-elif(answer==3):
-    camera="color_down"
-else:
-    sys.exit(0)    
 
     accStdDev = 0.08        # [m/s^2] standard deviation of accelerometer noise (gaussian)
     gyrStdDev = 0.004       # [rad/s] standard deviation of gyroscope noise (gaussian)

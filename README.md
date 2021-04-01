@@ -122,11 +122,8 @@ rospack list
 
 ## Getting Datasets
 Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the Malaga and MidAir datasets to run the code on
-### Malaga
-To download some data for the Malaga dataset:
-1. Go to [https://www.mrpt.org/MalagaUrbanDataset](https://www.mrpt.org/MalagaUrbanDataset)
-2. Use this page to browse the previews of the various extracts and download the .zip files that you are interested in to the repository folder: <i>sceneVisibilityInSLAM/Malaga/Malaga</i>. This is the folder that will contain the Malaga dataset
-3. Lastly, uncompress the files to the same location
+### Other
+xxx
 ### MidAir
 To download some data for the MidAir dataset:
 1. Go to [https://midair.ulg.ac.be/download.html](https://midair.ulg.ac.be/download.html)
@@ -167,10 +164,10 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
 #### Generating IMU Data
 Firstly, with the dataset presented as it is immediately after download, some analyses of the sensor_records.hdf5 file found that the synthesised IMU data was not in a useful format for the use with VI-SLAM algorithms. In particular, the different axes experienced different levels of noise, whereas VI-SLAM algorithms typically expect a single noise standard deviation that is applied across the three axes. In order to address this, [this code presented by the authors](https://github.com/montefiore-ai/midair-dataset/blob/master/tools/IMU-data_generator.py) was modified to produce more consistent IMU data. 
 
-To generate a new sensor_records.hdf5 file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, loacted at <i>sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py</i>
+To generate a new sensor_records.hdf5 file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, located at <i>sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py</i>. The script will ask you to specify the particular environment and conditions that you'd like to generate the data for (note: one <i>sensor_records.hdf5</i> file contains all the data for all trajectories in a particular environment and condition)
 
 #### Creating a .bag file
-As we have described, the format used in the development of this work was ROS .bag files
+As we have described, the format used in the development of this work was ROS .bag files for consistency. To generate a .bag file for a particular MidAir extract, please run `midair_generateBagFile.py`, located at <i>sceneVisibilityInSLAM/MidAir/midair_generateBagFile.py</i>. The script will ask you to specify the environment, trajectory number, condition, and camera that you'd like to generate a bag file, and it will package the images from this camera over this trajectory under the <b>cam0/image_raw</b> topic. It will also add the IMU data from the corresponding <i>sensor_records.hdf5</i> file under the <b>imu0</b> topic. 
 
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
