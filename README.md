@@ -14,7 +14,7 @@ Link to final paper:
         - [Packages](#PyPackPreq)
     - [Notes](#PreqNotes)
 - [2. Installation](#install)
-    - [Cloning the Base Repository](#cloningBase)
+    - [Cloning this Repository](#cloningBase)
     - [Cloning ORB-SLAM2 with Scene Visibility Estimation](#cloningORB)
     - [Adding ORB-SLAM2 with Scene Visibility Estimation ROS Package](#packageORB)
     - [Building ORB-SLAM2 with Scene Visibility Estimation](#buildingORB)
@@ -65,7 +65,7 @@ The following are some specifications for the setup used during the development 
 
 <a name="cloningBase"/>
 
-## Cloning the Base Repository
+## Cloning this Repository
 To clone this repository onto your machine, open a terminal in the desired cloning location and run the command:
 
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
@@ -83,7 +83,7 @@ git clone https://github.com/rdehaggart1/ORB_SLAM2_SVE.git
 
 ## Adding ORB-SLAM2 with Scene Visibility Estimation ROS Package
 
-You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name 'ORB_SLAM2_SVE'. ROS needs access to this new package, so you must edit your <i>.bashrc</i> file to allow for this. This can be done using a text editor like nano to open this file in the following way:
+You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name 'ORB_SLAM2_SVE'. ROS needs access to this new package, so you must edit your `.bashrc` file to allow for this. This can be done using a text editor like nano to open this file in the following way:
 
 ```
 cd
@@ -96,7 +96,7 @@ and then moving down to the bottom of the file and pasting the following line (w
 export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:<PATH>/ORB_SLAM2_SVE/Examples/ROS
 ```
 
-Save the changes and exit, and then source your <i>.bashrc</i> file to execute the changes:
+Save the changes and exit, and then source your `.bashrc` file to execute the changes:
 
 ```
 source ./.bashrc
@@ -113,7 +113,7 @@ and in the string that is returned, you should see the path that you just added 
 <a name="buildingORB"/>
 
 ## Building ORB-SLAM2 with Scene Visibility Estimation
-Finally, you need to build the modified ORB-SLAM2 code for ROS. This means first building the codebase by moving to the base level of the modified ORB-SLAM2 repository and running:
+Finally, you need to build the modified ORB-SLAM2 code for ROS. This means first building the codebase by moving to the root level of the modified `ORB_SLAM2_SVE` repository and running:
 
 ```
 cd <PATH>/ORB_SLAM2_SVE     # move into the ORB_SLAM2_SVE root
@@ -137,7 +137,7 @@ rospack list
 <a name="gettingData"/>
 
 ## Getting Datasets
-Through the development of this work, two datasets were used for analyses, namely ViViD ([website](https://sites.google.com/view/dgbicra2019-vivid/), [paper](ViViD/doc/ViViD_paper.pdf)) and MidAir([website](https://midair.ulg.ac.be/), [paper](MidAir/doc/MidAir_paper.pdf)).
+Through the development of this work, two datasets were used for analyses, namely ViViD ([website](https://sites.google.com/view/dgbicra2019-vivid/), [paper](ViViD/doc/ViViD_paper.pdf)) and MidAir ([website](https://midair.ulg.ac.be/), [paper](MidAir/doc/MidAir_paper.pdf)).
 
 Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the ViViD and MidAir datasets to run the code on
 ### ViViD
@@ -151,13 +151,13 @@ To download some data for the ViViD dataset:
 To download some data for the MidAir dataset:
 1. Go to [https://midair.ulg.ac.be/download.html](https://midair.ulg.ac.be/download.html)
 2. Select all the image types that you are interested in (this code has been tested only on the RGB images), and select the segments from the different environments that you would like to test. <b>Note: the 'Test data for benchmarks' section at the bottom may be a useful starting point as these are short segments that are useful for establishing a good baseline</b>
-3. Click <b>Get download links</b> and enter your email address. You will recieve a file containing the links to the data you have selected - download this file into the repository folder: <i>sceneVisibilityInSLAM/MidAir</i>.
+3. Click <b>Get download links</b> and enter your email address. You will recieve a file containing the links to the data you have selected - download this file into the repository folder: `sceneVisibilityInSLAM/MidAir`.
 4. From this folder, open a terminal and run the following command to download the data you have selected:
 
     ```c
     wget --content-disposition -x -nH -i download_config.txt
     ```
-    The dataset will be downloaded into <i>sceneVisibilityInSLAM/MidAir/MidAir</i>.
+    The dataset will be downloaded into `sceneVisibilityInSLAM/MidAir/MidAir`.
 
 5. Lastly, uncompress all of the downloaded files by running the following command from the same terminal:
     
@@ -187,16 +187,16 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
 #### Generating IMU Data
 As a synthetic dataset, the IMU data can be generated based on the ground truth of the test. With the dataset presented as it is immediately after download, some analyses of the sensor_records.hdf5 file found that the synthesised IMU data was not in a useful format for the use with VI-SLAM algorithms. In particular, the different axes experienced different levels of noise, whereas VI-SLAM algorithms typically expect a single noise standard deviation that is applied across the three axes. In order to address this, [this code presented by the authors](https://github.com/montefiore-ai/midair-dataset/blob/master/tools/IMU-data_generator.py) was modified to produce more consistent IMU data. 
 
-To update the appropriate sensor_records.hdf5 file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, located at <i>sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py</i>. The script will ask you to specify the particular environment and condition that you'd like to generate the data for (note: one <i>sensor_records.hdf5</i> file contains all the data for all trajectories in a particular environment and condition)
+To update the appropriate sensor_records.hdf5 file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py`. The script will ask you to specify the particular environment and condition that you'd like to generate the data for (note: one `sensor_records.hdf5` file contains all the data for all trajectories in a particular environment and condition)
 
 #### Creating a .bag file
-As we have described, the format used in the development of this work was ROS .bag files for consistency. To generate a .bag file for a particular MidAir extract, please run `midair_generateBagFile.py`, located at <i>sceneVisibilityInSLAM/MidAir/midair_generateBagFile.py</i>. The script will ask you to specify the environment, trajectory number, condition, and camera that you'd like to generate a bag file for, and it will package the images from this camera over this trajectory under the <b>cam0/image_raw</b> topic. It will also add the IMU data from the corresponding <i>sensor_records.hdf5</i> file under the <b>imu0</b> topic. 
+As we have described, the format used in the development of this work was ROS .bag files for consistency. To generate a .bag file for a particular MidAir extract, please run `midair_generateBagFile.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateBagFile.py`. The script will ask you to specify the environment, trajectory number, condition, and camera that you'd like to generate a bag file for, and it will package the images from this camera over this trajectory under the <b>cam0/image_raw</b> topic. It will also add the IMU data from the corresponding `sensor_records.hdf5` file under the <b>imu0</b> topic. 
 
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
 # 3. Usage
 ## ORB_SLAM2_SVE
-To run one of the datasets through the modified ORB-SLAM2 algorithm, move your terminal to the <i>ORB_SLAM2_SVE</i> folder and open 3 terminal tabs.
+To run one of the datasets through the modified ORB-SLAM2 algorithm, move your terminal to the `ORB_SLAM2_SVE` folder and open 3 terminal tabs.
 
 In the first terminal tab, execute `roscore` to begin the process and allow ROS nodes to communicate with one another:
 ```
