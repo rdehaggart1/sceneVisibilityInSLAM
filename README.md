@@ -83,7 +83,7 @@ git clone https://github.com/rdehaggart1/ORB_SLAM2_SVE.git
 
 ## Adding ORB-SLAM2 with Scene Visibility Estimation ROS Package
 
-You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name 'ORB_SLAM2_SVE'. ROS needs access to this new package, so you must edit your `.bashrc` file to allow for this. This can be done using a text editor like nano to open this file in the following way:
+You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name <i>ORB_SLAM2_SVE</i>. ROS needs access to this new package, so you must edit your `.bashrc` file to allow for this. This can be done using a text editor like nano to open this file in the following way:
 
 ```
 cd
@@ -108,7 +108,7 @@ To check that the operation was successful, you can restart your terminal to all
 echo $ROS_PACKAGE_PATH
 ```
 
-and in the string that is returned, you should see the path that you just added to the new package.
+and in the string that is returned, you should see the path to the new package.
 
 <a name="buildingORB"/>
 
@@ -185,9 +185,9 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
 ```
 
 #### Generating IMU Data
-As a synthetic dataset, the IMU data can be generated based on the ground truth of the test. With the dataset presented as it is immediately after download, some analyses of the sensor_records.hdf5 file found that the synthesised IMU data was not in a useful format for the use with VI-SLAM algorithms. In particular, the different axes experienced different levels of noise, whereas VI-SLAM algorithms typically expect a single noise standard deviation that is applied across the three axes. In order to address this, [this code presented by the authors](https://github.com/montefiore-ai/midair-dataset/blob/master/tools/IMU-data_generator.py) was modified to produce more consistent IMU data. 
+As a synthetic dataset, the IMU data can be generated based on the ground truth of the test. With the dataset presented as it is immediately after download, some analyses of the `sensor_records.hdf5` file found that the synthesised IMU data was not in a useful format for the use with VI-SLAM algorithms. In particular, the different axes experienced different levels of noise, whereas VI-SLAM algorithms typically expect a single noise standard deviation that is applied across the three axes. In order to address this, [this code presented by the authors](https://github.com/montefiore-ai/midair-dataset/blob/master/tools/IMU-data_generator.py) was modified to produce more consistent IMU data. 
 
-To update the appropriate sensor_records.hdf5 file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py`. The script will ask you to specify the particular environment and condition that you'd like to generate the data for (note: one `sensor_records.hdf5` file contains all the data for all trajectories in a particular environment and condition)
+To update the appropriate `sensor_records.hdf5` file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py`. The script will ask you to specify the particular environment and condition that you'd like to generate the data for (note: one `sensor_records.hdf5` file contains all the data for all trajectories in a particular environment and condition)
 
 #### Creating a .bag file
 As we have described, the format used in the development of this work was ROS .bag files for consistency. To generate a .bag file for a particular MidAir extract, please run `midair_generateBagFile.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateBagFile.py`. The script will ask you to specify the environment, trajectory number, condition, and camera that you'd like to generate a bag file for, and it will package the images from this camera over this trajectory under the <b>cam0/image_raw</b> topic. It will also add the IMU data from the corresponding `sensor_records.hdf5` file under the <b>imu0</b> topic. 
