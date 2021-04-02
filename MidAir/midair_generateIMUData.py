@@ -40,7 +40,7 @@ if __name__ == '__main__':
     elif(answer==5):
         environment="VO_test"
     else:
-        sys.exit(0)
+        sys.exit("You entered an invalid value")
         
     if "Kite" in environment:
         answer = int(input("""Please enter the condition you are testing in:\n
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         elif(answer==4):
             condition="sunset"
         else:
-            sys.exit(0)
+            sys.exit("You entered an invalid value")
     elif "PLE" in environment:
         answer = int(input("""Please enter the condition you are testing in:\n
     1. fall
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         elif(answer==3):
             condition="winter"
         else:
-            sys.exit(0)    
+            sys.exit("You entered an invalid value")    
     elif(environment=="VO_test"):        
         answer = int(input("""Please enter the condition you are testing in:\n
     1. foggy               
@@ -83,18 +83,41 @@ if __name__ == '__main__':
         elif(answer==3):
             condition="sunset"
         else:
-            sys.exit(0)
+            sys.exit("You entered an invalid value")
 
     accStdDev = 0.08        # [m/s^2] standard deviation of accelerometer noise (gaussian)
     gyrStdDev = 0.004       # [rad/s] standard deviation of gyroscope noise (gaussian)
     accRWStdDev = 0.00004   # [m/s^2] accelerometer bias random walk noise standard deviation 
     gyrRWStdDev = 2.0e-6    # [rad/s] gyroscope bias random walk noise standard deviation 
     
-    print("""Sensor Parameters:\n
+    print("""Default Sensor Parameters:\n
     Accelerometer Noise Standard Deviation: {}
     Gyroscope Noise Standard Deviation: {}
     Accelerometer Bias Random Walk Noise Standard Deviation: {}
     Gyroscope Bias Random Walk Noise Standard Deviation: {}\n""".format(accStdDev,gyrStdDev,accRWStdDev,gyrRWStdDev))
+    
+    answer = str(input("""Would you like to use the default sensor parameters? (y/n):\n\n"""))
+    
+    if(answer=="n" or answer=="N"):
+        print("Using custom sensor parameters.\n")
+        print("WARN: before you process this data in a VI-SLAM algorithm, make sure you update the appropriate .yaml file with the new IMU values.\n")
+        accStdDev = input("Accelerometer Noise Standard Deviation: ")
+        gyrStdDev = input("Gyroscope Noise Standard Deviation: ")
+        accRWStdDev = input("Accelerometer Bias Random Walk Noise Standard Deviation: ")
+        gyrRWStdDev = input("Gyroscope Bias Random Walk Noise Standard Deviation: ")
+        
+        try:
+            accStdDev = float(accStdDev)
+            gyrStdDev = float(gyrStdDev)
+            accRWStdDev = float(accRWStdDev)
+            gyrRWStdDev = float(gyrRWStdDev)
+        except:
+            sys.exit("You entered a non-numeric sensor parameter")
+        
+    elif(answer=="y" or answer=="Y"):
+        print("Using default sensor parameters.\n")
+    else:
+        sys.exit("You entered an invalid value")
     
     # define the path to the folder containing our sensor records
     sensorRecords = os.getcwd() + '/MidAir/' + environment + '/' + condition + '/sensor_records.hdf5'

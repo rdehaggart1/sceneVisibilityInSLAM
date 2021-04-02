@@ -35,11 +35,11 @@ import numpy as np
 import sys
 
 answer = int(input("""Please enter the environment you are testing in:\n
-1. Kite_test
-2. Kite_training               
-3. PLE_test
-4. PLE_training
-5. VO_test\n\n"""))
+    1. Kite_test
+    2. Kite_training               
+    3. PLE_test
+    4. PLE_training
+    5. VO_test\n\n"""))
 
 if (answer==1):
     environment="Kite_test"
@@ -52,17 +52,20 @@ elif(answer==4):
 elif(answer==5):
     environment="VO_test"
 else:
-    sys.exit(0)
+    sys.exit("You entered an out-of-range value")
     
 if "Kite" in environment:
-    range = "0-4" if("test" in environment) else "0-29"
-    trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
+    trajRange = 4 if("test" in environment) else 29
+    trajNo = int(input("""Please enter trajectory number (0-{}):\n\n""".format(trajRange)))
+    
+    if(trajNo > trajRange or trajNo < 0):
+        sys.exit("You entered an out-of-range value")
     
     answer = int(input("""Please enter the condition you are testing in:\n
-1. cloudy
-2. foggy               
-3. sunny
-4. sunset\n\n"""))
+    1. cloudy
+    2. foggy               
+    3. sunny
+    4. sunset\n\n"""))
     if (answer==1):
         condition="cloudy"
         trajectory = "3" + str(trajNo).zfill(3)
@@ -78,14 +81,18 @@ if "Kite" in environment:
     else:
         sys.exit(0)
 elif "PLE" in environment:
-    range = "0-5" if("test" in environment) else "0-23"
-    trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
+    trajRange = 5 if("test" in environment) else 23
+    trajNo = int(input("""Please enter trajectory number (0-{}):\n\n""".format(trajRange)))
+    
+    if(trajNo > trajRange or trajNo < 0):
+        sys.exit("You entered an out-of-range value")
+    
     trajectory = "4" + str(trajNo).zfill(3)
     
     answer = int(input("""Please enter the condition you are testing in:\n
-1. fall
-2. spring               
-3. winter\n\n"""))
+    1. fall
+    2. spring               
+    3. winter\n\n"""))
     if (answer==1):
         condition="fall"
     elif(answer==2):
@@ -95,13 +102,16 @@ elif "PLE" in environment:
     else:
         sys.exit(0)    
 elif(environment=="VO_test"):
-    range = "0-2"
-    trajNo = int(input("""Please enter trajectory number ({}):\n\n""".format(range)))
+    trajRange = 2
+    trajNo = int(input("""Please enter trajectory number (0-{}):\n\n""".format(trajRange)))
+    
+    if(trajNo > trajRange or trajNo < 0):
+        sys.exit("You entered an out-of-range value")
     
     answer = int(input("""Please enter the condition you are testing in:\n
-1. foggy               
-2. sunny
-3. sunset\n\n"""))
+    1. foggy               
+    2. sunny
+    3. sunset\n\n"""))
     if(answer==1):
         condition="foggy"
         trajectory = "1" + str(trajNo).zfill(3)
@@ -112,12 +122,12 @@ elif(environment=="VO_test"):
         condition="sunset"
         trajectory = "2" + str(trajNo).zfill(3)
     else:
-        sys.exit(0)
+        sys.exit("You entered an invalid value")
     
 answer = int(input("""Please enter the camera you are testing with:\n
-1. color_left
-2. color_right               
-3. color_down\n\n"""))
+    1. color_left
+    2. color_right               
+    3. color_down\n\n"""))
 
 if (answer==1):
     camera="color_left"
@@ -126,7 +136,7 @@ elif(answer==2):
 elif(answer==3):
     camera="color_down"
 else:
-    sys.exit(0)    
+    sys.exit("You entered an invalid value")   
 
 # define the path to the folder containing our sensor records
 sensorRecordsPath = os.path.abspath(os.getcwd() + "/MidAir/" + environment + '/' + condition)
@@ -161,8 +171,16 @@ imagePaths = list(f1['trajectory_' + trajectory]['camera_data'][camera])
 accelerometerInitBiasEst = accelerometer.attrs['init_bias_est'][0]
 gyroscopeInitBiasEst = gyroscope.attrs['init_bias_est'][0]
 
+bagFilePath = sensorRecordsPath + "/trajectory_" + trajectory + "_" + camera + ".bag"
+
+if(os.path.isfile(bagFilePath)):
+    answer = input("The .bag file {} already exists. Would you like to overwrite? (y/n)\n".format(bagFilePath))
+
+if(answer=='n' or answer=='N'):
+    sys.exit(0)
+
 # open our .bag file to write to
-bag = rosbag.Bag(sensorRecordsPath + "/trajectory_" + trajectory + "_" + camera + ".bag", "w")
+bag = rosbag.Bag(bagFilePath, "w")
 
 # initialise sequence number
 seq = 0
@@ -230,7 +248,10 @@ seq = 0
 # the update rate of the IMU is 100Hz
 imuRate = 100
 
+print("Adding IMU Data")
+
 for accelLine, gyroLine, attitudeLine in zip(accelerometerData, gyroscopeData, groundTruthAttitude):
+    
     # get the timestamp of this frame
     timestamp = seq * 1/imuRate + initialTime
     # the seconds part of the timestamp is just the whole number

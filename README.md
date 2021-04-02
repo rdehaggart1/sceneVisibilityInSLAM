@@ -183,7 +183,7 @@ roscore
 In the second terminal tab, execute `rosrun` to run the executable in the ORB_SLAM2_SVE ROS package, using the provided setup file for the dataset under test. This will setup the algorithm for use and open the visualiser.
 ```
 rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/Malaga.yaml # for the Malaga dataset
-rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/MidAir.yaml # for the MidAir dataset
+rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/midair.yaml # for the MidAir dataset
  ```
 
 And finally, in the third terminal, execute `rosbag play` to playback the .bag file containing all of the dataset extract information, where `<BAG_PATH>` is the full file path to the .bag file of the particular extract of the dataset under test:

@@ -31,6 +31,8 @@ import re
 import sys
 import subprocess
 import os 
+from pyquaternion import Quaternion
+
 def main(arg1):
     # the input argument is the path to the bag file that is being run in this test
     bagFilePath = arg1
@@ -65,6 +67,15 @@ def main(arg1):
     poseGT[1] = [row[1] for row in poseGraphGroundTruth] # y
     poseGT[2] = [row[2] for row in poseGraphGroundTruth] # z
     
+    attitudeGT = [None] * 4 # initialise a list for the ground truth attitude 
+    
+    # get the attitude data (quaternion)
+    attitudeGroundTruth = list(groundTruth['attitude'])
+    attitudeGT[0] = [row[0] for row in attitudeGroundTruth] # w
+    attitudeGT[1] = [row[1] for row in attitudeGroundTruth] # x
+    attitudeGT[2] = [row[2] for row in attitudeGroundTruth] # y
+    attitudeGT[3] = [row[3] for row in attitudeGroundTruth] # z
+    
     groundTruthRate = 100   # the ground truth data is logged at 100Hz
     
     # create a time series that is the length of the data so we can align 
@@ -92,9 +103,9 @@ def main(arg1):
     
     # format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
     timestampEst = [(float(row[0]) - 100000) for row in poseGraphEstimate]
-    poseEst[0] = [float(row[1]) for row in poseGraphEstimate]
-    poseEst[1] = [float(row[2]) for row in poseGraphEstimate]
-    poseEst[2] = [float(row[3]) for row in poseGraphEstimate]
+    poseEst[0] = [float(row[3]) for row in poseGraphEstimate]
+    poseEst[1] = [float(row[1]) for row in poseGraphEstimate]
+    poseEst[2] = [float(row[2]) for row in poseGraphEstimate]
     
     # add cushions to the timestamps to keep the est and GT the same length    
     #minCushion = np.linspace(0, min(timestampEst), 10).tolist()
@@ -112,6 +123,31 @@ def main(arg1):
     
     timestampGT = timestampGT[firstTimestampIdx:lastTimestampIdx]
     poseGT = [line[firstTimestampIdx:lastTimestampIdx] for line in poseGT]
+    attitudeGT = [line[firstTimestampIdx:lastTimestampIdx] for line in attitudeGT]
+    
+    poseGT[0] = [(a - poseGT[0][0]) for a in poseGT[0]]
+    poseGT[1] = [(a - poseGT[1][0]) for a in poseGT[1]]
+    poseGT[2] = [(a - poseGT[2][0]) for a in poseGT[2]]
+    
+    initialAttitude = [attitudeGT[el][0] for el in range(4)]
+    
+    initialQuaternion = Quaternion(initialAttitude)
+    
+    xyz = [[poseEst[0][a], poseEst[1][a], poseEst[2][a]] for a in range(len(poseEst[0]))]
+    
+    for i in range(len(xyz)):
+        rotatedPose = initialQuaternion.rotate(xyz[i])
+        poseEst[0][i] = rotatedPose[0]
+        poseEst[1][i] = rotatedPose[1]
+        poseEst[2][i] = rotatedPose[2]
+    
+    scaleFactor = (max(poseGT[0])-min(poseGT[0]))/(max(poseEst[0])-min(poseEst[0]))
+    
+    poseEst = [[j*scaleFactor for j in i] for i in poseEst]
+    
+    #poseEst[0] = [a * (max(poseGT[0])-min(poseGT[0]))/(max(poseEst[0])-min(poseEst[0])) for a in poseEst[0]]
+    #poseEst[1] = [a * (max(poseGT[1])-min(poseGT[1]))/(max(poseEst[1])-min(poseEst[1])) for a in poseEst[1]]
+    #poseEst[1] = [a * (max(poseGT[2])-min(poseGT[2]))/(max(poseEst[2])-min(poseEst[2])) for a in poseEst[2]]
     
     #TODO: better solution here. what if there's an offset near a zero crossing?
     if(poseEst[0][-1]*poseGT[0][-1] > 0):
@@ -129,9 +165,9 @@ def main(arg1):
     else:
         zSign = -1
     
-    poseEst[0] = [el*xSign for el in poseEst[0]]
-    poseEst[1] = [el*ySign for el in poseEst[1]]
-    poseEst[2] = [el*zSign for el in poseEst[2]]
+    #poseEst[0] = [el*xSign for el in poseEst[0]]
+    #poseEst[1] = [el*ySign for el in poseEst[1]]
+    #poseEst[2] = [el*zSign for el in poseEst[2]]
     
     #evenlySpacedVals = lambda m, n: [i*n//m + n//(2*m) for i in range(m)]
     
@@ -244,4 +280,4 @@ def main(arg1):
     return(SSE)
 
 if __name__ == "__main__":
-    main("/media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/MidAir/MidAir/Kite_training/sunny/trajectory_0002_color_left.bag")
+    main("/media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/MidAir/MidAir/PLE_test/spring/trajectory_4000_color_left.bag")
