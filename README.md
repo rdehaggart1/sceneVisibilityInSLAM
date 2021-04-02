@@ -14,6 +14,11 @@ Link to final paper:
         - [Packages](#PyPackPreq)
     - [Notes](#PreqNotes)
 - [2. Installation](#install)
+    - [Cloning the Base Repository](#cloningBase)
+    - [Cloning ORB-SLAM2 with Scene Visibility Estimation](#cloningORB)
+    - [Adding ORB-SLAM2 with Scene Visibility Estimation ROS Package](#packageORB)
+    - [Building ORB-SLAM2 with Scene Visibility Estimation](#buildingORB)
+    - [Getting Datasets](#gettingData)
 
 <a name="prereq"/>
 
@@ -57,10 +62,15 @@ The following are some specifications for the setup used during the development 
 <a name="install"/>
 
 # 2. Installation
+
+<a name="cloningBase"/>
+
 ## Cloning the Base Repository
 To clone this repository onto your machine, open a terminal in the desired cloning location and run the command:
 
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
+
+<a name="cloningORB"/>
 
 ## Cloning ORB-SLAM2 with Scene Visibility Estimation
 To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_SVE) that includes components for scene visibility estimation, open a terminal in the desired cloning location and run the command:
@@ -69,7 +79,9 @@ To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/OR
 git clone https://github.com/rdehaggart1/ORB_SLAM2_SVE.git
 ```
 
-## Preparing to use ORB-SLAM2 with Scene Visibility Estimation
+<a name="packageORB"/>
+
+## Adding ORB-SLAM2 with Scene Visibility Estimation ROS Package
 
 You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name 'ORB_SLAM2_SVE'. ROS needs access to this new package, so you must edit your <i>.bashrc</i> file to allow for this. This can be done using a text editor like nano to open this file in the following way:
 
@@ -98,6 +110,8 @@ echo $ROS_PACKAGE_PATH
 
 and in the string that is returned, you should see the path that you just added to the new package.
 
+<a name="buildingORB"/>
+
 ## Building ORB-SLAM2 with Scene Visibility Estimation
 Finally, you need to build the modified ORB-SLAM2 code for ROS. This means first building the codebase by moving to the base level of the modified ORB-SLAM2 repository and running:
 
@@ -120,10 +134,19 @@ Once this has completed, restart your terminal again and run the following to ve
 rospack list
 ```
 
+<a name="gettingData"/>
+
 ## Getting Datasets
-Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the Malaga and MidAir datasets to run the code on
-### Other
-xxx
+Through the development of this work, two datasets were used for analyses, namely [ViViD (Vision for Visibility Dataset)](https://sites.google.com/view/dgbicra2019-vivid/), and [MidAir](https://midair.ulg.ac.be/), with the associated papers avaialble here: [ViViD](ViViD/doc/ViViD_paper.pdf), [MidAir](MidAir/doc/MidAir_paper.pdf).
+
+Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the ViViD and MidAir datasets to run the code on
+### ViViD
+To download some data for the ViViD dataset:
+1. Go to [https://sites.google.com/view/dgbicra2019-vivid/](https://sites.google.com/view/dgbicra2019-vivid/)
+2. Scroll to the bottom of the page to understand the available segments, and decide which one(s) sound most appropriate. Click the 'Request Download (link)' button at the bottom to be taken to a google form which allows you to select the data you'd like to download
+3. The link to a google drive page containing this data (sensor data in a .bag format, ground truth in a .trc format) will be emailed to you
+4. Download the files into the `sceneVisibilityInSLAM/ViViD/ViViD` folder
+
 ### MidAir
 To download some data for the MidAir dataset:
 1. Go to [https://midair.ulg.ac.be/download.html](https://midair.ulg.ac.be/download.html)
@@ -143,7 +166,7 @@ To download some data for the MidAir dataset:
     ```
 
 ## Configuring Datasets for Use with the Algorithms
-### 
+### ViViD
 ### MidAir
 Once the data are downloaded and the archives uncompressed, as per the above instructions, the files should be presented as displayed below.
 ```   
