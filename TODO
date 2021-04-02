@@ -1,0 +1,14 @@
+Get ViViD working properly and check against ground truth
+Change midair file selection to loop through & print whats available (and unzipped) rather than all options
+Try and work out why midair didnt work on friday. Is it working now?
+ViViD documentation and report work
+ORB-SLAM2 c component
+Write SVE to a .txt that can be interpreted
+
+Plot goals:
+3D trajectory plotting on single axes
+3 2D subplots, overlaying groundtruth and estimation in each axis
+Plot of absolute error over time
+Plot of visibility over time
+
+
