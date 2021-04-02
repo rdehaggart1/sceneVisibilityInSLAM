@@ -137,7 +137,7 @@ rospack list
 <a name="gettingData"/>
 
 ## Getting Datasets
-Through the development of this work, two datasets were used for analyses, namely [ViViD (Vision for Visibility Dataset)](https://sites.google.com/view/dgbicra2019-vivid/), and [MidAir](https://midair.ulg.ac.be/), with the associated papers avaialble here: [ViViD](ViViD/doc/ViViD_paper.pdf), [MidAir](MidAir/doc/MidAir_paper.pdf).
+Through the development of this work, two datasets were used for analyses, namely ViViD ([website](https://sites.google.com/view/dgbicra2019-vivid/), [paper](ViViD/doc/ViViD_paper.pdf), and MidAir([website](https://midair.ulg.ac.be/), [paper](MidAir/doc/MidAir_paper.pdf)).
 
 Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the ViViD and MidAir datasets to run the code on
 ### ViViD
