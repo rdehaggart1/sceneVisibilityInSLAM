@@ -1,4 +1,6 @@
-# Extrinsic Calibration Between cam0 and IMU
+# ViViD extrinsic calibration between cam0 and IMU
+# Parameters retrieved from file provided by ViViD authors: https://drive.google.com/file/d/1kih2b4Ix-QuKm1sAOvxyoYzVNM3hlA5U/view?usp=sharing
+
 
 Extrinsic Transformation:
 [-0.010321623700898341, -0.9999130390983744,  -0.008208430131825983, -0.03229554082192394
