@@ -26,6 +26,7 @@ TODO:
 """
 import h5py    # to read .hdf5 sensor records files
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 import numpy as np
 import re
 import sys
@@ -106,18 +107,7 @@ def main(arg1):
     poseEst[0] = [float(row[3]) for row in poseGraphEstimate]
     poseEst[1] = [float(row[1]) for row in poseGraphEstimate]
     poseEst[2] = [float(row[2]) for row in poseGraphEstimate]
-    
-    # add cushions to the timestamps to keep the est and GT the same length    
-    #minCushion = np.linspace(0, min(timestampEst), 10).tolist()
-    #maxCushion = np.linspace(max(timestampEst), max(timestampGT), 10).tolist()
-    #timestampEst = minCushion + timestampEst[1:] + maxCushion
-    #minCushionSize = len(minCushion)
-    #maxCushionSize = len(maxCushion)
-    
-    # fill the start/end cushions with the same start/end pose est values
-    #for j in range(3):
-    #    poseEst[j] = ([poseEst[j][0]] * minCushionSize) + poseEst[j] + ([poseEst[j][-1]] * maxCushionSize)
-    
+ 
     firstTimestampIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[0])))
     lastTimestampIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[-1])))
     
@@ -145,97 +135,46 @@ def main(arg1):
     
     poseEst = [[j*scaleFactor for j in i] for i in poseEst]
     
-    #poseEst[0] = [a * (max(poseGT[0])-min(poseGT[0]))/(max(poseEst[0])-min(poseEst[0])) for a in poseEst[0]]
-    #poseEst[1] = [a * (max(poseGT[1])-min(poseGT[1]))/(max(poseEst[1])-min(poseEst[1])) for a in poseEst[1]]
-    #poseEst[1] = [a * (max(poseGT[2])-min(poseGT[2]))/(max(poseEst[2])-min(poseEst[2])) for a in poseEst[2]]
-    
-    #TODO: better solution here. what if there's an offset near a zero crossing?
-    if(poseEst[0][-1]*poseGT[0][-1] > 0):
-        xSign = 1
-    else:
-        xSign = -1
-        
-    if(poseEst[1][-1]*poseGT[1][-1] > 0):
-        ySign = 1
-    else:
-        ySign = -1
-        
-    if(poseEst[2][-1]*poseGT[2][-1] > 0):
-        zSign = 1
-    else:
-        zSign = -1
-    
-    #poseEst[0] = [el*xSign for el in poseEst[0]]
-    #poseEst[1] = [el*ySign for el in poseEst[1]]
-    #poseEst[2] = [el*zSign for el in poseEst[2]]
-    
-    #evenlySpacedVals = lambda m, n: [i*n//m + n//(2*m) for i in range(m)]
-    
-    #numVals = 500
-    
-    #timestampGT_idxList = evenlySpacedVals(numVals, len(timestampGT))
-    #timestampGT = [timestampGT[i] for i in timestampGT_idxList]
-    #timestampEst_idxList = evenlySpacedVals(numVals, len(timestampEst))
-    #timestampEst = [timestampEst[i] for i in timestampEst_idxList]
-
-    #for axisIdx in range(3):
-    #    poseEst_idxList = evenlySpacedVals(numVals, len(poseEst[axisIdx]))
-    #    poseEst[axisIdx] = [poseEst[axisIdx][i] for i in poseEst_idxList]
-
-    
-    #timeStartLineStyle = {"x": poseGraphTimestamp[1], "color": "red", "linestyle": "dashed", "linewidth": 0.5}
-    
     ### PLOTS ###
     
+    trajAx = plt.axes(projection='3d')
+    trajAx.plot3D(poseEst[0], poseEst[1], poseEst[2], 'blue', label='EST')
+    trajAx.plot3D(poseGT[0], poseGT[1], poseGT[2], 'red', label='GT')
+    trajAx.legend()
+    plt.show()
+    
     # 3x2 grid of subplots for pose time series comparison
-    fig, axs = plt.subplots(3, 2)   
+    fig, axs = plt.subplots(3, 1)   
     
     # plot the pose graph ground truths 
     for plotIdx in range(3):
-        axs[plotIdx][0].plot(timestampGT, poseGT[plotIdx % 3])
-        axs[plotIdx][0].grid()
-        axs[plotIdx][0].set_ylim([min(min(poseGT[plotIdx % 3]), min(poseEst[plotIdx % 3])), max(max(poseGT[plotIdx % 3]), max(poseEst[plotIdx % 3]))])
-        
-    # plot the pose graph estimates
-    for plotIdx in range(3):
-        axs[plotIdx][1].plot(timestampEst, poseEst[plotIdx % 3])
-        axs[plotIdx][1].grid()
-        axs[plotIdx][1].set_xlim(left=0)
-        axs[plotIdx][1].set_ylim([min(min(poseGT[plotIdx % 3]), min(poseEst[plotIdx % 3])), max(max(poseGT[plotIdx % 3]), max(poseEst[plotIdx % 3]))])
-    
+        axs[plotIdx].plot(timestampGT, poseGT[plotIdx % 3], 'red', label='GT')
+        axs[plotIdx].plot(timestampEst, poseEst[plotIdx % 3], 'blue', label='EST')
+        axs[plotIdx].grid()
+        axs[plotIdx].set_ylim([min(min(poseGT[plotIdx % 3]), min(poseEst[plotIdx % 3])) -1, max(max(poseGT[plotIdx % 3]), max(poseEst[plotIdx % 3])) + 1])
+        axs[plotIdx].legend(loc="upper left")
+
     # set the various titles and axis labels
-    axs[0][0].set(title="Position Ground Truths", ylabel="X Position (m)")
-    axs[0][1].set(title="Position Estimates")
-    axs[1][0].set(ylabel="Y Position (m)")
-    axs[2][0].set(ylabel="Z Position (m)", xlabel="Time (s)")
-    axs[2][1].set(xlabel="Time (s)")
+    #axs[0][0].set(title="Position Ground Truths", ylabel="X Position (m)")
+    #axs[1][1].set(title="Position Estimates")
+    axs[0].set(ylabel="X Position (m)")
+    axs[1].set(ylabel="Y Position (m)")
+    axs[2].set(ylabel="Z Position (m)", xlabel="Time (s)")
     
     # turn off the tick labels for non-edge plots to avoid clipping
-    axs[0][0].set_xticklabels([])
-    axs[0][1].set_xticklabels([])
-    axs[1][0].set_xticklabels([])
-    axs[1][1].set_xticklabels([])
-    
-    axs[0][1].set_yticklabels([])
-    axs[1][1].set_yticklabels([])
-    axs[2][1].set_yticklabels([])
+    axs[0].set_xticklabels([])
+    axs[1].set_xticklabels([])
     
     plt.show()
     
     # 1x2 grid of subplots for x/y pose plot comparisons
-    fig2, axs2 = plt.subplots(1, 2)   
+    axs2 = plt.axes()   
     
-    # TODO: match scales of the GT/Est plots for better comparison
-    
-    # X/Y pose ground truth
-    axs2[0].plot(poseGT[0], poseGT[1])
-    axs2[0].grid()
-    axs2[0].set(xlabel="X Position (m)", ylabel="Y Position (m)", title="X/Y Position Ground Truth")
-    
-    # X/Y pose estimate
-    axs2[1].plot(poseEst[0], poseEst[1])
-    axs2[1].grid()
-    axs2[1].set(xlabel="X Position (m)", ylabel="Y Position (m)", title="X/Y Position Estimate")
+    axs2.plot(poseGT[0], poseGT[1], 'red', label='GT')
+    axs2.plot(poseEst[0], poseEst[1], 'blue', label='EST')
+    axs2.grid()
+    axs2.legend()
+    axs2.set(xlabel="X Position (m)", ylabel="Y Position (m)")
     
     plt.show()
     
