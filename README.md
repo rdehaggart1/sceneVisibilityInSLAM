@@ -137,7 +137,7 @@ rospack list
 <a name="gettingData"/>
 
 ## Getting Datasets
-Through the development of this work, two datasets were used for analyses, namely ViViD ([website](https://sites.google.com/view/dgbicra2019-vivid/), [paper](ViViD/doc/ViViD_paper.pdf)) and MidAir ([website](https://midair.ulg.ac.be/), [paper](MidAir/doc/MidAir_paper.pdf)).
+Through the development of this work, two datasets were used for analyses, namely ViViD ([website](https://sites.google.com/view/dgbicra2019-vivid/), [paper](https://irap.kaist.ac.kr/index.php/Main/Publication?action=bibentry&bibfile=ref.bib&bibref=alee-2019-icra-ws)) and MidAir ([website](https://midair.ulg.ac.be/), [paper](https://ieeexplore.ieee.org/document/9025697)).
 
 Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the ViViD and MidAir datasets to run the code on
 ### ViViD
