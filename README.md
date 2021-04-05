@@ -15,9 +15,9 @@ Link to final paper:
     - [Notes](#PreqNotes)
 - [2. Installation](#install)
     - [Cloning this Repository](#cloningBase)
-    - [Cloning ORB-SLAM2 with Scene Visibility Estimation](#cloningORB)
-    - [Adding ORB-SLAM2 with Scene Visibility Estimation ROS Package](#packageORB)
-    - [Building ORB-SLAM2 with Scene Visibility Estimation](#buildingORB)
+    - [Cloning ORB-SLAM2 SVE](#cloningORB)
+    - [Adding ORB-SLAM2 SVE ROS Package](#packageORB)
+    - [Building ORB-SLAM2 SVE](#buildingORB)
     - [Getting Datasets](#gettingData)
 
 <a name="prereq"/>
@@ -72,16 +72,18 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 
 <a name="cloningORB"/>
 
-## Cloning ORB-SLAM2 with Scene Visibility Estimation
-To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_SVE) that includes components for scene visibility estimation, open a terminal in the desired cloning location and run the command:
+## Cloning ORB-SLAM2 SVE
+To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_SVE) that includes components for scene visibility estimation (SVE), run the following command in the root `sceneVisibilityInSLAM` folder:
 
 ```
 git clone https://github.com/rdehaggart1/ORB_SLAM2_SVE.git
 ```
 
+So the path to the modified repository should be `<PATH>/sceneVisibilityInSLAM/ORB_SLAM2_SVE`.
+
 <a name="packageORB"/>
 
-## Adding ORB-SLAM2 with Scene Visibility Estimation ROS Package
+## Adding ORB-SLAM2 SVE ROS Package
 
 You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name <i>ORB_SLAM2_SVE</i>. ROS needs access to this new package, so you must edit your `.bashrc` file to allow for this. This can be done using a text editor like nano to open this file in the following way:
 
@@ -90,10 +92,10 @@ cd
 nano .bashrc
 ```
 
-and then moving down to the bottom of the file and pasting the following line (where `<PATH>` is the folder that you cloned <i>ORB_SLAM2_SVE</i> into):
+and then moving down to the bottom of the file and pasting the following line (where `<PATH>` is the folder that you cloned <i>sceneVisibilityInSLAM</i> into):
 
 ```
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:<PATH>/ORB_SLAM2_SVE/Examples/ROS
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:<PATH>/sceneVisibilityInSLAM/ORB_SLAM2_SVE/Examples/ROS
 ```
 
 Save the changes and exit, and then source your `.bashrc` file to execute the changes:
@@ -112,13 +114,13 @@ and in the string that is returned, you should see the path to the new package.
 
 <a name="buildingORB"/>
 
-## Building ORB-SLAM2 with Scene Visibility Estimation
+## Building ORB-SLAM2 SVE
 Finally, you need to build the modified ORB-SLAM2 code for ROS. This means first building the codebase by moving to the root level of the modified `ORB_SLAM2_SVE` repository and running:
 
 ```
-cd <PATH>/ORB_SLAM2_SVE     # move into the ORB_SLAM2_SVE root
-chmod +x build.sh           # make the build file executable
-./build.sh                  # execute the file (i.e. build the code)
+cd <PATH>/sceneVisibilityInSLAM/ORB_SLAM2_SVE   # move into the ORB_SLAM2_SVE root
+chmod +x build.sh                               # make the build file executable
+./build.sh                                      # execute the file (i.e. build the code)
 ```
 
 and then running the following to build for use with ROS:

@@ -1,5 +1,5 @@
 Get ViViD working properly and check against ground truth
-Change midair file selection to loop through & print whats available (and unzipped) rather than all options
+List (installed/not installed, unzipped/not unzipped etc) next to the selection options
 Try and work out why midair didnt work on friday. Is it working now?
 ViViD documentation and report work
 ORB-SLAM2 c component

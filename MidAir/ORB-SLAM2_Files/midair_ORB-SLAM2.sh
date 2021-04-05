@@ -16,7 +16,7 @@ sleep 30
 
 # a command to run ORB_SLAM2_SVE with the midair setup
     # TODO: relative paths (../ should work?)
-poseCMD="rosrun ORB_SLAM2_SVE Mono /media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/ORB_SLAM2_SVE/Vocabulary/ORBvoc.txt /media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/ORB_SLAM2_SVE/Examples/Monocular/midair.yaml"
+poseCMD="rosrun ORB_SLAM2_SVE Mono ../../ORB_SLAM2_SVE/Vocabulary/ORBvoc.txt ../../ORB_SLAM2_SVE/Examples/Monocular/midair.yaml"
 eval $poseCMD &
 
 sleep 20

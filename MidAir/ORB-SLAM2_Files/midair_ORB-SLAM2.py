@@ -34,11 +34,10 @@ import subprocess
 import os 
 from pyquaternion import Quaternion
 
-def main(arg1):
+def main():
     # the input argument is the path to the bag file that is being run in this test
-    bagFilePath = arg1
-    # example: "/media/rory_haggart/ENDLESS_BLU/SLAM_datasets/MidAir/MidAir/Kite_test/sunny/trajectory_0001_color_down.bag" 
-    
+    bagFilePath = input("Please paste the full path to the .bag file to test:\n")
+
     shellFile = os.path.abspath(os.getcwd() + "/midair_ORB-SLAM2.sh")
     
     subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash')
@@ -219,4 +218,4 @@ def main(arg1):
     return(SSE)
 
 if __name__ == "__main__":
-    main("/media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/MidAir/MidAir/PLE_test/spring/trajectory_4000_color_left.bag")
+    main()
