@@ -1,3 +1,20 @@
+"""
+    @author: rory_haggart
+    
+    BRIEF:  This script allows you to select one of the MidAir dataset extracts
+            (i.e. the environment, condition, camera, and trajectory) to 
+            convert into a ROS .bag file. 
+            It will prompt you to select the extract and then use the 
+            'sensor_records.hdf5' file and the images of this extract to 
+            generate the .bag file.
+            If you would like to use this on a VI-SLAM algorithm, I'd 
+            recommend first running 'midair_generateIMUData.py' first, in order
+            to re-generate the sensor data with consistent sensor parameters.
+    
+    TODO:
+        Work through the ground truth attitude -> local attitude process
+"""
+
 # for bagification
 import rosbag
 # to store the IMU/INS measurements as a ROS message
@@ -25,7 +42,7 @@ def main():
     sensorRecordsPath = os.path.abspath(os.getcwd() + "/MidAir/" + environment + '/' + condition)
     sensorRecordsFile = sensorRecordsPath + "/sensor_records.hdf5"
     
-    # if the sensor records file doesn't exist, exit
+    # if the sensor records file doesn't exist, or is not yet unzipped, exit
     if not os.path.exists(sensorRecordsFile):
         if os.path.exists(sensorRecordsPath + "/sensor_records.zip"):
             print("I did not find the file: " + sensorRecordsFile + "\n\n I did find the corresponding .zip file, however. Please uncompress this file and try again.")
@@ -34,7 +51,7 @@ def main():
         sys.exit(0)
         
     # open sensor_records.hdf5
-    f1 = h5py.File((sensorRecordsPath + '/sensor_records.hdf5'),'r+')
+    f1 = h5py.File((sensorRecordsFile),'r+')
     
     # get imu readings plus the attitude of the vehicle
     accelerometer = f1['trajectory_' + trajectory]['imu']['accelerometer']
@@ -48,20 +65,19 @@ def main():
     # list the relative paths of the images for the selected camera
     imagePaths = list(f1['trajectory_' + trajectory]['camera_data'][camera]) 
     
-    #accelerationGroundTruth = f1['trajectory_' + trajectory]['groundtruth']['acceleration']
-    #timeSeries = np.arange(0, len(accelerationGroundTruth)/100, 1/100).tolist()
-    #xAccelerationTrue = [row[0] for row in accelerationGroundTruth]
-    #xAcceleration = [row[0] for row in accelerometerData]
-    #plt.plot(timeSeries, xAccelerationTrue, color="green")
-    #plt.plot(timeSeries, list(xAcceleration), color="red")
-    #plt.show()
+    # exit if the selected trajectory images haven't been unzipped yet
+    if (not any('.JPEG' in a for a in os.listdir(sensorRecordsPath + "/" + camera + "/trajectory_" + trajectory))) and any('.zip' in a for a in os.listdir(sensorRecordsPath + "/" + camera + "/trajectory_" + trajectory)):
+        print("The images for this particular trajectory have not yet been unzipped.\nPlease unzip and try again.")
+        sys.exit(0)
     
     # note the provided estimations of the initial sensor biases
     accelerometerInitBiasEst = accelerometer.attrs['init_bias_est'][0]
     gyroscopeInitBiasEst = gyroscope.attrs['init_bias_est'][0]
     
+    # .bag file name is of the format trajectoryNumber_camera.bag and is located in environment/condition
     bagFilePath = sensorRecordsPath + "/trajectory_" + trajectory + "_" + camera + ".bag"
     
+    # just check the user is okay if overwriting a bag that already exists
     if(os.path.isfile(bagFilePath)):
         answer = input("The .bag file {} already exists. Would you like to overwrite? (y/n)\n".format(bagFilePath))
         if(answer=='n' or answer=='N'):
@@ -129,6 +145,8 @@ def main():
             
             # increment seq num
             seq = seq + 1
+        else:
+            print("Could not find %s" % absImg[absImg.rindex('/') + 1:])
             
     # reset sequence ID for IMU recording
     seq = 0
@@ -195,19 +213,24 @@ def main():
     # close the .hdf5 file
     f1.close()
 
+
+# global flags for selection prompts
+installFlag = ""
+notInstallFlag = "(NOT INSTALLED)"
+
 # prompt the user through the process of selecting the trajectory to bagify
 def userInput():
+    # get the path to the dataset folder
     dataPath = os.getcwd() + "/MidAir"
     
-    installFlag = ""
-    notInstallFlag = "(NOT INSTALLED)"
-    
+    # the user will be told if particular options aren't available on their machine
     kiteTestFlag = installFlag if os.path.isdir(dataPath + "/Kite_test") else notInstallFlag
     kiteTrainFlag = installFlag if os.path.isdir(dataPath + "/Kite_training") else notInstallFlag
     pleTestFlag = installFlag if os.path.isdir(dataPath + "/PLE_test") else notInstallFlag
     pleTrainFlag = installFlag if os.path.isdir(dataPath + "/PLE_training") else notInstallFlag
     voTestFlag = installFlag if os.path.isdir(dataPath + "/VO_test") else notInstallFlag
     
+    # ask for the environment to test in, noting which are not available
     answer = int(input("""Please enter the environment you are testing in:\n
     1. Kite_test {}
     2. Kite_training {}               
@@ -215,6 +238,7 @@ def userInput():
     4. PLE_training {}
     5. VO_test {}\n\n""".format(kiteTestFlag, kiteTrainFlag,pleTestFlag,pleTrainFlag,voTestFlag)))
     
+    # apply selection
     if (answer==1):
         if kiteTestFlag == notInstallFlag:
             print("Environment not installed")
@@ -247,15 +271,19 @@ def userInput():
             environment="VO_test"
     else:
         sys.exit("You entered an out-of-range value")
-        
+    
+    # each environment is numbered and ordered slightly differently, so account for this
     if "Kite" in environment:
+        # the test environment has less trajectories than the training one
         trajRange = 4 if("test" in environment) else 29
         
+        # again, notify user if particular conditions aren't installed
         cloudyFlag = installFlag if os.path.isdir(dataPath + "/" + environment + "/" + "cloudy") else notInstallFlag
         foggyFlag = installFlag if os.path.isdir(dataPath + "/" + environment + "/" + "foggy") else notInstallFlag
         sunnyFlag = installFlag if os.path.isdir(dataPath + "/" + environment + "/" + "sunny") else notInstallFlag
         sunsetFlag = installFlag if os.path.isdir(dataPath + "/" + environment + "/" + "sunset") else notInstallFlag
         
+        # ask the user which condition they'd like to test under
         answer = int(input("""Please enter the condition you are testing in:\n
     1. cloudy {}
     2. foggy {}           
@@ -267,91 +295,86 @@ def userInput():
                 sys.exit(0)
             else:
                 condition="cloudy"
-                
-                trajSearchPath = dataPath + "/" + environment + "/" + condition
-                trajNo = trajPrinter(trajSearchPath, trajRange)
-                if(trajNo > trajRange or trajNo < 0):
-                    sys.exit("You entered an out-of-range value")
-                trajectory = "3" + str(trajNo).zfill(3)
+                trajectoryLead = "3" 
         elif(answer==2):
             if foggyFlag == notInstallFlag:
                 print("Condition not installed")
                 sys.exit(0)
             else:
                 condition="foggy"
-
-                trajSearchPath = dataPath + "/" + environment + "/" + condition
-                trajNo = trajPrinter(trajSearchPath, trajRange)
-                if(trajNo > trajRange or trajNo < 0):
-                    sys.exit("You entered an out-of-range value")
-                trajectory = "2" + str(trajNo).zfill(3)
-                
+                trajectoryLead = "2"
         elif(answer==3):
             if sunnyFlag == notInstallFlag:
                 print("Condition not installed")
                 sys.exit(0)
             else:
                 condition="sunny"
-                
-                trajSearchPath = dataPath + "/" + environment + "/" + condition
-                trajNo = trajPrinter(trajSearchPath, trajRange)
-                if(trajNo > trajRange or trajNo < 0):
-                    sys.exit("You entered an out-of-range value")
-                trajectory = "0" + str(trajNo).zfill(3)
+                trajectoryLead = "0"
         elif(answer==4):
             if sunsetFlag == notInstallFlag:
                 print("Condition not installed")
                 sys.exit(0)
             else:
                 condition="sunset"
-                
-                trajSearchPath = dataPath + "/" + environment + "/" + condition
-                trajNo = trajPrinter(trajSearchPath, trajRange)
-                if(trajNo > trajRange or trajNo < 0):
-                    sys.exit("You entered an out-of-range value")
-                trajectory = "1" + str(trajNo).zfill(3)
+                trajectoryLead = "1"
         else:
             sys.exit(0)
+         
+        # look for available trajectories at this path
+        trajSearchPath = dataPath + "/" + environment + "/" + condition
+        # get the camera and trajectory number from the user
+        trajNo, camera = trajPrinter(trajSearchPath, trajRange)
+        # exit if not an existing trajectory
+        if(trajNo > trajRange or trajNo < 0):
+            sys.exit("You entered an out-of-range value")   
+        
+        # different conditions append a leading digit to the number - add this
+        trajectory = trajectoryLead + str(trajNo).zfill(3)
             
     elif "PLE" in environment:
+        # number of trajectories for the test and train sets
         trajRange = 5 if("test" in environment) else 23
         
+        # notify of unavailable conditions
+        fallFlag = installFlag if os.path.isdir(dataPath + "/" + environment + "/" + "fall") else notInstallFlag
+        springFlag = installFlag if os.path.isdir(dataPath + "/" + environment + "/" + "spring") else notInstallFlag
+        winterFlag = installFlag if os.path.isdir(dataPath + "/" + environment + "/" + "winter") else notInstallFlag
+        
+        # ask for the condition to test under
         answer = int(input("""Please enter the condition you are testing in:\n
-    1. fall
-    2. spring               
-    3. winter\n\n"""))
+    1. fall {}
+    2. spring {}              
+    3. winter {}\n\n""".format(fallFlag,springFlag,winterFlag)))
         if (answer==1):
-            condition="fall"
-            
-            trajSearchPath = dataPath + "/" + environment + "/" + condition
-            trajNo = trajPrinter(trajSearchPath, trajRange)
-            if(trajNo > trajRange or trajNo < 0):
-                sys.exit("You entered an out-of-range value")
+            if fallFlag == notInstallFlag:
+                print("Condition not installed")
+                sys.exit(0)
+            else:
+                condition="fall"
         elif(answer==2):
-            condition="spring"
-            
-            trajSearchPath = dataPath + "/" + environment + "/" + condition
-            trajNo = trajPrinter(trajSearchPath, trajRange)
-            if(trajNo > trajRange or trajNo < 0):
-                sys.exit("You entered an out-of-range value")
+            if springFlag == notInstallFlag:
+                print("Condition not installed")
+                sys.exit(0)
+            else:
+                condition="spring"
         elif(answer==3):
-            condition="winter"
-            
-            trajSearchPath = dataPath + "/" + environment + "/" + condition
-            trajNo = trajPrinter(trajSearchPath, trajRange)
-            if(trajNo > trajRange or trajNo < 0):
-                sys.exit("You entered an out-of-range value")
+            if winterFlag == notInstallFlag:
+                print("Condition not installed")
+                sys.exit(0)
+            else:
+                condition="winter"
         else:
             sys.exit(0)    
-            
+        
+        # get the camera to use and the trajectory to test
+        trajSearchPath = dataPath + "/" + environment + "/" + condition
+        trajNo, camera = trajPrinter(trajSearchPath, trajRange)
+        if(trajNo > trajRange or trajNo < 0):
+            sys.exit("You entered an out-of-range value")
         trajectory = "4" + str(trajNo).zfill(3)
                 
     elif(environment=="VO_test"):
         trajRange = 2
-        trajNo = int(input("""Please enter trajectory number (0-{}):\n\n""".format(trajRange)))
-        
-        if(trajNo > trajRange or trajNo < 0):
-            sys.exit("You entered an out-of-range value")
         
         answer = int(input("""Please enter the condition you are testing in:\n
     1. foggy               
@@ -359,34 +382,30 @@ def userInput():
     3. sunset\n\n"""))
         if(answer==1):
             condition="foggy"
-            
-            trajSearchPath = dataPath + "/" + environment + "/" + condition
-            trajNo = trajPrinter(trajSearchPath, trajRange)
-            if(trajNo > trajRange or trajNo < 0):
-                sys.exit("You entered an out-of-range value")
-            trajectory = "1" + str(trajNo).zfill(3)
+            trajectoryLead = "1"
         elif(answer==2):
             condition="sunny"
-            
-            trajSearchPath = dataPath + "/" + environment + "/" + condition
-            trajNo = trajPrinter(trajSearchPath, trajRange)
-            if(trajNo > trajRange or trajNo < 0):
-                sys.exit("You entered an out-of-range value")
-            trajectory = "0" + str(trajNo).zfill(3)
+            trajectoryLead = "0"
         elif(answer==3):
             condition="sunset"
-            
-            trajSearchPath = dataPath + "/" + environment + "/" + condition
-            trajNo = trajPrinter(trajSearchPath, trajRange)
-            if(trajNo > trajRange or trajNo < 0):
-                sys.exit("You entered an out-of-range value")
-            trajectory = "2" + str(trajNo).zfill(3)
+            trajectoryLead = "2"
         else:
             sys.exit("You entered an invalid value")
+            
+        trajSearchPath = dataPath + "/" + environment + "/" + condition
+        trajNo, camera = trajPrinter(trajSearchPath, trajRange)
+        if(trajNo > trajRange or trajNo < 0):
+            sys.exit("You entered an out-of-range value")
+        trajectory = trajectoryLead + str(trajNo).zfill(3)
+        
+    return [environment, condition, trajectory, camera]
     
-    colorLeftFlag =  installFlag if os.path.isdir(dataPath + "/" + environment + "/" + condition + "/color_left") else notInstallFlag   
-    colorRightFlag =  installFlag if os.path.isdir(dataPath + "/" + environment + "/" + condition + "/color_right") else notInstallFlag 
-    colorDownFlag =  installFlag if os.path.isdir(dataPath + "/" + environment + "/" + condition + "/color_down") else notInstallFlag 
+# print trajectory numbers with notice of whether or not they are installed
+def trajPrinter(trajSearchPath, trajRange):
+    
+    colorLeftFlag =  installFlag if os.path.isdir(trajSearchPath + "/color_left") else notInstallFlag   
+    colorRightFlag =  installFlag if os.path.isdir(trajSearchPath + "/color_right") else notInstallFlag 
+    colorDownFlag =  installFlag if os.path.isdir(trajSearchPath + "/color_down") else notInstallFlag 
     
     answer = int(input("""Please enter the camera you are testing with:\n
     1. color_left {}
@@ -413,27 +432,31 @@ def userInput():
             camera="color_down"
     else:
         sys.exit("You entered an invalid value") 
-        
-    return [environment, condition, trajectory, camera]
     
-# print trajectory numbers with notice of whether or not they are installed
-def trajPrinter(trajSearchPath, trajRange):
-    trajList = list(Path(trajSearchPath).rglob("[trajectory]*"))
-    trajList = [str(a) for a in trajList if ("trajectory" in str(a) and ".bag" not in str(a))]
-    trajList = [int(a[-2:]) for a in trajList]
+    trajSearchPath = trajSearchPath + "/" + camera
+    
+    trajFileList = list(Path(trajSearchPath).rglob("[trajectory]*"))
+    trajFileList = [str(a) for a in trajFileList if ("trajectory" in str(a) and ".bag" not in str(a))]
+    trajList = [int(a[-2:]) for a in trajFileList]
+    
+    zippedFlag = "(NOT UNZIPPED)"
     
     print("Please select the trajectory to test:\n")
     for i in range(trajRange + 1):
-        trajFlag = "" if i in trajList else "(NOT INSTALLED)"
+        trajFlag = installFlag if i in trajList else notInstallFlag
+        trajFolder = [s for s in trajFileList if s[-3:] == ("0" + str(i).zfill(2))]
+        if len(trajFolder) != 0:
+            if (not any('.JPEG' in a for a in os.listdir(trajFolder[0]))) and any('.zip' in a for a in os.listdir(trajFolder[0])):
+                trajFlag = zippedFlag
         print("    {}. {}".format(i, trajFlag))
         
-    trajNo = int(input("\n"))
+    trajNo = int(input(""))
     
-    if trajNo not in trajList:
+    if trajNo not in trajList and trajNo <= trajRange and trajNo >= 0:
         print("Trajectory not installed")
         sys.exit(0)
     
-    return(trajNo)
+    return(trajNo, camera)
 
 if __name__ == "__main__":
     main()
