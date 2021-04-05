@@ -1,9 +1,9 @@
-Get ViViD working properly and check against ground truth
-List (installed/not installed, unzipped/not unzipped etc) next to the selection options
-Try and work out why midair didnt work on friday. Is it working now?
+Check ViViD against ground truth (and set up the full automation script like MidAir)
+Apply ground truth attitude again
+Do the flaggng process on generate IMU data like bag file
 ViViD documentation and report work
-ORB-SLAM2 c component
-Write SVE to a .txt that can be interpreted
+Get trajectory error plot and total (RMSE)
+Adjust SVE metrics to make more sense? c seems consistently low, b seems consistently high...
 
 Plot goals:
 3D trajectory plotting on single axes
