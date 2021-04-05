@@ -22,7 +22,7 @@ Link to final paper:
     - [Getting Datasets](#gettingData)
         - [ViViD](#getVivid)
         - [MidAir](#getMidair)
-    - [Configuring Datasets for Testing](#configureData)
+    - [Configuring Datasets for Testing](#configData)
         - [ViViD](#configVivid)
         - [MidAir](#configMidair)
 
