@@ -37,17 +37,18 @@ from pyquaternion import Quaternion
 def main():
     # the input argument is the path to the bag file that is being run in this test
     bagFilePath = input("Please paste the full path to the .bag file to test:\n")
-
+    
+    # we then have a shell file that controls the terminal commands
     shellFile = os.path.abspath(os.getcwd() + "/midair_ORB-SLAM2.sh")
     
+    # make the shell file executable
     subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash')
     # run the shell file with the selected bag file as an input argument
     subprocess.run(shellFile + " " + bagFilePath, shell=True, executable='/bin/bash')
     
     # TODO: if .bag doesn't exist, prompt to create it?
-    # TODO: add a 'show graphs' option to the call
     
-    # the particular trajectory number
+    # get the trajectory number from the provided .bag file name
     trajectory = re.search("trajectory_(.*?)_", bagFilePath).group(1)
     
     # define the path to the folder containing our sensor records
@@ -79,7 +80,7 @@ def main():
     groundTruthRate = 100   # the ground truth data is logged at 100Hz
     
     # create a time series that is the length of the data so we can align 
-    # the ground truth with the estimated pose graph
+        # the ground truth with the estimated pose graph
     timestampGT = np.arange(0, len(poseGraphGroundTruth)/groundTruthRate, 1/groundTruthRate).tolist()
     
     # rounding etc. can cause timestamp array to be an element too long
@@ -89,10 +90,11 @@ def main():
     # ORB-SLAM2 writes the pose estimate to this .txt file
     poseGraphPath = os.getcwd() + "/KeyFrameTrajectory.txt"
     
-    # open the .txt file and grab the lines of output from rostopic
+    # open the .txt file and grab the lines of output
     with open(poseGraphPath, "r") as f2:
         poseGraphEstimate = f2.read().splitlines()
     
+    # if the estimator never actually got a good track, exit
     if len(poseGraphEstimate) == 0:
         return([-1, -1, -1])
     
@@ -102,40 +104,72 @@ def main():
     poseEst = [None] * 3 # initialise a list for the estimated pose graphs
     
     # format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
+    # NOTE: x,y,z axes are different for MidAir and ORB-SLAM2, so the
+        # pose estimate axes are transferred to the MidAir convention
+        # midair: x,y,z = forward, rightward, downward
+        # orbslam: x,y,z = rightward, downward, forward
     timestampEst = [(float(row[0]) - 100000) for row in poseGraphEstimate]
     poseEst[0] = [float(row[3]) for row in poseGraphEstimate]
     poseEst[1] = [float(row[1]) for row in poseGraphEstimate]
     poseEst[2] = [float(row[2]) for row in poseGraphEstimate]
- 
+    
+    # get the ground truth timestamps that correspond to the start/end of the estimation
     firstTimestampIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[0])))
     lastTimestampIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[-1])))
     
+    # truncate the ground truth to the estimation window
     timestampGT = timestampGT[firstTimestampIdx:lastTimestampIdx]
     poseGT = [line[firstTimestampIdx:lastTimestampIdx] for line in poseGT]
     attitudeGT = [line[firstTimestampIdx:lastTimestampIdx] for line in attitudeGT]
     
+    # with the truncation, the ground truth will no longer start at [0,0,0]
+        # remove the position bias from the truncated ground truth so that the
+        # estimation world frame origin and the ground truth world frame origin were
+        # conincident at the time that estimation started
     poseGT[0] = [(a - poseGT[0][0]) for a in poseGT[0]]
     poseGT[1] = [(a - poseGT[1][0]) for a in poseGT[1]]
     poseGT[2] = [(a - poseGT[2][0]) for a in poseGT[2]]
     
+    # get the ground truth attitude at the new start time and form quaternion object
     initialAttitude = [attitudeGT[el][0] for el in range(4)]
-    
     initialQuaternion = Quaternion(initialAttitude)
     
+    # rearrange the pose est into [x,y,z][x,y,z].. instead of [x,x,..][y,y,..][z,z,..]
     xyz = [[poseEst[0][a], poseEst[1][a], poseEst[2][a]] for a in range(len(poseEst[0]))]
     
+    # the origins are now coincident, but any rotations that happened between
+        # ground truth start time and estimation start time need to be removed
+        # so that at estimation start time the two world frames are aligned
     for i in range(len(xyz)):
         rotatedPose = initialQuaternion.rotate(xyz[i])
         poseEst[0][i] = rotatedPose[0]
         poseEst[1][i] = rotatedPose[1]
         poseEst[2][i] = rotatedPose[2]
     
+    # V-SLAM can't get absolute scale. Find the relative scale by looking at
+        # the difference in the range of measurements, then scale the estimate
     scaleFactor = (max(poseGT[0])-min(poseGT[0]))/(max(poseEst[0])-min(poseEst[0]))
-    
     poseEst = [[j*scaleFactor for j in i] for i in poseEst]
+    
+    # ORB-SLAM2 SVE writes the estimated visibility parameters to this .txt file
+    SVEPath = os.getcwd() + "/SceneVisibilityEstimation.txt"
+    
+    # open the .txt file and grab the lines of output
+    with open(SVEPath, "r") as f3:
+        SVE_timeSeries = f3.read().splitlines()
+    
+    SVE = [None] * 4    # empty array to store visibility estimation
+    
+    # format (0)timestamp (1)visibility (2)SVE_a (3)SVE_b (4)SVE_c
+    timestampEst = [(float(row[0]) - 100000) for row in SVE_timeSeries]
+    SVE[0] = [float(row[1]) for row in SVE_timeSeries]
+    SVE[1] = [float(row[2]) for row in SVE_timeSeries]
+    SVE[2] = [float(row[3]) for row in SVE_timeSeries]
+    SVE[2] = [float(row[4]) for row in SVE_timeSeries]
     
     ### PLOTS ###
     
+    # plot a 3D representation of the trajectory ground truth and estimate
     trajAx = plt.axes(projection='3d')
     trajAx.plot3D(poseEst[0], poseEst[1], poseEst[2], 'blue', label='EST')
     trajAx.plot3D(poseGT[0], poseGT[1], poseGT[2], 'red', label='GT')
@@ -163,17 +197,6 @@ def main():
     # turn off the tick labels for non-edge plots to avoid clipping
     axs[0].set_xticklabels([])
     axs[1].set_xticklabels([])
-    
-    plt.show()
-    
-    # 1x2 grid of subplots for x/y pose plot comparisons
-    axs2 = plt.axes()   
-    
-    axs2.plot(poseGT[0], poseGT[1], 'red', label='GT')
-    axs2.plot(poseEst[0], poseEst[1], 'blue', label='EST')
-    axs2.grid()
-    axs2.legend()
-    axs2.set(xlabel="X Position (m)", ylabel="Y Position (m)")
     
     plt.show()
     

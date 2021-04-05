@@ -4,6 +4,9 @@ Do the flaggng process on generate IMU data like bag file
 ViViD documentation and report work
 Get trajectory error plot and total (RMSE)
 Adjust SVE metrics to make more sense? c seems consistently low, b seems consistently high...
+Add visibility measurement to the bottom of the frame
+Add midair calibration files to folder
+
 
 Plot goals:
 3D trajectory plotting on single axes
