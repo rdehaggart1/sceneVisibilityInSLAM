@@ -20,6 +20,11 @@ Link to final paper:
         - [Adding ORB-SLAM2 SVE ROS Package](#packageORB)
         - [Building ORB-SLAM2 SVE](#buildingORB)
     - [Getting Datasets](#gettingData)
+        - [ViViD](#getVivid)
+        - [MidAir](#getMidair)
+    - [Configuring Datasets for Testing](#configureData)
+        - [ViViD](#configVivid)
+        - [MidAir](#configMidair)
 
 <a name="prereq"/>
 
@@ -147,12 +152,17 @@ rospack list
 Through the development of this work, two datasets were used for analyses, namely ViViD ([website](https://sites.google.com/view/dgbicra2019-vivid/), [paper](https://irap.kaist.ac.kr/index.php/Main/Publication?action=bibentry&bibfile=ref.bib&bibref=alee-2019-icra-ws)) and MidAir ([website](https://midair.ulg.ac.be/), [paper](https://ieeexplore.ieee.org/document/9025697)).
 
 Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the ViViD and MidAir datasets to run the code on
+
+<a name="getVivid"/>
+
 ### ViViD
 To download some data for the ViViD dataset:
 1. Go to [https://sites.google.com/view/dgbicra2019-vivid/](https://sites.google.com/view/dgbicra2019-vivid/)
 2. Scroll to the bottom of the page to understand the available segments, and decide which one(s) sound most appropriate. Click the 'Request Download (link)' button at the bottom to be taken to a google form which allows you to select the data you'd like to download
 3. The link to a google drive page containing this data (sensor data in a .bag format, ground truth in a .trc format) will be emailed to you
 4. Download the files into the `sceneVisibilityInSLAM/ViViD/ViViD` folder
+
+<a name="getMidair"/>
 
 ### MidAir
 To download some data for the MidAir dataset:
@@ -172,8 +182,16 @@ To download some data for the MidAir dataset:
     find . -name "*.zip" | while read filename; do unzip -o -d $(dirname "$filename") "$filename"; done;
     ```
 
-## Configuring Datasets for Use with the Algorithms
+<a name="configData"/>
+
+## Configuring Datasets for Testing
+
+<a name="configVivid"/>
+
 ### ViViD
+
+<a name="configMidair"/>
+
 ### MidAir
 Once the data are downloaded and the archives uncompressed, as per the above instructions, the files should be presented as displayed below.
 ```   
