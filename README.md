@@ -15,9 +15,10 @@ Link to final paper:
     - [Notes](#PreqNotes)
 - [2. Installation](#install)
     - [Cloning this Repository](#cloningBase)
-    - [Cloning ORB-SLAM2 SVE](#cloningORB)
-    - [Adding ORB-SLAM2 SVE ROS Package](#packageORB)
-    - [Building ORB-SLAM2 SVE](#buildingORB)
+    - [ORB-SLAM2 with Scene Visibility Estimation (ORB-SLAM2 SVE)](#ORBSVE)
+        - [Cloning ORB-SLAM2 SVE](#cloningORB)
+        - [Adding ORB-SLAM2 SVE ROS Package](#packageORB)
+        - [Building ORB-SLAM2 SVE](#buildingORB)
     - [Getting Datasets](#gettingData)
 
 <a name="prereq"/>
@@ -70,9 +71,13 @@ To clone this repository onto your machine, open a terminal in the desired cloni
 
 `git clone https://github.com/rdehaggart1/sceneVisibilityInSLAM.git`
 
+<a name="ORBSVE"/>
+
+## ORB-SLAM2 with Scene Visibility Estimation (ORB-SLAM2 SVE)
+
 <a name="cloningORB"/>
 
-## Cloning ORB-SLAM2 SVE
+### Cloning ORB-SLAM2 SVE
 To access the [modified ORB-SLAM2 source code](https://github.com/rdehaggart1/ORB_SLAM2_SVE) that includes components for scene visibility estimation (SVE), run the following command in the root `sceneVisibilityInSLAM` folder:
 
 ```
@@ -83,7 +88,7 @@ So the path to the modified repository should be `<PATH>/sceneVisibilityInSLAM/O
 
 <a name="packageORB"/>
 
-## Adding ORB-SLAM2 SVE ROS Package
+### Adding ORB-SLAM2 SVE ROS Package
 
 You should now have a local repository of the modified ORB-SLAM2 code. The original ORB-SLAM2 has a ROS package of the same name, and similarly, the modified version has a ROS package of the name <i>ORB_SLAM2_SVE</i>. ROS needs access to this new package, so you must edit your `.bashrc` file to allow for this. This can be done using a text editor like nano to open this file in the following way:
 
@@ -114,7 +119,7 @@ and in the string that is returned, you should see the path to the new package.
 
 <a name="buildingORB"/>
 
-## Building ORB-SLAM2 SVE
+### Building ORB-SLAM2 SVE
 Finally, you need to build the modified ORB-SLAM2 code for ROS. This means first building the codebase by moving to the root level of the modified `ORB_SLAM2_SVE` repository and running:
 
 ```
