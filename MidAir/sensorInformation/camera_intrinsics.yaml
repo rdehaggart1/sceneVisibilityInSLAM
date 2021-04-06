@@ -1,0 +1,24 @@
+# MidAir RGB camera parameters
+# Parameters retrieved from https://midair.ulg.ac.be/
+
+Camera Type: RGB
+
+RGB Image Published To rostopic: /cam0/image_raw
+
+Resolution: 1024 x 1024
+
+Camera Model: pinhole
+
+Intrinsic Matrix:
+# OpenCV format:
+# [f_x,  0,    c_x,
+#  0,    f_y,  c_y,
+#  0,    0,    0]
+[512.0, 0.0,    512.0,
+ 0.0,   512.0,  512.0,
+ 0.0,   0.0,    0.0]
+
+Distortion Coefficients:
+# OpenCV format:
+# [k_1, k_2, p_1, p_2, k_3]
+[0.0, 0.0, 0.0, 0.0, 0.0]
