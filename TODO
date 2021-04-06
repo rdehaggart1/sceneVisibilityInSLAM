@@ -4,15 +4,13 @@ Do the flaggng process on generate IMU data like bag file
 ViViD documentation and report work
 Adjust SVE metrics to make more sense? c seems consistently low, b seems consistently high...
 Add visibility measurement to the bottom of the frame
-Add midair calibration files to folder
 
 Generate a table of MidAir trajectories (different conditions) with median RMSE over a few executions and some average visibility. *hopefully* we'll see lower visibility means lower accuracy... Also include a tracking time (e.g. 0:04 - 0:59 seconds out of 70 or whatever)
 
-
 Plot goals:
-3D trajectory plotting on single axes
-3 2D subplots, overlaying groundtruth and estimation in each axis
-Plot of absolute error over time
-Plot of visibility over time
+3D trajectory plotting on single axes   [DONE]
+3 2D subplots, overlaying groundtruth and estimation in each axis   [DONE]
+Plot of absolute error over time    [DONE]
+Plot of visibility over time    [DONE - not happy with results so far!]
 
 
