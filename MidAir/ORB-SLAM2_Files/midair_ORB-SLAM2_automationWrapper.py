@@ -17,7 +17,7 @@ Created on Sat Feb 20 12:05:55 2021
         an average score. The parameters should be tuned within specified 
         ranges, and the score minimised.
 """
-import MidAir_VINS_runAndCompare
+import importlib
 import re
 from lmfit import Minimizer, Parameters, fit_report, minimize
 """
@@ -75,6 +75,8 @@ def main():
     print(result.brute_fval)
 """    
 def main():
+    midairOnORB = importlib.import_module("midair_ORB-SLAM2")
+    midairOnORB.main("/media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/MidAir/MidAir/PLE_test/spring/trajectory_4000_color_left.bag")
     """
     ### VINS CONFIGURATION ###
         VINS-Mono has a range of configuration parameters for the particular
@@ -178,7 +180,7 @@ def main():
     i = 0
     discontinuityCounter = 0
     while i < numLoops:
-        SSE = MidAir_VINS_runAndCompare.main(bagFilePath)
+        SSE = midair_ORB-SLAM2.main(bagFilePath)
         
         # returns [-1, -1, -1] if the test included a discontinuity. we don't
             # like these so we will redo the test

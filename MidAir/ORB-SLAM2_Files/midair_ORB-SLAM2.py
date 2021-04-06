@@ -32,11 +32,20 @@ import re
 import sys
 import subprocess
 import os 
+import math
 from pyquaternion import Quaternion
+from sklearn.metrics import mean_squared_error
+from scipy import signal
 
-def main():
+def main(*args):
     # the input argument is the path to the bag file that is being run in this test
-    bagFilePath = input("Please paste the full path to the .bag file to test:\n")
+    if len(args) == 0:
+        bagFilePath = input("Please paste the full path to the .bag file to test:\n")
+    else:
+        bagFilePath = args[0]
+        
+    if not os.path.isfile(bagFilePath):
+        sys.exit("Cannot find the provided file")
     
     # we then have a shell file that controls the terminal commands
     shellFile = os.path.abspath(os.getcwd() + "/midair_ORB-SLAM2.sh")
@@ -158,14 +167,50 @@ def main():
     with open(SVEPath, "r") as f3:
         SVE_timeSeries = f3.read().splitlines()
     
-    SVE = [None] * 4    # empty array to store visibility estimation
+    # split into lists by comma
+    SVE_timeSeries = [line.split(' ') for line in SVE_timeSeries]
+    
+    SVE_stats = [None] * 4    # empty array to store visibility estimation
     
     # format (0)timestamp (1)visibility (2)SVE_a (3)SVE_b (4)SVE_c
-    timestampEst = [(float(row[0]) - 100000) for row in SVE_timeSeries]
-    SVE[0] = [float(row[1]) for row in SVE_timeSeries]
-    SVE[1] = [float(row[2]) for row in SVE_timeSeries]
-    SVE[2] = [float(row[3]) for row in SVE_timeSeries]
-    SVE[2] = [float(row[4]) for row in SVE_timeSeries]
+    SVE_t = [(float(row[0]) - 100000) for row in SVE_timeSeries]
+    SVE_stats[1] = [float(row[2]) for row in SVE_timeSeries]
+    SVE_stats[2] = [float(row[3]) for row in SVE_timeSeries]
+    SVE_stats[3] = [float(row[4]) for row in SVE_timeSeries]
+    
+    ka = 0.2
+    kb = 0.3
+    kc = 0.5
+    
+    SVE_stats[0] = [(ka*float(row[2])) + (kb*float(row[3])) + (kc*float(row[4])) for row in SVE_timeSeries]
+    
+    #fs = 25  # Sampling frequency
+    #fc = 30  # Cut-off frequency of the filter
+    #w = fc / (fs / 2) # Normalize the frequency
+    #b, a = signal.butter(5, w, 'low')
+    #SVE_stats[0] = signal.filtfilt(b, a, SVE_stats[0])    
+    
+    # get the visibility timestamps that correspond to the start/end of the estimation
+    firstTimestampIdx = SVE_t.index(min(SVE_t, key=lambda x:abs(x-timestampEst[0])))
+    lastTimestampIdx = SVE_t.index(min(SVE_t, key=lambda x:abs(x-timestampEst[-1])))
+    
+    SVE_t = SVE_t[firstTimestampIdx:lastTimestampIdx]
+    SVE_stats = [line[firstTimestampIdx:lastTimestampIdx] for line in SVE_stats]
+    
+    matchedPoseGT = [[None] * len(timestampEst) for _ in range(3)]
+    
+    # for each estimated position, get the closest ground truth
+    for i in range(len(timestampEst)):
+        correspondingTimeGT = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[i])))
+        matchedPoseGT[0][i] = poseGT[0][correspondingTimeGT]
+        matchedPoseGT[1][i] = poseGT[1][correspondingTimeGT]
+        matchedPoseGT[2][i] = poseGT[2][correspondingTimeGT]
+    
+    errList = [None] * len(timestampEst)
+    
+    # find absolute position error in the estimate
+    for i in range(len(matchedPoseGT[0])):
+        errList[i] = math.sqrt(pow((poseEst[0][i]-matchedPoseGT[0][i]), 2) + pow((poseEst[1][i]-matchedPoseGT[1][i]), 2) + pow((poseEst[2][i]-matchedPoseGT[2][i]), 2))
     
     ### PLOTS ###
     
@@ -200,43 +245,34 @@ def main():
     
     plt.show()
     
-    ### ERROR SCORING ###
+    # plot the change in visibility over time
+    fig3, axs3 = plt.subplots(5,1)
     
-    # TODO: assess the scoring method
-    # TODO: work out what to do with the scores - where to send them for eg
+    axs3[0].plot(timestampEst, errList)
+    axs3[0].grid()
     
-    errorList = [None] * 3
-    SSE = [None] * 3
+    axs3[1].plot(SVE_t, SVE_stats[0], label='SVE')
+    axs3[2].plot(SVE_t, SVE_stats[1], label='a')
+    axs3[3].plot(SVE_t, SVE_stats[2], label='b')
+    axs3[4].plot(SVE_t, SVE_stats[3], label='c')
+    axs3[1].grid()
+    axs3[2].grid()
+    axs3[3].grid()
+    axs3[4].grid()
+    #axs3[1].legend(loc="upper left")
     
-    for axisIdx in range(3):
-        dataMatch = []
-        # for each recorded timestep in the estimate
-        for time in timestampEst:
-            # find the closest match to this timestamp in the ground truth time series
-            matched = min(timestampGT, key=lambda x:abs(x-time))
-            # and record the data at that timestamp
-            dataMatch.append(poseGT[axisIdx][timestampGT.index(matched)])
-        
-        # find the difference between the two
-        errorList[axisIdx] = [abs(dataMatch[i] - poseEst[axisIdx][i]) for i in range(len(dataMatch))]
-        # square each term, sum the squares, and divide by the square of the range of ground truth values
-        SSE[axisIdx] = sum(map(lambda x:x*x,errorList[axisIdx]))
-    
-    
-    print("Error Cost X: {}".format(SSE[0]))
-    print("Error Cost Y: {}".format(SSE[1]))
-    print("Error Cost Z: {}".format(SSE[2]))
+    plt.show()
     
     f1.close()  # close the .hdf5 file we opened
     
-    discontinuityDetect = np.where(abs(np.diff(np.array(poseEst[2])))>2)[0] + 1
     
-    # scores can be artifically low if the estimator reset during tracking, as
-        # the position resets to zero, keeping it close to the GT. we should
-        # report when this happens so we can redo the test until we get
-        # good continuity
-    if discontinuityDetect.size != 0:
-        SSE = [-1, -1, -1]
+    rmsx = mean_squared_error(poseEst[0], matchedPoseGT[0], squared=False)
+    rmsy = mean_squared_error(poseEst[1], matchedPoseGT[1], squared=False)
+    rmsz = mean_squared_error(poseEst[2], matchedPoseGT[2], squared=False)
+    
+    print("x: {}, y: {}, z: {}".format(rmsx,rmsy,rmsz))
+    
+    SSE = [0, 0, 0]
     
     return(SSE)
 
