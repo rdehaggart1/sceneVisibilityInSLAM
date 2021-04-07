@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 20 12:05:55 2021
-
 @author: rory_haggart
     This file is acting as the 'setup' wrapper to the automated test process
     The tests in particular deal with the MidAir dataset on VINS_Mono
@@ -11,17 +9,29 @@ Created on Sat Feb 20 12:05:55 2021
         store the estimated pose output, and compare this to the available
         ground truth. this function should then return a 'score' for each
         axis, where a high score means high deviation from the ground truth.
-    This file can then also act as a method for optimisation. Using Dakota
-        or similar, this file should be able to modify the various VINS
-        parameters, and run some number of tests with each set and take
-        an average score. The parameters should be tuned within specified 
-        ranges, and the score minimised.
 """
 import importlib
-import re
-from lmfit import Minimizer, Parameters, fit_report, minimize
+import matplotlib.pyplot as plt
 
 def main():
+    """
+    ### TEST CONDITIONS ###    
+      the environment to run 
+          [Kite_test, Kite_training, PLE_test, PLE_training, VO_test]
+      the condition (weather / season)
+          Kite environment: [cloudy, foggy, sunny, sunset]
+          PLE environment: [fall, spring winter]
+          VO environment: [foggy, sunny, sunset]
+      the number of the trajectory
+      the camera to use
+          [color_down, color_left, color_right]
+    """
+    
+    environment = "Kite_training" 
+    condition = "sunny"
+    trajectory = "0021"
+    camera = "color_left"
+    
     midairOnORB = importlib.import_module("midair_ORB-SLAM2")
     """
     # the config_file is for configuring VINS_Mono for this particular dataset
@@ -84,25 +94,7 @@ def main():
     """
     root = "/media/rory_haggart/ENDLESS_BLU/sceneVisibilityInSLAM/MidAir"
     
-    """
-    ### TEST CONDITIONS ###    
-      the environment to run 
-          [Kite_test, Kite_training, PLE_test, PLE_training, VO_test]
-      the condition (weather / season)
-          Kite environment: [cloudy, foggy, sunny, sunset]
-          PLE environment: [fall, spring winter]
-          VO environment: [foggy, sunny, sunset]
-      the number of the trajectory
-      the camera to use
-          [color_down, color_left, color_right]
-    """
-    
     # TODO: loop through lists of conditions
-    
-    environment = "Kite_training" 
-    condition = "sunny"
-    trajectory = "0021"
-    camera = "color_left"
     
     bagFilePath = root + "/MidAir/" + environment + "/" + condition +  "/trajectory_" + trajectory + "_" + camera + ".bag"
     
@@ -115,17 +107,19 @@ def main():
     i = 0
     discontinuityCounter = 0
     
-    errList = [[None] * 3 for _ in range(numLoops)]
+    ATEList = [None] * numLoops
+    avgVisList = [None] * numLoops
     
     while i < numLoops:
-        SSE = midairOnORB.main(bagFilePath)
+        ATE, meanVis = midairOnORB.main(bagFilePath)
         
         # TODO: CHECK FOR BAD TRACK
-        if SSE == [-1, -1, -1]:
+        if ATE == -1:
             i -= 1
             discontinuityCounter += 1
         else:
-            errList[i] = SSE
+            ATEList[i] = ATE
+            avgVisList[i] = meanVis
             
         # if we're just getting loads of discontinuities, exit with a high score
         if discontinuityCounter == 3:
@@ -133,7 +127,15 @@ def main():
         
         i += 1
         
-    print(errList)
+    print(ATEList)
+    print(avgVisList)
+    
+    plt.plot(ATEList, avgVisList)
+    plt.xlabel("Absolute Trajectory Error (m RMSE)")
+    plt.ylabel("Average Visibility Score")
+    plt.grid()
+    plt.show()
+    
     
 if __name__ == "__main__":
     main()

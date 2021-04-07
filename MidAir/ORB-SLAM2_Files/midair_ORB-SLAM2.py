@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar 19 14:06:31 2021
-
 @author: rory_haggart
 
 BRIEF:  This script self-contains the full process of running a segment of 
@@ -26,7 +24,6 @@ TODO:
 """
 import h5py    # to read .hdf5 sensor records files
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
 import numpy as np
 import re
 import sys
@@ -34,8 +31,7 @@ import subprocess
 import os 
 import math
 from pyquaternion import Quaternion
-from sklearn.metrics import mean_squared_error
-from scipy import signal
+import statistics
 
 def main(*args):
     # the input argument is the path to the bag file that is being run in this test
@@ -105,7 +101,7 @@ def main(*args):
     
     # if the estimator never actually got a good track, exit
     if len(poseGraphEstimate) == 0:
-        return([-1, -1, -1])
+        return(-1)
     
     # split into lists by comma
     poseGraphEstimate = [line.split(' ') for line in poseGraphEstimate]
@@ -179,16 +175,11 @@ def main(*args):
     SVE_stats[3] = [float(row[4]) for row in SVE_timeSeries]
     
     ka = 0.2
-    kb = 0.3
-    kc = 0.5
+    kb = 0.6
+    kc = 0.4
     
-    SVE_stats[0] = [(ka*float(row[2])) + (kb*float(row[3])) + (kc*float(row[4])) for row in SVE_timeSeries]
-    
-    #fs = 25  # Sampling frequency
-    #fc = 30  # Cut-off frequency of the filter
-    #w = fc / (fs / 2) # Normalize the frequency
-    #b, a = signal.butter(5, w, 'low')
-    #SVE_stats[0] = signal.filtfilt(b, a, SVE_stats[0])    
+    # (a)*(kb*b + kc*c)
+    SVE_stats[0] = [float(row[2]) * (kb*float(row[3]) + kc*float(row[4])) for row in SVE_timeSeries]
     
     # get the visibility timestamps that correspond to the start/end of the estimation
     firstTimestampIdx = SVE_t.index(min(SVE_t, key=lambda x:abs(x-timestampEst[0])))
@@ -265,16 +256,15 @@ def main(*args):
     
     f1.close()  # close the .hdf5 file we opened
     
+    ATE = np.sqrt(np.mean(np.array(errList)**2))
+
+    print("Absolutue Trajectory Error: {}".format(ATE))
     
-    rmsx = mean_squared_error(poseEst[0], matchedPoseGT[0], squared=False)
-    rmsy = mean_squared_error(poseEst[1], matchedPoseGT[1], squared=False)
-    rmsz = mean_squared_error(poseEst[2], matchedPoseGT[2], squared=False)
+    meanVis = statistics.mean(SVE_stats[0])
     
-    print("x: {}, y: {}, z: {}".format(rmsx,rmsy,rmsz))
+    print("Mean Visibility: {}".format(meanVis))
     
-    SSE = [0, 0, 0]
-    
-    return(SSE)
+    return(ATE, meanVis)
 
 if __name__ == "__main__":
     main()
