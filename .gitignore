@@ -5,6 +5,6 @@
 *KeyFrameTrajectory.txt
 *SceneVisibilityEstimation.txt
 
-*/__pycache__
+*/__pycache__/
 
 ORB_SLAM2_SVE/

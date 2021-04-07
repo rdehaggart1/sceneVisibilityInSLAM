@@ -101,7 +101,7 @@ def main(*args):
     
     # if the estimator never actually got a good track, exit
     if len(poseGraphEstimate) == 0:
-        return(-1)
+        return(-1,-1)
     
     # split into lists by comma
     poseGraphEstimate = [line.split(' ') for line in poseGraphEstimate]
@@ -117,6 +117,9 @@ def main(*args):
     poseEst[0] = [float(row[3]) for row in poseGraphEstimate]
     poseEst[1] = [float(row[1]) for row in poseGraphEstimate]
     poseEst[2] = [float(row[2]) for row in poseGraphEstimate]
+    
+    if (max(timestampEst) - min(timestampEst))/(max(timestampGT) - min(timestampGT)) < 0.6:
+        return(-1,-1)
     
     # get the ground truth timestamps that correspond to the start/end of the estimation
     firstTimestampIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[0])))
@@ -175,11 +178,11 @@ def main(*args):
     SVE_stats[3] = [float(row[4]) for row in SVE_timeSeries]
     
     ka = 0.2
-    kb = 0.6
+    kb = 0.4
     kc = 0.4
     
     # (a)*(kb*b + kc*c)
-    SVE_stats[0] = [float(row[2]) * (kb*float(row[3]) + kc*float(row[4])) for row in SVE_timeSeries]
+    SVE_stats[0] = [ka*float(row[2]) + kb*float(row[3]) + kc*float(row[4]) for row in SVE_timeSeries]
     
     # get the visibility timestamps that correspond to the start/end of the estimation
     firstTimestampIdx = SVE_t.index(min(SVE_t, key=lambda x:abs(x-timestampEst[0])))
@@ -258,7 +261,7 @@ def main(*args):
     
     ATE = np.sqrt(np.mean(np.array(errList)**2))
 
-    print("Absolutue Trajectory Error: {}".format(ATE))
+    print("Absolute Trajectory Error: {}".format(ATE))
     
     meanVis = statistics.mean(SVE_stats[0])
     

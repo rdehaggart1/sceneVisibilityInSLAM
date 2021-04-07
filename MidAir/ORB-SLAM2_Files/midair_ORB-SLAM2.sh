@@ -4,6 +4,7 @@ set -m
 
 killall -9 roscore # kill any roscore/master processes that are lingering
 killall -9 rosmaster
+killall -9 rosout
 
 sleep 10
 
@@ -33,13 +34,12 @@ sleep 1         # more sleeping
 
 killall -9 roscore      # kill any roscore/master processes that are lingering
 killall -9 rosmaster
+killall -9 rosout
 
 sleep 5         # let process die
 
-
 processID=$(pidof Mono)
 kill -SIGINT $processID
-#pkill -f Mono
 
 echo -ne "\n\n" # move down to a new prompt
 
