@@ -1,9 +1,12 @@
 Check ViViD against ground truth (and set up the full automation script like MidAir)
-Apply ground truth attitude again
+Apply ground truth attitude again to midair
 Do the flaggng process on generate IMU data like bag file
 ViViD documentation and report work
-Adjust SVE metrics to make more sense? c seems consistently low, b seems consistently high...
 Add visibility measurement to the bottom of the frame
+test midair on vins!
+test some down camera extracts to see how well it tracks on orb
+get some visibility out of vivid. ideally maintaining track throughout for real time insight
+test that malaga extract to see effects of lens flare
 
 Generate a table of MidAir trajectories (different conditions) with median RMSE over a few executions and some average visibility. *hopefully* we'll see lower visibility means lower accuracy... Also include a tracking time (e.g. 0:04 - 0:59 seconds out of 70 or whatever)
 

@@ -57,12 +57,15 @@ def main():
                 ATEList[i] = ATE
                 avgVisList[i] = meanVis
                 
-            # if we're just getting loads of faults, exit with a high score
-            if faultCounter == 3:
-                i = 5
+            # if we're just getting loads of faults, exit
+            if faultCounter == 10:
+                i = numLoops
             
             i += 1
-            
+        
+        ATEList = [val for val in ATEList if val]
+        avgVisList = [val for val in avgVisList if val]
+        
         print(ATEList)
         print(avgVisList)
         

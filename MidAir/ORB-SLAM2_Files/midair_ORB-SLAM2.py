@@ -118,7 +118,7 @@ def main(*args):
     poseEst[1] = [float(row[1]) for row in poseGraphEstimate]
     poseEst[2] = [float(row[2]) for row in poseGraphEstimate]
     
-    if (max(timestampEst) - min(timestampEst))/(max(timestampGT) - min(timestampGT)) < 0.6:
+    if (max(timestampEst) - min(timestampEst))/(max(timestampGT) - min(timestampGT)) < 0.5:
         return(-1,-1)
     
     # get the ground truth timestamps that correspond to the start/end of the estimation
