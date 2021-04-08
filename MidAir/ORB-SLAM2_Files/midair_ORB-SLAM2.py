@@ -32,6 +32,8 @@ import os
 import math
 from pyquaternion import Quaternion
 import statistics
+import bagpy
+from bagpy import bagreader
 
 def main(*args):
     # the input argument is the path to the bag file that is being run in this test

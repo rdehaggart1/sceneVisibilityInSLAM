@@ -3,11 +3,12 @@ Apply ground truth attitude again to midair
 Do the flaggng process on generate IMU data like bag file
 ViViD documentation and report work
 Add visibility measurement to the bottom of the frame
-test midair on vins!
 test some down camera extracts to see how well it tracks on orb
 get some visibility out of vivid. ideally maintaining track throughout for real time insight
 test that malaga extract to see effects of lens flare
-try orb slam 3! maybe itll work now that things are a bit more ordered and put together
+is there a way to extract the vivid attitude from the .bag file? or from the ground truth pose? (https://wiki.ros.org/rosbag/Code%20API)
+use bagpy to find midair bag start time and subtract it
+
 
 Generate a table of MidAir trajectories (different conditions) with median RMSE over a few executions and some average visibility. *hopefully* we'll see lower visibility means lower accuracy... Also include a tracking time (e.g. 0:04 - 0:59 seconds out of 70 or whatever)
 

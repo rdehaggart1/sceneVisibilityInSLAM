@@ -38,7 +38,6 @@ sleep 5         # let process die
 
 processID=$(pidof Mono)
 kill -SIGINT $processID
-#pkill -f Mono
 
 echo -ne "\n\n" # move down to a new prompt
 
