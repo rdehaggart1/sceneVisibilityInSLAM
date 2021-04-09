@@ -70,10 +70,6 @@ def main():
         print("The images for this particular trajectory have not yet been unzipped.\nPlease unzip and try again.")
         sys.exit(0)
     
-    # note the provided estimations of the initial sensor biases
-    accelerometerInitBiasEst = accelerometer.attrs['init_bias_est'][0]
-    gyroscopeInitBiasEst = gyroscope.attrs['init_bias_est'][0]
-    
     # .bag file name is of the format trajectoryNumber_camera.bag and is located in environment/condition
     bagFilePath = sensorRecordsPath + "/trajectory_" + trajectory + "_" + camera + ".bag"
     
@@ -189,18 +185,11 @@ def main():
         imu_msg.angular_velocity.y = gyroLine[1]
         imu_msg.angular_velocity.z = gyroLine[2]
         
-        # currently, no data on local attitude is available, so as per message
-            # standard, set orientation covariance to -1
-            # http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/Imu.html
-        # we do have ground truth attitude so should be able to extract local
-            # angles, but not completed yet
-        imu_msg.orientation_covariance = [-1 for i in imu_msg.orientation_covariance]
-        
         # attitude (quaternion)
-        #imu_msg.orientation.x = attitudeLine[1]
-        #imu_msg.orientation.y = attitudeLine[2]
-        #imu_msg.orientation.z = attitudeLine[3]
-        #imu_msg.orientation.w = attitudeLine[0]
+        imu_msg.orientation.w = attitudeLine[0]
+        imu_msg.orientation.x = attitudeLine[1]
+        imu_msg.orientation.y = attitudeLine[2]
+        imu_msg.orientation.z = attitudeLine[3]
         
         # write the imu_msg to the bag file
         bag.write("imu0", imu_msg, imu_msg.header.stamp) 

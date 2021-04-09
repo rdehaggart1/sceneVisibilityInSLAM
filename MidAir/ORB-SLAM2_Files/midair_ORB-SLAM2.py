@@ -36,6 +36,7 @@ import bagpy
 from bagpy import bagreader
 
 def main(*args):
+    
     # the input argument is the path to the bag file that is being run in this test
     if len(args) == 0:
         bagFilePath = input("Please paste the full path to the .bag file to test:\n")
@@ -45,7 +46,7 @@ def main(*args):
     if not os.path.isfile(bagFilePath):
         sys.exit("Cannot find the provided file")
     
-    # we then have a shell file that controls the terminal commands
+    # we have a shell file that controls the terminal commands for running this .bag file
     shellFile = os.path.abspath(os.getcwd() + "/midair_ORB-SLAM2.sh")
     
     # make the shell file executable
@@ -53,108 +54,41 @@ def main(*args):
     # run the shell file with the selected bag file as an input argument
     subprocess.run(shellFile + " " + bagFilePath, shell=True, executable='/bin/bash')
     
-    # TODO: if .bag doesn't exist, prompt to create it?
-    
     # get the trajectory number from the provided .bag file name
     trajectory = re.search("trajectory_(.*?)_", bagFilePath).group(1)
     
-    # define the path to the folder containing our sensor records
+    # define the path to the folder containing our sensor records and get ground truth
     sensorRecordsPath = os.path.abspath(os.path.dirname(bagFilePath))  
+    sensorRecords = h5py.File(sensorRecordsPath + '/sensor_records.hdf5','r+')   
+    
+    # extract the ground truth data from the sensor records file for this trajectory
+    timestampGT, poseGT, attitudeGT = getGroundTruth(sensorRecords, trajectory)
+    
+    # ORB-SLAM2 writes the pose estimate to this .txt file after completion
+    trajectoryEstimateFile = os.getcwd() + "/KeyFrameTrajectory.txt"
 
-    # open sensor_records.hdf5 (for ground truth info)
-    f1 = h5py.File(sensorRecordsPath + '/sensor_records.hdf5','r+')   
+    # extract the timestamped pose estimate from the ORB-SLAM2 output file
+        # returns -1, -1 if error
+    timestampEst, poseEst = getEstimate(trajectoryEstimateFile)
     
-    # get the group for the ground truth records
-    groundTruth = f1['trajectory_' + trajectory]['groundtruth']
+    # e.g. if track never started
+    if timestampEst == -1:
+        return(-1, -1)
     
-    poseGT = [None] * 3 # initialise a list for the ground truth pose graphs
-    
-    # get the position data and extract x, y, z
-    poseGraphGroundTruth = list(groundTruth['position'])
-    poseGT[0] = [row[0] for row in poseGraphGroundTruth] # x
-    poseGT[1] = [row[1] for row in poseGraphGroundTruth] # y
-    poseGT[2] = [row[2] for row in poseGraphGroundTruth] # z
-    
-    attitudeGT = [None] * 4 # initialise a list for the ground truth attitude 
-    
-    # get the attitude data (quaternion)
-    attitudeGroundTruth = list(groundTruth['attitude'])
-    attitudeGT[0] = [row[0] for row in attitudeGroundTruth] # w
-    attitudeGT[1] = [row[1] for row in attitudeGroundTruth] # x
-    attitudeGT[2] = [row[2] for row in attitudeGroundTruth] # y
-    attitudeGT[3] = [row[3] for row in attitudeGroundTruth] # z
-    
-    groundTruthRate = 100   # the ground truth data is logged at 100Hz
-    
-    # create a time series that is the length of the data so we can align 
-        # the ground truth with the estimated pose graph
-    timestampGT = np.arange(0, len(poseGraphGroundTruth)/groundTruthRate, 1/groundTruthRate).tolist()
-    
-    # rounding etc. can cause timestamp array to be an element too long
-    if len(timestampGT) > len(poseGraphGroundTruth):
-        timestampGT = timestampGT[0:len(poseGraphGroundTruth)]
-    
-    # ORB-SLAM2 writes the pose estimate to this .txt file
-    poseGraphPath = os.getcwd() + "/KeyFrameTrajectory.txt"
-    
-    # open the .txt file and grab the lines of output
-    with open(poseGraphPath, "r") as f2:
-        poseGraphEstimate = f2.read().splitlines()
-    
-    # if the estimator never actually got a good track, exit
-    if len(poseGraphEstimate) == 0:
-        return(-1,-1)
-    
-    # split into lists by comma
-    poseGraphEstimate = [line.split(' ') for line in poseGraphEstimate]
-    
-    poseEst = [None] * 3 # initialise a list for the estimated pose graphs
-    
-    # format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
-    # NOTE: x,y,z axes are different for MidAir and ORB-SLAM2, so the
-        # pose estimate axes are transferred to the MidAir convention
-        # midair: x,y,z = forward, rightward, downward
-        # orbslam: x,y,z = rightward, downward, forward
-    timestampEst = [(float(row[0]) - 100000) for row in poseGraphEstimate]
-    poseEst[0] = [float(row[3]) for row in poseGraphEstimate]
-    poseEst[1] = [float(row[1]) for row in poseGraphEstimate]
-    poseEst[2] = [float(row[2]) for row in poseGraphEstimate]
-    
+    # if the estimate didn't last longer than half the total time, its bad
     if (max(timestampEst) - min(timestampEst))/(max(timestampGT) - min(timestampGT)) < 0.5:
         return(-1,-1)
     
-    # get the ground truth timestamps that correspond to the start/end of the estimation
-    firstTimestampIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[0])))
-    lastTimestampIdx = timestampGT.index(min(timestampGT, key=lambda x:abs(x-timestampEst[-1])))
+    # the estimate won't start/end at bounds of ground truth
+        # we should truncate the ground truth data to the window that the 
+        # estimate was running for, so comparisons are accurate
+    timestampGT, poseGT, attitudeGT = truncateGroundTruth(timestampEst, timestampGT, poseGT, attitudeGT)
     
-    # truncate the ground truth to the estimation window
-    timestampGT = timestampGT[firstTimestampIdx:lastTimestampIdx]
-    poseGT = [line[firstTimestampIdx:lastTimestampIdx] for line in poseGT]
-    attitudeGT = [line[firstTimestampIdx:lastTimestampIdx] for line in attitudeGT]
-    
-    # with the truncation, the ground truth will no longer start at [0,0,0]
-        # remove the position bias from the truncated ground truth so that the
-        # estimation world frame origin and the ground truth world frame origin were
-        # conincident at the time that estimation started
-    poseGT[0] = [(a - poseGT[0][0]) for a in poseGT[0]]
-    poseGT[1] = [(a - poseGT[1][0]) for a in poseGT[1]]
-    poseGT[2] = [(a - poseGT[2][0]) for a in poseGT[2]]
-    
-    # get the ground truth attitude at the new start time and form quaternion object
-    initialAttitude = [attitudeGT[el][0] for el in range(4)]
-    initialQuaternion = Quaternion(initialAttitude)
-    
-    # rearrange the pose est into [x,y,z][x,y,z].. instead of [x,x,..][y,y,..][z,z,..]
-    xyz = [[poseEst[0][a], poseEst[1][a], poseEst[2][a]] for a in range(len(poseEst[0]))]
-    
-    # the origins are now coincident, but any rotations that happened between
-        # ground truth start time and estimation start time need to be removed
-        # so that at estimation start time the two world frames are aligned
-    for i in range(len(xyz)):
-        rotatedPose = initialQuaternion.rotate(xyz[i])
-        poseEst[0][i] = rotatedPose[0]
-        poseEst[1][i] = rotatedPose[1]
-        poseEst[2][i] = rotatedPose[2]
+    # at the time of estimation start, the drone will have translated and rotated
+        # relative to ground truth world frame. this means estimation world frame
+        # will be offset from ground truth by this position and rotation.
+        # this function corrects that and aligns the two frames
+    poseEst, poseGT = alignReferenceFrames(poseEst, poseGT, attitudeGT)
     
     # V-SLAM can't get absolute scale. Find the relative scale by looking at
         # the difference in the range of measurements, then scale the estimate
@@ -209,7 +143,7 @@ def main(*args):
         errList[i] = math.sqrt(pow((poseEst[0][i]-matchedPoseGT[0][i]), 2) + pow((poseEst[1][i]-matchedPoseGT[1][i]), 2) + pow((poseEst[2][i]-matchedPoseGT[2][i]), 2))
     
     ### PLOTS ###
-    
+    # TODO: move plots into their own functions and neaten up
     # plot a 3D representation of the trajectory ground truth and estimate
     trajAx = plt.axes(projection='3d')
     trajAx.plot3D(poseEst[0], poseEst[1], poseEst[2], 'blue', label='EST')
@@ -259,7 +193,7 @@ def main(*args):
     
     plt.show()
     
-    f1.close()  # close the .hdf5 file we opened
+    sensorRecords.close()  # close the .hdf5 file we opened
     
     ATE = np.sqrt(np.mean(np.array(errList)**2))
 
@@ -271,5 +205,133 @@ def main(*args):
     
     return(ATE, meanVis)
 
+def getGroundTruth(sensorRecordsFile, trajectoryNumber):
+    # get the ground truth group from the sensor records file
+    groundTruth = sensorRecordsFile['trajectory_' + trajectoryNumber]['groundtruth']
+    
+    ### POSITION
+    # initialise an empty list to store the three-axis position values
+    position_groundTruth = [None] * 3
+    # get the ground truth position
+    pGT = list(groundTruth['position'])
+    # store as [[x,x,x...], [y,y,y,...], [z,z,z,...]] for easy plotting
+    position_groundTruth = [[row[i] for row in pGT] for i in range(3)]
+    ###
+    
+    ### ORIENTATION
+    # initialise an empty list for the ground truth orientation
+    orientation_groundTruth = [None] * 4 
+    # get the ground truth orientation (quaternion)
+    oGT = list(groundTruth['attitude'])
+    # store as [[w,w,w,...], [x,x,x,...], [y,y,y,...], [z,z,z,...]]
+    orientation_groundTruth = [[row[i] for row in oGT] for i in range(4)]
+    ###
+    
+    ### TIMESTAMPS
+    # the ground truth is logged at 100Hz for the MidAir dataset
+    groundTruthFrequency = 100   
+    # no time data is provided in sensor records, so generate an array based on freq
+    timestamp_groundTruth = np.arange(0, 
+                                      len(position_groundTruth[0])/groundTruthFrequency, 
+                                      1/groundTruthFrequency).tolist()
+    # rounding of np.arrange end point can cause timestamp array to be an element too long
+    if len(timestamp_groundTruth) > len(position_groundTruth[0]):
+        # clip the timestamp array down to size
+        timestamp_groundTruth = timestamp_groundTruth[0:len(position_groundTruth[0])]
+    ###    
+    
+    # return the time, pose, orientation
+    return(timestamp_groundTruth, position_groundTruth, orientation_groundTruth)
+
+def getEstimate(trajectoryEstimateFile):
+    with open(trajectoryEstimateFile, "r") as f2:
+        trajectoryOutput = f2.read().splitlines()
+        
+    # if the estimator never actually got a good track, exit
+    if len(trajectoryOutput) == 0:
+        return(-1,-1)
+    
+    # split into lists
+    trajectoryOutput = [line.split(' ') for line in trajectoryOutput]
+    
+    ### POSITION
+    # initialise a list for the estimated position
+    position_estimate = [None] * 3
+    # output .txt format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
+    # NOTE: x,y,z axes are different for MidAir and ORB-SLAM2, so the
+        # pose estimate axes are transferred to the MidAir convention
+        # midair: x,y,z = forward, rightward, downward
+        # orbslam: x,y,z = rightward, downward, forward
+    position_estimate[0] = [float(row[3]) for row in trajectoryOutput]
+    position_estimate[1] = [float(row[1]) for row in trajectoryOutput]
+    position_estimate[2] = [float(row[2]) for row in trajectoryOutput]
+    ###
+    
+    ### TIMESTAMPS
+    # TODO: get start time from .bag file directly
+    # subtract the start time of the measurements to begin at 0.0s
+    timestamp_estimate = [float(row[0]) - 100000 for row in trajectoryOutput]
+    ###
+    
+    # return the time and pose. could also get attitude, but not necessary
+    return(timestamp_estimate, position_estimate)
+
+def truncateGroundTruth(timestamp_estimate, timestamp_groundTruth, position_groundTruth, orientation_groundTruth):
+    # get the bounds of the trajectory estimate temporally
+    estimateStartTime = timestamp_estimate[0]
+    estimateEndTime = timestamp_estimate[-1]
+    
+    # get the indices of the corresponding times in the ground truth
+    groundTruthMatchedStart = min(timestamp_groundTruth, key=lambda x:abs(x-estimateStartTime))
+    groundTruthMatchedEnd = min(timestamp_groundTruth, key=lambda x:abs(x-estimateEndTime))
+    startIdx = timestamp_groundTruth.index(groundTruthMatchedStart)
+    endIdx = timestamp_groundTruth.index(groundTruthMatchedEnd)
+    
+    # truncate the ground truth lists to the defined temporal window
+    timestamp_groundTruth_truncated = timestamp_groundTruth[startIdx:endIdx]
+    position_groundTruth_truncated = [line[startIdx:endIdx] for line in position_groundTruth]
+    orientation_groundTruth_truncated = [line[startIdx:endIdx] for line in orientation_groundTruth]
+
+    return(timestamp_groundTruth_truncated, position_groundTruth_truncated, orientation_groundTruth_truncated)
+
+def alignReferenceFrames(position_estimate, position_groundTruth, orientation_groundTruth):
+    ### ORIGIN ALIGNMENT 
+    # with the truncation, the ground truth will no longer start at [0,0,0]
+        # remove the position bias from the truncated ground truth so that the
+        # estimation world frame origin and the ground truth world frame origin are
+        # conincident at the time that estimation started
+    
+    # remove position bias
+    position_groundTruth_aligned = [[(a - position_groundTruth[i][0]) for a in position_groundTruth[i]] 
+                                    for i in range(3)]
+    ###
+    
+    ### ORIENTATION ALIGNMENT
+    # since the estimation starts after finite time t, the estimation world
+        # frame will be oriented at some angle offset relative to the ground
+        # truth world frame. correct that here
+        
+    # get the ground truth attitude (quaternion: w,x,y,z) at the estimation start time
+    initialAttitude = [orientation_groundTruth[el][0] for el in range(4)]
+    initialQuaternion = Quaternion(initialAttitude)
+    
+    # rearrange the pose est into [x,y,z][x,y,z].. instead of [x,x,..][y,y,..][z,z,..]
+    xyz = [[position_estimate[0][a], 
+            position_estimate[1][a], 
+            position_estimate[2][a]] for a in range(len(position_estimate[0]))]
+    
+    # create a new position estimate list for the re-oriented data
+    position_estimate_aligned = position_estimate.copy()
+    
+    # rotate each 3-D point by the amount that the estimation is offset from ground truth
+    for i in range(len(xyz)):
+        rotatedPose = initialQuaternion.rotate(xyz[i])
+        position_estimate_aligned[0][i] = rotatedPose[0]
+        position_estimate_aligned[1][i] = rotatedPose[1]
+        position_estimate_aligned[2][i] = rotatedPose[2]
+    ###
+    
+    return(position_estimate_aligned, position_groundTruth_aligned)
+    
 if __name__ == "__main__":
     main()
