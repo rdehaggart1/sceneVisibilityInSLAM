@@ -1,14 +1,14 @@
-# MidAir IMU parameters
-# these values are the default values used when generating a new sensor_records.hdf5 file using midair_generateIMUData.py. 
-    # they can be tuned during execution of that script if desired (just remember to appropriately modify algorithm config files!)
+# InteriorNet IMU parameters
+# Parameters retrieved from https://interiornet.org/items/interiornet_format.pdf
+    # NOTE, accelerometer bias random walk not provided. assume low
 
 #Accelerometers
-accelerometer_noise_density: 0.080000   #Noise density
-accelerometer_random_walk:   0.000040   #Bias random walk
+accelerometer_noise_density: 0.008000   #Noise density
+accelerometer_random_walk:   0.000001   #Bias random walk
 
 #Gyroscopes
-gyroscope_noise_density:     0.004000   #Noise density
-gyroscope_random_walk:       0.000002   #Bias random walk
+gyroscope_noise_density:     0.001200   #Noise density
+gyroscope_random_walk:       0.000004   #Bias random walk
 
 rostopic:                    /imu0      #the IMU ROS topic
-update_rate:                 100.0      #Hz
+update_rate:                 800.0      #Hz

@@ -1,11 +1,11 @@
-# MidAir RGB camera parameters
-# Parameters retrieved from https://midair.ulg.ac.be/
+# InteriorNet RGB camera (cam0) parameters
+# Parameters retrieved from https://interiornet.org/items/interiornet_format.pdf
 
 Camera Type: RGB
 
 RGB Image Published To rostopic: /cam0/image_raw
 
-Resolution: 1024 x 1024
+Resolution: 640 x 480
 
 Camera Model: pinhole
 
@@ -14,8 +14,8 @@ Intrinsic Matrix:
 # [f_x,  0,    c_x,
 #  0,    f_y,  c_y,
 #  0,    0,    0]
-[512.0, 0.0,    512.0,
- 0.0,   512.0,  512.0,
+[600.0, 0.0,    320.0,
+ 0.0,   600.0,  240.0,
  0.0,   0.0,    0.0]
 
 Distortion Coefficients:

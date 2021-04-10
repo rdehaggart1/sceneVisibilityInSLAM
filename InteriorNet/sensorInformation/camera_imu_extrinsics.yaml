@@ -1,29 +1,11 @@
-# MidAir extrinsic calibration between cameras and IMU
-# Parameters retrieved from https://midair.ulg.ac.be/
+# InteriorNet extrinsic calibration between cam0 and IMU
+# This transformation is not provided directly, it has been inferred based on tests
 
-# camera left / IMU
+# cam0 / IMU
 Extrinsic Transformation:
 [1.0, 0.0, 0.0, 0.0
  0.0, 1.0, 0.0, 0.0
  0.0, 0.0, 1.0, 0.0
  0.0, 0.0, 0.0, 1.0]
-
-Time Offset Between Camera and IMU: 0.0
-
-# camera right / IMU
-Extrinsic Transformation:
-[1.0, 0.0, 0.0, 0.0
- 0.0, 1.0, 0.0, 1.0
- 0.0, 0.0, 1.0, 0.0
- 0.0, 0.0, 0.0, 1.0]
-
-Time Offset Between Camera and IMU: 0.0
-
-# camera down / IMU
-Extrinsic Transformation:
-[ 0.0, 0.0, 1.0, 0.0
-  0.0, 1.0, 0.0, 0.0
- -1.0, 0.0, 0.0, 0.0
-  0.0, 0.0, 0.0, 1.0]
 
 Time Offset Between Camera and IMU: 0.0

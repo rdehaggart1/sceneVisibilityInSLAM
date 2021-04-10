@@ -223,6 +223,8 @@ def userInput():
     
     # then get the name of the trajectory based on the selection
     trajectoryName = trajectoryFolders[trajIndex - 1]
+    
+    ## TODO: get the lighting and traj number e.g. random, 3
         
     return trajectoryName
 

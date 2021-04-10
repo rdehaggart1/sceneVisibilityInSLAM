@@ -1,14 +1,15 @@
-Check ViViD against ground truth (and set up the full automation script like MidAir)
-Apply ground truth attitude again to midair
+Check InteriorNet against ground truth (and set up the full automation script like MidAir)
 Do the flaggng process on generate IMU data like bag file
-ViViD documentation and report work
+InteriorNet documentation and report work
 Add visibility measurement to the bottom of the frame
 test some down camera extracts to see how well it tracks on orb
-get some visibility out of vivid. ideally maintaining track throughout for real time insight
+See if we can mark all extracted points on the frame to see distribution and compare
+get some visibility out of interiornet. ideally maintaining track throughout for real time insight
 test that malaga extract to see effects of lens flare
 use bagpy to find midair bag start time and subtract it
 more function tidying
 arrange midair data into pandas structure for processing instead of loads of lists
+generate noisy interiornet imu data? plot it first and see if it looks noisy (also it might be in world frame!)
 
 Generate a table of MidAir trajectories (different conditions) with median RMSE over a few executions and some average visibility. *hopefully* we'll see lower visibility means lower accuracy... Also include a tracking time (e.g. 0:04 - 0:59 seconds out of 70 or whatever)
 
