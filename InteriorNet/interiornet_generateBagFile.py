@@ -6,9 +6,10 @@
             It will prompt you to select the extract and then use the 
             provided imu file and the images of this extract to 
             generate the .bag file.
-    
-    TODO:
-        Work through the ground truth attitude -> local attitude process
+            
+            The bag file will contain the RGB camera images from cam0 under 
+            the /camera/image_raw rostopic, and the imu data (accelerometer & 
+            gyroscope) under the /imu rostopic
 """
 
 # for bagification
@@ -128,7 +129,7 @@ def main():
             # increment seq num
             seq = seq + 1
         else:
-            print("Could not find %s" % absImg[absImg.rindex('/') + 1:])
+            print("Could not find %s" % img[img.rindex('/') + 1:])
             
     # reset sequence ID for IMU recording
     seq = 0

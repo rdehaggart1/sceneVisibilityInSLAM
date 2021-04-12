@@ -47,22 +47,22 @@ def main(*args):
         sys.exit("Cannot find the provided file")
     
     # we have a shell file that controls the terminal commands for running this .bag file
-    shellFile = os.path.abspath(os.getcwd() + "/midair_ORB-SLAM2.sh")
+    shellFile = os.path.abspath(os.getcwd() + "/interiornet_ORB-SLAM2.sh")
     
     # make the shell file executable
     subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash')
     # run the shell file with the selected bag file as an input argument
     subprocess.run(shellFile + " " + bagFilePath, shell=True, executable='/bin/bash')
     
-    # get the trajectory number from the provided .bag file name
-    trajectory = re.search("trajectory_(.*?)_", bagFilePath).group(1)
+    # get the extract number of the bag file
+    extNum = re.search(".*_(.*?).bag", bagFilePath).group(1)
     
     # define the path to the folder containing our sensor records and get ground truth
-    sensorRecordsPath = os.path.abspath(os.path.dirname(bagFilePath))  
-    sensorRecords = h5py.File(sensorRecordsPath + '/sensor_records.hdf5','r+')   
+    groundTruthPath = os.path.dirname(bagFilePath) + "/velocity_angular_{}_{}".format(extNum, extNum)   
+    groundTruthFile = groundTruthPath + "/cam0_gt.visim"
     
     # extract the ground truth data from the sensor records file for this trajectory
-    timestampGT, poseGT, attitudeGT = getGroundTruth(sensorRecords, trajectory)
+    timestampGT, poseGT, attitudeGT = getGroundTruth(groundTruthFile)
     
     # ORB-SLAM2 writes the pose estimate to a .txt file after completion
     # extract the timestamped pose estimate from the ORB-SLAM2 output file
@@ -105,7 +105,7 @@ def main(*args):
     SVE_stats = [None] * 4    # empty array to store visibility estimation
     
     # format (0)timestamp (1)visibility (2)SVE_a (3)SVE_b (4)SVE_c
-    SVE_t = [(float(row[0]) - 100000) for row in SVE_timeSeries]
+    SVE_t = [(float(row[0])) for row in SVE_timeSeries]
     SVE_stats[1] = [float(row[2]) for row in SVE_timeSeries]
     SVE_stats[2] = [float(row[3]) for row in SVE_timeSeries]
     SVE_stats[3] = [float(row[4]) for row in SVE_timeSeries]
@@ -190,8 +190,6 @@ def main(*args):
     
     plt.show()
     
-    sensorRecords.close()  # close the .hdf5 file we opened
-    
     ATE = np.sqrt(np.mean(np.array(errList)**2))
 
     print("Absolute Trajectory Error: {}".format(ATE))
@@ -202,39 +200,33 @@ def main(*args):
     
     return(ATE, meanVis)
 
-def getGroundTruth(sensorRecordsFile, trajectoryNumber):
-    # get the ground truth group from the sensor records file
-    groundTruth = sensorRecordsFile['trajectory_' + trajectoryNumber]['groundtruth']
+def getGroundTruth(groundTruthFile):
+    # open the ground truth file and grab the lines of output
+    with open(groundTruthFile, "r") as f3:
+        groundTruth = f3.read().splitlines()
+    
+    # remove the header line
+    groundTruth = groundTruth[1:-1]
+    
+    # split into lists by comma
+    groundTruth = [line.split(',') for line in groundTruth]
     
     ### POSITION
     # initialise an empty list to store the three-axis position values
     position_groundTruth = [None] * 3
-    # get the ground truth position
-    pGT = list(groundTruth['position'])
     # store as [[x,x,x...], [y,y,y,...], [z,z,z,...]] for easy plotting
-    position_groundTruth = [[row[i] for row in pGT] for i in range(3)]
+    position_groundTruth = [[float(row[i+1]) for row in groundTruth] for i in range(3)]
     ###
     
     ### ORIENTATION
     # initialise an empty list for the ground truth orientation
     orientation_groundTruth = [None] * 4 
-    # get the ground truth orientation (quaternion)
-    oGT = list(groundTruth['attitude'])
     # store as [[w,w,w,...], [x,x,x,...], [y,y,y,...], [z,z,z,...]]
-    orientation_groundTruth = [[row[i] for row in oGT] for i in range(4)]
+    orientation_groundTruth = [[float(row[i+4]) for row in groundTruth] for i in range(4)]
     ###
     
     ### TIMESTAMPS
-    # the ground truth is logged at 100Hz for the MidAir dataset
-    groundTruthFrequency = 100   
-    # no time data is provided in sensor records, so generate an array based on freq
-    timestamp_groundTruth = np.arange(0, 
-                                      len(position_groundTruth[0])/groundTruthFrequency, 
-                                      1/groundTruthFrequency).tolist()
-    # rounding of np.arrange end point can cause timestamp array to be an element too long
-    if len(timestamp_groundTruth) > len(position_groundTruth[0]):
-        # clip the timestamp array down to size
-        timestamp_groundTruth = timestamp_groundTruth[0:len(position_groundTruth[0])]
+    timestamp_groundTruth = [float(row[0])*pow(10,-9) for row in groundTruth]
     ###    
     
     # return the time, pose, orientation
@@ -255,19 +247,19 @@ def getEstimate(trajectoryEstimateFile):
     # initialise a list for the estimated position
     position_estimate = [None] * 3
     # output .txt format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
-    # NOTE: x,y,z axes are different for MidAir and ORB-SLAM2, so the
-        # pose estimate axes are transferred to the MidAir convention
-        # midair: x,y,z = forward, rightward, downward
+    # NOTE: x,y,z axes are different for InteriorNet and ORB-SLAM2, so the
+        # pose estimate axes are transferred to the InteriorNet convention
         # orbslam: x,y,z = rightward, downward, forward
-    position_estimate[0] = [float(row[3]) for row in trajectoryOutput]
-    position_estimate[1] = [float(row[1]) for row in trajectoryOutput]
-    position_estimate[2] = [float(row[2]) for row in trajectoryOutput]
+        # interiornet is flipped in y, z (i.e. 180 degree rotation about x)
+    position_estimate[0] = [float(row[1]) for row in trajectoryOutput]
+    position_estimate[1] = [-1*float(row[2]) for row in trajectoryOutput]
+    position_estimate[2] = [-1*float(row[3]) for row in trajectoryOutput]
     ###
     
     ### TIMESTAMPS
     # TODO: get start time from .bag file directly
     # subtract the start time of the measurements to begin at 0.0s
-    timestamp_estimate = [float(row[0]) - 100000 for row in trajectoryOutput]
+    timestamp_estimate = [float(row[0]) for row in trajectoryOutput]
     ###
     
     # return the time and pose. could also get attitude, but not necessary
