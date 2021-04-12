@@ -20,10 +20,10 @@ Link to final paper:
         - [Adding ROS Package](#packageORB2)
         - [Building](#buildingORB2)
     - [Getting Datasets](#gettingData)
-        - [ViViD](#getVivid)
+        - [InteriorNet](#getInterior)
         - [MidAir](#getMidair)
     - [Configuring Datasets for Testing](#configData)
-        - [ViViD](#configVivid)
+        - [InteriorNet](#configInterior)
         - [MidAir](#configMidair)
 
 <a name="prereq"/>
