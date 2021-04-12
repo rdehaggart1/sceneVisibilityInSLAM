@@ -30,44 +30,42 @@ import sys
 # for some file representation stuff
 from pathlib import Path
 
+import pandas as pd
+
 def main():
     # enter function to ask for specific trajectory to bagify and return selection
-    trajID = userInput()  
+    trajID, extID = userInput()  
+    
+    extNum = extID[-1]
     
     # use the selection to find the appropriate sensor records file
-    sensorRecordsPath = os.path.abspath(os.getcwd() + "/MidAir/" + environment + '/' + condition)
-    sensorRecordsFile = sensorRecordsPath + "/sensor_records.hdf5"
+    imuDataFile = os.path.abspath(os.getcwd() + "/InteriorNet/" + trajID + "/velocity_angular_" + "{}_{}".format(extNum, extNum) + "/imu0/data.csv")
     
     # if the sensor records file doesn't exist, or is not yet unzipped, exit
-    if not os.path.exists(sensorRecordsFile):
-        if os.path.exists(sensorRecordsPath + "/sensor_records.zip"):
-            print("I did not find the file: " + sensorRecordsFile + "\n\n I did find the corresponding .zip file, however. Please uncompress this file and try again.")
-        else:
-            print("I did not find the file: " + sensorRecordsFile)
+    if not os.path.exists(imuDataFile):
+        print("I did not find the file: " + imuDataFile)
         sys.exit(0)
-        
-    # open sensor_records.hdf5
-    f1 = h5py.File((sensorRecordsFile),'r+')
     
-    # get imu readings plus the attitude of the vehicle
-    accelerometer = f1['trajectory_' + trajectory]['imu']['accelerometer']
-    gyroscope = f1['trajectory_' + trajectory]['imu']['gyroscope']
-    groundTruthAttitude = f1['trajectory_' + trajectory]['groundtruth']['attitude']
+    imuData = pd.read_csv(imuDataFile)
     
-    # get the accelerometer data from the sensor records (m/s^2)
-    accelerometerData = list(accelerometer) 
-    # get the gyroscope data from the sensor records (rad/s)
-    gyroscopeData = list(gyroscope) 
+    imuTimestamps = [ts * pow(10,-9) for ts in list(imuData['#timestamp [ns]'])]
+    accelerometer = [[x, y, z] for x, y, z in zip(imuData['a_RS_S_x [m s^-2]'],
+                                                  imuData['a_RS_S_y [m s^-2]'], 
+                                                  imuData['a_RS_S_z [m s^-2]'])]
+    gyroscope = [[x, y, z] for x, y, z in zip(imuData['w_RS_S_x [rad s^-1]'],
+                                              imuData['w_RS_S_y [rad s^-1]'], 
+                                              imuData['w_RS_S_z [rad s^-1]'])]
+    
     # list the relative paths of the images for the selected camera
-    imagePaths = list(f1['trajectory_' + trajectory]['camera_data'][camera]) 
+    imgDataFile = os.getcwd() + "/InteriorNet/" + trajID + "/" + extID + "/cam0/data.csv"
     
-    # exit if the selected trajectory images haven't been unzipped yet
-    if (not any('.JPEG' in a for a in os.listdir(sensorRecordsPath + "/" + camera + "/trajectory_" + trajectory))) and any('.zip' in a for a in os.listdir(sensorRecordsPath + "/" + camera + "/trajectory_" + trajectory)):
-        print("The images for this particular trajectory have not yet been unzipped.\nPlease unzip and try again.")
-        sys.exit(0)
+    imgData = pd.read_csv(imgDataFile)
+    
+    imgTimestamps = [ts * pow(10,-9) for ts in list(imgData['#timestamp [ns]'])]
+    imgPaths = [(os.getcwd() + "/InteriorNet/" + trajID + "/" + extID + "/cam0/data/" + imgName) for imgName in list(imgData['filename'])]
     
     # .bag file name is of the format trajectoryNumber_camera.bag and is located in environment/condition
-    bagFilePath = sensorRecordsPath + "/trajectory_" + trajectory + "_" + camera + ".bag"
+    bagFilePath = os.getcwd() + "/InteriorNet/" + trajID + "/" + extID + ".bag"
     
     # just check the user is okay if overwriting a bag that already exists
     if(os.path.isfile(bagFilePath)):
@@ -80,26 +78,20 @@ def main():
     
     # initialise sequence number
     seq = 0
-    # define camera frame rate
-    cameraRate = 25;
-    # an arbitrary starting time (seconds since epoch). mostly protecting against the invalid '0' time
-    initialTime = 100000;
     
     # image dimensions
-    imHeight = 1024
-    imWidth = 1024
+    imHeight = 480
+    imWidth = 640
     
-    for line in imagePaths:
-        absImg = sensorRecordsPath + "/" + line # get the absolute file path
-        
+    for img, ts in zip(imgPaths, imgTimestamps):
         # ---------- IMAGE RECORD ---------- #
         # if the image exists and isn't a dud
-        if (os.path.isfile(absImg)) and (os.stat(absImg).st_size != 0):
+        if (os.path.isfile(img)) and (os.stat(img).st_size != 0):
     
-            print("Adding %s" % absImg[absImg.rindex('/') + 1:])
+            print("Adding %s" % img[img.rindex('/') + 1:])
     
             # read the image
-            image = cv2.imread(absImg)
+            image = cv2.imread(img)
             
             # convert from cv2 to ROS by creating an Image(). This auto allocates
                 # the image data to the .data field so headers/config can be
@@ -111,12 +103,10 @@ def main():
             # img_msg format: 
             # http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/Image.html
             
-            # get the timestamp of this frame
-            timestamp = seq * 1/cameraRate + initialTime
             # the seconds part of the timestamp is just the whole number
-            timestampSec = math.floor(timestamp)
+            timestampSec = math.floor(ts)
             # the nanoseconds part of the timestamp is then the decimal part
-            timestampnSec = int(round(timestamp - timestampSec, 3) * pow(10, 9))
+            timestampnSec = int(round(ts - timestampSec, 8) * pow(10, 9))
             
             # set image timestamp
             img_msg.header.stamp.secs = timestampSec
@@ -133,7 +123,7 @@ def main():
             img_msg.encoding = "bgr8"
             
             # write image to the bag file under the 'cam0/image_raw' topic
-            bag.write("cam0/image_raw", img_msg, img_msg.header.stamp)
+            bag.write("camera/image_raw", img_msg, img_msg.header.stamp)
             
             # increment seq num
             seq = seq + 1
@@ -143,19 +133,14 @@ def main():
     # reset sequence ID for IMU recording
     seq = 0
     
-    # the update rate of the IMU is 100Hz
-    imuRate = 100
-    
     print("Adding IMU Data")
     
-    for accelLine, gyroLine, attitudeLine in zip(accelerometerData, gyroscopeData, groundTruthAttitude):
+    for accel, gyro, ts in zip(accelerometer, gyroscope, imuTimestamps):
         
-        # get the timestamp of this frame
-        timestamp = seq * 1/imuRate + initialTime
         # the seconds part of the timestamp is just the whole number
-        timestampSec = math.floor(timestamp)
+        timestampSec = math.floor(ts)
         # the nanoseconds part of the timestamp is then the decimal part
-        timestampnSec = int(round(timestamp - timestampSec, 3) * pow(10, 9))
+        timestampnSec = int(round(ts - timestampSec, 8) * pow(10, 9))
         
         # create an imu_msg for our inertial data
         imu_msg = Imu()
@@ -172,36 +157,30 @@ def main():
         imu_msg.header.stamp.nsecs = timestampnSec
         
         # linear accelerations (m/s^2)
-        imu_msg.linear_acceleration.x = accelLine[0]
-        imu_msg.linear_acceleration.y = accelLine[1]
-        imu_msg.linear_acceleration.z = accelLine[2]
+        imu_msg.linear_acceleration.x = accel[0]
+        imu_msg.linear_acceleration.y = accel[1]
+        imu_msg.linear_acceleration.z = accel[2]
         
         # angular rates (rad/s)
-        imu_msg.angular_velocity.x = gyroLine[0]
-        imu_msg.angular_velocity.y = gyroLine[1]
-        imu_msg.angular_velocity.z = gyroLine[2]
+        imu_msg.angular_velocity.x = gyro[0]
+        imu_msg.angular_velocity.y = gyro[1]
+        imu_msg.angular_velocity.z = gyro[2]
         
-        # attitude (quaternion)
-        imu_msg.orientation.w = attitudeLine[0]
-        imu_msg.orientation.x = attitudeLine[1]
-        imu_msg.orientation.y = attitudeLine[2]
-        imu_msg.orientation.z = attitudeLine[3]
+        # currently, no IMU data on attitude is available, so as per message
+            # standard, set orientation covariance to -1
+            # http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/Imu.html
+        # we do have ground truth attitude so could use this if we want to
+        imu_msg.orientation_covariance = [-1 for i in imu_msg.orientation_covariance]
         
         # write the imu_msg to the bag file
-        bag.write("imu0", imu_msg, imu_msg.header.stamp) 
+        bag.write("imu", imu_msg, imu_msg.header.stamp) 
     
         # increment the sequence counter
         seq = seq + 1
     
     # close the .bag file
     bag.close()
-    # close the .hdf5 file
-    f1.close()
 
-
-# global flags for selection prompts
-installFlag = ""
-notInstallFlag = "(NOT INSTALLED)"
 
 # prompt the user through the process of selecting the trajectory to bagify
 def userInput():
@@ -211,7 +190,11 @@ def userInput():
     # get all (unzipped) folders available to the user
     trajectoryFolders = next(os.walk(os.path.join(dataPath,'.')))[1]
     
-    print("Please select the trajectory to bagify\n")
+    if len(trajectoryFolders)==0:
+        print("No trajectories available. Make sure you have downloaded and unzipped some InteriorNet files to {}".format(dataPath))
+        sys.exit(0)
+    
+    print("Please select a trajectory\n")
     for i in range(len(trajectoryFolders)):
         print("{}. {}".format(i+1, trajectoryFolders[i]))
     
@@ -224,9 +207,25 @@ def userInput():
     # then get the name of the trajectory based on the selection
     trajectoryName = trajectoryFolders[trajIndex - 1]
     
-    ## TODO: get the lighting and traj number e.g. random, 3
-        
-    return trajectoryName
+    # get all extracts for this trajectory
+    extractFolders = next(os.walk(os.path.join(dataPath + "/" + trajectoryName,'.')))[1]
+    # remove the ground truth folders
+    extractFolders = [ext for ext in extractFolders if 'velocity_angular' not in ext]
+    
+    print("Please select the extract to bagify\n")
+    for i in range(len(extractFolders)):
+        print("{}. {}".format(i+1, extractFolders[i]))
+    
+    # get the selected index
+    extIndex = int(input(""))
+    
+    if extIndex not in range(1,len(extractFolders)+1):
+        sys.exit("Out of range value entered")
+    
+    # then get the name of the trajectory based on the selection
+    extractName = extractFolders[extIndex - 1]
+    
+    return trajectoryName, extractName
 
 if __name__ == "__main__":
     main()

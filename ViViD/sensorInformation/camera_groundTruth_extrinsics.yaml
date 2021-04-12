@@ -1,8 +1,0 @@
-# ViViD extrinsic calibration between camera and markers used by motion capture system for ground truth
-# Parameters retrieved from file provided by ViViD authors: https://drive.google.com/file/d/1Ik3BbWrg9SrgKyvKti-ci2vj27E0pISY/view?usp=sharing
-
-T_cam_gt:
-  - [0.538117713753331,	0.134273164984585,	-0.832105788532870,	-21.1235087691594]
-  - [0.440141675139334,	-0.886700487453141,	0.141554058069359,	-17.1621036951045]
-  - [0.718821696911292,	-0.442417181758784,	-0.536248454854824,	-13.1052654693001]
-  - [0.0, 0.0, 0.0, 1.0]

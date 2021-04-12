@@ -137,7 +137,7 @@ def main():
             img_msg.encoding = "bgr8"
             
             # write image to the bag file under the 'cam0/image_raw' topic
-            bag.write("cam0/image_raw", img_msg, img_msg.header.stamp)
+            bag.write("camera/image_raw", img_msg, img_msg.header.stamp)
             
             # increment seq num
             seq = seq + 1
@@ -192,7 +192,7 @@ def main():
         imu_msg.orientation.z = attitudeLine[3]
         
         # write the imu_msg to the bag file
-        bag.write("imu0", imu_msg, imu_msg.header.stamp) 
+        bag.write("imu", imu_msg, imu_msg.header.stamp) 
     
         # increment the sequence counter
         seq = seq + 1
