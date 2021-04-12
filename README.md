@@ -151,19 +151,21 @@ rospack list
 <a name="gettingData"/>
 
 ## Getting Datasets
-Through the development of this work, two datasets were used for analyses, namely ViViD ([website](https://sites.google.com/view/dgbicra2019-vivid/), [paper](https://irap.kaist.ac.kr/index.php/Main/Publication?action=bibentry&bibfile=ref.bib&bibref=alee-2019-icra-ws)) and MidAir ([website](https://midair.ulg.ac.be/), [paper](https://ieeexplore.ieee.org/document/9025697)).
+Through the development of this work, two datasets were used for analyses, namely InteriorNet ([website](https://interiornet.org/), [paper](https://interiornet.org/items/interiornet_paper.pdf)) and MidAir ([website](https://midair.ulg.ac.be/), [paper](https://ieeexplore.ieee.org/document/9025697)).
 
-Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the ViViD and MidAir datasets to run the code on
+Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the InteriorNet and MidAir datasets to run the code on
 
-<a name="getVivid"/>
+<a name="getInterior"/>
 
-### ViViD
-To download some data for the ViViD dataset:
-1. Go to [https://sites.google.com/view/dgbicra2019-vivid/](https://sites.google.com/view/dgbicra2019-vivid/)
-2. Scroll to the bottom of the page to understand the available segments, and decide which one(s) sound most appropriate. Click the 'Request Download (link)' button at the bottom to be taken to a google form which allows you to select the data you'd like to download
-3. The link to a google drive page containing this data (sensor data in a .bag format, ground truth in a .trc format) will be emailed to you
-4. Download the files into the `sceneVisibilityInSLAM/ViViD/ViViD` folder
-
+### InteriorNet
+To download some data for the InteriorNet dataset:
+1. Go to the following Google Form to agree to the terms of use and get the dataset link: [https://docs.google.com/forms/d/15sjV-CAud1ENBxK-hJSSrweE7IGc8VXWDbgZiq1trGc](https://docs.google.com/forms/d/15sjV-CAud1ENBxK-hJSSrweE7IGc8VXWDbgZiq1trGc)
+2. Click through to the dataset Google Drive folder, which contains <b>a lot</b> of data
+3. Now, it's quite difficult to understand what each trajectory contains. Once I have found some that are particularly well suited to this application, I will provide a list here. For now, your best best is to grab some random trajectories from this drive. Each trajectory (e.g. HD5/3FO4KA6US640) contains 3 different extracts each repeated in 'original' and 'random' lighting conditions. 
+4. Download the zipped files into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder
+5. To get the ground truth for your particular trajectories, you should then go to the `GroundTruth_HD1-HD6` folder and find the .zip archive with the exact same name as the trajectory folder that you just downloaded. The best way to do this is simply to sort the files alphabetically and look for the match (this can be quite tedious, so be prepared!)
+6. Download the zipped ground truth into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder, too. You'll need to save this under a different name (e.g. <extract>_groundTruth)
+7. Extract both archives. Using 'extract here' will work fine - both archives contain folders with identical names and so all the trajectory data plus the relevant ground truth will automatically move into a single folder. (NOTE: The trajectory archive includes data for multiple cameras (panoramic, fisheye, depth, etc.), extracting all of these could take some time, especially if you're processing multiple trajectories. It might be easier to go into the archive and simply extract the `cam0` folder, as this is the pre-rectified RGB image set and will be the one we use here)
 <a name="getMidair"/>
 
 ### MidAir
@@ -188,9 +190,24 @@ To download some data for the MidAir dataset:
 
 ## Configuring Datasets for Testing
 
-<a name="configVivid"/>
+<a name="configInterior"/>
 
-### ViViD
+### InteriorNet
+Once the data are downloaded and the archives uncompressed, as per the above instructions, the files should be presented as displayed below.
+```   
+    .
+    ├── ...
+    ├── InteriorNet                         # All data live in the 'MidAir' folder
+    │   ├── trajectory                      # The particular trajectory ID (e.g. 3FO4K7IRNF5D, 3FO4KA6US640, ...)
+    │       ├── extract                     # The extract within this trajectory with some associated lighting (e.g. original_1_1, random_1_1, original_3_3, ...)
+    │           ├── camera                  # The data for different cameras (e.g. cam0, cam0_pano, motion0, ...)
+    │               ├── data.csv            # A .csv file containing the filename for each image and the associated timestamp in ns since extract start
+    │               ├── data                # The folder containing all the .png images for this extract
+    │                   ├── 0000000000031666668.png # The .png image files for the selected extract
+    │                   ├── 0000000000071666664.png
+    │                   └── ...
+    └── ...
+```
 
 <a name="configMidair"/>
 
