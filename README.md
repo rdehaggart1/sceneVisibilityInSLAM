@@ -197,7 +197,7 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
 ```   
     .
     ├── ...
-    ├── InteriorNet                         # All data live in the 'MidAir' folder
+    ├── InteriorNet                         # All data live in the 'InteriorNet' folder
     │   ├── trajectory                      # The particular trajectory ID (e.g. 3FO4K7IRNF5D, 3FO4KA6US640, ...)
     │       ├── extract                     # The extract within this trajectory with some associated lighting (e.g. original_1_1, random_1_1, original_3_3, ...)
     │           ├── camera                  # The data for different cameras (e.g. cam0, cam0_pano, motion0, ...)
@@ -210,6 +210,14 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
 ```
 
 <a name="configMidair"/>
+
+#### Adding IMU Noise
+The provided IMU data in this dataset is by default noiseless, but VI-SLAM algorithms expect some characteristic noise in the inertial sensors. To remedy this, please run `interiornet_addIMUNoise.py`, located at `sceneVisibilityInSLAM/InteriorNet/interiornet_addIMUNoise.py`. The script will ask you to specify the particular trajectory and extract that you'd like to modify the IMU noise for, and ask you what the desired noise characteristics are, and it will go on to add this to the provided values. Remember that if you are making changes to the noise levels in the measurement that you then need to change the corresponding .yaml setup files for the VI- algorithm.
+
+#### Creating a .bag file
+As we have described, the format used in the development of this work was ROS .bag files for consistency. To generate a .bag file for a particular InteriorNet extract, please run `interiornet_generateBagFile.py`, located at `sceneVisibilityInSLAM/InteriorNet/interiornet_generateBagFile.py`. The script will ask you to specify the extract of interest, and it will package the images from cam0 (rectified RGB) over this extract under the <b>/camera/image_raw</b> topic. It will also add the IMU data from the corresponding data under the <b>/imu</b> topic. 
+
+[e.g. copying the config files, creating .cc, rebuilding, etc]
 
 ### MidAir
 Once the data are downloaded and the archives uncompressed, as per the above instructions, the files should be presented as displayed below.
@@ -234,7 +242,7 @@ As a synthetic dataset, the IMU data can be generated based on the ground truth 
 To update the appropriate `sensor_records.hdf5` file which has consistent noise across the three axes, and with this noise value being tuneable within the script, please run `midair_generateIMUData.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateIMUData.py`. The script will ask you to specify the particular environment and condition that you'd like to generate the data for (note: one `sensor_records.hdf5` file contains all the data for all trajectories in a particular environment and condition)
 
 #### Creating a .bag file
-As we have described, the format used in the development of this work was ROS .bag files for consistency. To generate a .bag file for a particular MidAir extract, please run `midair_generateBagFile.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateBagFile.py`. The script will ask you to specify the environment, trajectory number, condition, and camera that you'd like to generate a bag file for, and it will package the images from this camera over this trajectory under the <b>cam0/image_raw</b> topic. It will also add the IMU data from the corresponding `sensor_records.hdf5` file under the <b>imu0</b> topic. 
+As we have described, the format used in the development of this work was ROS .bag files for consistency. To generate a .bag file for a particular MidAir extract, please run `midair_generateBagFile.py`, located at `sceneVisibilityInSLAM/MidAir/midair_generateBagFile.py`. The script will ask you to specify the environment, trajectory number, condition, and camera that you'd like to generate a bag file for, and it will package the images from this camera over this trajectory under the <b>/camera/image_raw</b> topic. It will also add the IMU data from the corresponding `sensor_records.hdf5` file under the <b>/imu</b> topic. 
 
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
