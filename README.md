@@ -278,12 +278,14 @@ And finally, in the third terminal, execute `rosbag play` to playback the .bag f
 rosbag play --pause <BAG_PATH>
 ```
 
+Then in this third tab, simply hit 'space' when prompted to start playing the .bag file. The visualiser will then show you the progress throughout execution.
+
 ## Run Automatically
 For simplicity, it can be useful to perform all of the above operations in a single command
 
 TODO: this may change if i move the .sh file to a common location
 
-Move to the `sceneVisibilityInSLAM/<dataset/ORB-SLAMX_Files` folder, and then run the following commands to make the shell file executable, and then to run the shell file. The result is simply a single command that controls the same processes as in the manual section above 
+Move to the `sceneVisibilityInSLAM/<dataset>/ORB-SLAMX_Files` folder, and then run the following commands to make the shell file executable, and then to run the shell file. The result is simply a single command that controls the same processes as in the manual section above 
 ```
 chmod +x <dataset>_ORB-SLAMX.sh     # for example, 'chmod +x midair_ORB-SLAM2.sh' for running midair on ORB-SLAM2
 <dataset>_ORB-SLAMX.sh <BAG_PATH>   # for example, 'midair_ORB-SLAM2.sh <PATH>/sceneVisibilityInSLAM/MidAir/MidAir/Kite_training/sunny/trajectory_0021_color_left.bag'
