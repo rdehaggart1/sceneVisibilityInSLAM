@@ -3,7 +3,7 @@
 
 Camera Type: RGB
 
-RGB Image Published To rostopic: /cam0/image_raw
+RGB Image Published To rostopic: /camera/image_raw
 
 Resolution: 1024 x 1024
 
