@@ -247,30 +247,55 @@ As we have described, the format used in the development of this work was ROS .b
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
 # 3. Usage
-## ORB_SLAM2_SVE
-To run one of the datasets through the modified ORB-SLAM2 algorithm, move your terminal to the `ORB_SLAM2_SVE` folder and open 3 terminal tabs.
+To run one of the datasets through the modified ORB-SLAM2 algorithm, you have several options
+
+## Run Manually
+This method is similar to the method provided by the original ORB-SLAMX documentation. 
+
+Move your terminal to the `ORB_SLAMX_SVE` folder and open 3 terminal tabs.
 
 In the first terminal tab, execute `roscore` to begin the process and allow ROS nodes to communicate with one another:
 ```
 roscore
 ```
 
-In the second terminal tab, execute `rosrun` to run the executable in the ORB_SLAM2_SVE ROS package, using the provided setup file for the dataset under test. This will setup the algorithm for use and open the visualiser.
+In the second terminal tab, execute `rosrun` to run the executable in the ORB_SLAMX_SVE ROS package, using the provided setup file for the dataset under test. This will setup the algorithm for use and open the visualiser.
+
+For ORB-SLAM2, the command is as shown below:
 ```
-rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/Malaga.yaml # for the Malaga dataset
-rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/midair.yaml # for the MidAir dataset
+rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/interiornet.yaml   # for the InteriorNet dataset
+rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/midair.yaml        # for the MidAir dataset
+```
+
+For ORB-SLAM3, the command is as shown below:
+```
+rosrun ORB_SLAM3_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/interiornet.yaml  # for the InteriorNet dataset
+rosrun ORB_SLAM3_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/midair.yaml       # for the MidAir dataset
  ```
 
 And finally, in the third terminal, execute `rosbag play` to playback the .bag file containing all of the dataset extract information, where `<BAG_PATH>` is the full file path to the .bag file of the particular extract of the dataset under test:
 ```
-rosbag play --pause <BAG_PATH> /cam0/image_raw:=/camera/image_raw
+rosbag play --pause <BAG_PATH>
 ```
+
+## Run Automatically
+For simplicity, it can be useful to perform all of the above operations in a single command
+
+TODO: this may change if i move the .sh file to a common location
+
+Move to the `sceneVisibilityInSLAM/<dataset/ORB-SLAMX_Files` folder, and then run the following commands to make the shell file executable, and then to run the shell file. The result is simply a single command that controls the same processes as in the manual section above 
+```
+chmod +x <dataset>_ORB-SLAMX.sh     # for example, 'chmod +x midair_ORB-SLAM2.sh' for running midair on ORB-SLAM2
+<dataset>_ORB-SLAMX.sh <BAG_PATH>   # for example, 'midair_ORB-SLAM2.sh <PATH>/sceneVisibilityInSLAM/MidAir/MidAir/Kite_training/sunny/trajectory_0021_color_left.bag'
+```
+
+## Run Automatically with Results Plotting and Analysis
 
 # 4. Contact
 Rory Haggart - [rdeh10@googlemail.com](mailto:rdeh10@googlemail.com)
 
 # Acknowledgements
 - **The Authors of ORB-SLAM2:** [Raúl Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan Domingo Tardós Solano](http://webdiis.unizar.es/~jdtardos/), [José María Martínez Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Gálvez-López](http://doriangalvez.com/).
-- **The Authors of VINS-Mono:**
-- **The Authors of the ViViD Dataset:**
+- **The Authors of ORB-SLAM3:**
+- **The Authors of the InteriorNet Dataset:**
 - **The Authors of the MidAir Dataset:** 
