@@ -56,6 +56,7 @@ def main(*args):
     
     # get the trajectory number from the provided .bag file name
     trajectory = re.search("trajectory_(.*?)_", bagFilePath).group(1)
+    camera = re.search("color_(.*?).bag", bagFilePath).group(1)
     
     # define the path to the folder containing our sensor records and get ground truth
     sensorRecordsPath = os.path.abspath(os.path.dirname(bagFilePath))  
@@ -71,10 +72,12 @@ def main(*args):
     timestampEst, poseEst = getEstimate(trajectoryEstimateFile)
     if timestampEst == -1:
         # e.g. if track never started
-        return(-1, -1)
+        return(-1, -1, -1)
     if (max(timestampEst) - min(timestampEst))/(max(timestampGT) - min(timestampGT)) < 0.5:
         # if the estimate didn't last longer than half the total time, its bad
-        return(-1,-1)
+        return(-1, -1, -1)
+    
+    poseEst = matchAxisConventions(camera, poseEst)
     
     # the estimate won't start/end at bounds of ground truth
         # we should truncate the ground truth data to the window that the 
@@ -200,7 +203,9 @@ def main(*args):
     
     print("Mean Visibility: {}".format(meanVis))
     
-    return(ATE, meanVis)
+    meanSVEStats = [statistics.mean(component) for component in SVE_stats]
+    
+    return(ATE, meanVis, meanSVEStats)
 
 def getGroundTruth(sensorRecordsFile, trajectoryNumber):
     # get the ground truth group from the sensor records file
@@ -255,13 +260,9 @@ def getEstimate(trajectoryEstimateFile):
     # initialise a list for the estimated position
     position_estimate = [None] * 3
     # output .txt format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
-    # NOTE: x,y,z axes are different for MidAir and ORB-SLAM2, so the
-        # pose estimate axes are transferred to the MidAir convention
-        # midair: x,y,z = forward, rightward, downward
-        # orbslam: x,y,z = rightward, downward, forward
-    position_estimate[0] = [float(row[3]) for row in trajectoryOutput]
-    position_estimate[1] = [float(row[1]) for row in trajectoryOutput]
-    position_estimate[2] = [float(row[2]) for row in trajectoryOutput]
+    position_estimate[0] = [float(row[1]) for row in trajectoryOutput]
+    position_estimate[1] = [float(row[2]) for row in trajectoryOutput]
+    position_estimate[2] = [float(row[3]) for row in trajectoryOutput]
     ###
     
     ### TIMESTAMPS
@@ -272,6 +273,39 @@ def getEstimate(trajectoryEstimateFile):
     
     # return the time and pose. could also get attitude, but not necessary
     return(timestamp_estimate, position_estimate)
+
+def matchAxisConventions(camera, position_estimate): 
+    # NOTE: x,y,z axes are different for MidAir and ORB-SLAM2, so the
+        # pose estimate axes are transferred to the MidAir convention
+        # midair: x,y,z = forward, rightward, downward
+        # orbslam: x,y,z = rightward, downward, forward   
+    
+    # define a rotation matrix that maps the orbslam output into the appropriate
+        # midair convention. when using color left, we want
+        # x->y, y->z, z->x for example
+    if camera=='left':
+        R_orb_midair = np.array([[0,0,1],[1,0,0],[0,1,0]])
+    elif camera=='down':
+        R_orb_midair = np.array([[0,-1,0],[1,0,0],[0,0,1]])
+    
+    # rearrange the pose est into [x,y,z][x,y,z].. instead of [x,x,..][y,y,..][z,z,..]
+    xyz = [[position_estimate[0][a], 
+            position_estimate[1][a], 
+            position_estimate[2][a]] for a in range(len(position_estimate[0]))]
+    
+    # new empty list for the rotated pose estimate
+    rotated_position_estimate = position_estimate.copy()
+    
+    for i in range(len(xyz)):
+        # apply the rotation to each set of coordinates
+        rotatedPose = R_orb_midair @ xyz[i]
+        # store the rotation
+        rotated_position_estimate[0][i] = rotatedPose[0]
+        rotated_position_estimate[1][i] = rotatedPose[1]
+        rotated_position_estimate[2][i] = rotatedPose[2]
+
+    # return to main
+    return rotated_position_estimate
 
 def truncateGroundTruth(timestamp_estimate, timestamp_groundTruth, position_groundTruth, orientation_groundTruth):
     # get the bounds of the trajectory estimate temporally

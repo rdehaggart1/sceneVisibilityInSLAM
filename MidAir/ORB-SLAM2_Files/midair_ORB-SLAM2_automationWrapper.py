@@ -43,10 +43,11 @@ def main():
         # lists for absolute trajectory errors and average visibility
         ATEList = [None] * numLoops
         avgVisList = [None] * numLoops
+        avgABCList = [[None,None,None]] * numLoops
         
         while i < numLoops:
             # run the test on this file
-            ATE, meanVis = midairOnORB.main(bagFilePath)
+            ATE, meanVis, meanABC = midairOnORB.main(bagFilePath)
             
             # check for faults
             if ATE == -1:
@@ -56,6 +57,7 @@ def main():
                 # store outputs
                 ATEList[i] = ATE
                 avgVisList[i] = meanVis
+                avgABCList[i] = meanABC
                 
             # if we're just getting loads of faults, exit
             if faultCounter == 10:
@@ -65,9 +67,11 @@ def main():
         
         ATEList = [val for val in ATEList if val]
         avgVisList = [val for val in avgVisList if val]
+        avgABCList = [val for val in avgVisList if val]
         
         print(ATEList)
         print(avgVisList)
+        print(avgABCList)
         
         medianATE = np.median(ATEList)
         
