@@ -163,12 +163,15 @@ To download some data for the InteriorNet dataset:
 2. Click through to the dataset Google Drive folder, which contains <b>a lot</b> of data
 3. Now, it's quite difficult to understand what each trajectory contains. Once I have found some that are particularly well suited to this application, I will provide a list here. For now, your best best is to grab some random trajectories from this drive. Each trajectory (e.g. HD5/3FO4KA6US640) contains 3 different extracts each repeated in 'original' and 'random' lighting conditions. 
 4. Download the zipped files into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder
-5. To get the ground truth for your particular trajectories, you should then go to the `GroundTruth_HD1-HD6` folder and find the .zip archive with the exact same name as the trajectory folder that you just downloaded. The best way to do this is simply to sort the files alphabetically and look for the match (this can be quite tedious, so be prepared!)
-6. Download the zipped ground truth into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder, too. You'll need to save this under a different name (e.g. 3FO4KA6US640_groundTruth)
-7. Extract both archives. Using 'extract here' will work fine - both archives contain folders with identical names and so all the trajectory data plus the relevant ground truth will automatically move into a single folder. (NOTE: The trajectory archive includes data for multiple cameras (panoramic, fisheye, depth, etc.), extracting all of these could take some time, especially if you're processing multiple trajectories. It might be easier to go into the archive and simply extract the `cam0` folder, as this is the pre-rectified RGB image set and will be the one we use here)
-
-[TODO: potentially come up with a terminal command or .sh that will go through all of the zipped data and ground truths and only extract cam0 into the relevant folder]
-
+5. To get the ground truth for your particular trajectories, you should then go to the `GroundTruth_HD1-HD6` folder and find the .zip archive with the exact same name as the trajectory folder that you just downloaded. The best way to do this is simply to sort the files alphabetically and look for the match (this can be quite tedious, so be prepared!). Download the zipped ground truth into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder, too and name it <trajectory>_groundTruth.zip (e.g. 3FO4KA6US640_groundTruth.zip)
+6. The trajectory archive includes data for multiple cameras (panoramic, fisheye, depth, etc.), extracting all of these could take some time, especially if you're processing multiple trajectories. This work only makes use of the `cam0` data (the pre-rectified RGB image set), so to limit the extraction time and minimise the space requirements on your machine, open a terminal in the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder and run the following command:
+    ```c
+    find . -name "*.zip" | while read filename; do unzip -o "$filename" "*/cam0/*"; done;
+    ```
+7. Finally, unzip the ground truth folders using the following command. This will extract the compressed files into the same folder as the trajectory data, so everything is all together.
+    ```c
+    find . -name "*_groundTruth.zip" | while read filename; do unzip -o "$filename"; done;
+    ```
 <a name="getMidair"/>
 
 ### MidAir
