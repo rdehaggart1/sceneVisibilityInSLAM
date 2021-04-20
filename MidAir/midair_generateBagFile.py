@@ -100,7 +100,7 @@ def main():
         # if the image exists and isn't a dud
         if (os.path.isfile(absImg)) and (os.stat(absImg).st_size != 0):
     
-            print("Adding %s" % absImg[absImg.rindex('/') + 1:])
+            print("Adding Image: {}/{}".format(seq+1, len(imagePaths)))
     
             # read the image
             image = cv2.imread(absImg)

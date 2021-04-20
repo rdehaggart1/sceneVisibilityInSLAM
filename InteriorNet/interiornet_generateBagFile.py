@@ -89,7 +89,7 @@ def main():
         # if the image exists and isn't a dud
         if (os.path.isfile(img)) and (os.stat(img).st_size != 0):
     
-            print("Adding %s" % img[img.rindex('/') + 1:])
+            print("Adding Image {}/{}".format(seq, len(imgPaths)))
     
             # read the image
             image = cv2.imread(img)
@@ -137,7 +137,6 @@ def main():
     print("Adding IMU Data")
     
     for accel, gyro, ts in zip(accelerometer, gyroscope, imuTimestamps):
-        
         # the seconds part of the timestamp is just the whole number
         timestampSec = math.floor(ts)
         # the nanoseconds part of the timestamp is then the decimal part

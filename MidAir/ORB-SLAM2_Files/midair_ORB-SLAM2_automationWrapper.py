@@ -28,11 +28,20 @@ def main():
     
     # get the runner script
     midairOnORB = importlib.import_module("midair_ORB-SLAM2")
-
+        
+    
+    meanATEList = []
+    meanSVEList = []
+    sdATEList = []
+    sdSVEList = []
+    conditionList = []
+    
     for bagFilePath in bagFiles:
         # get the trajectory number and condition so they can be printed on plots
         trajectory = re.search("trajectory_(.*?)_", bagFilePath).group(1)
         condition = re.search(".*/(.*?)/trajectory", bagFilePath).group(1)
+        
+        conditionList.append(condition)
         
         # TODO: check if the bag file exists, if not, create it
         
@@ -67,22 +76,59 @@ def main():
         
         ATEList = [val for val in ATEList if val]
         avgVisList = [val for val in avgVisList if val]
-        avgABCList = [val for val in avgVisList if val]
+        #avgABCList = [val for val in avgVisList if val]
         
         print(ATEList)
         print(avgVisList)
-        print(avgABCList)
+        #print(avgABCList)
         
-        medianATE = np.median(ATEList)
+        meanATE = np.mean(ATEList)
+        meanSVE = np.mean(avgVisList)
+        stdDevSVE = np.std(avgVisList)
+        stdDevATE = np.std(ATEList)
+        
+        meanATEList.append(meanATE)
+        meanSVEList.append(meanSVE)
+        sdATEList.append(stdDevATE)
+        sdSVEList.append(stdDevSVE)
         
         plt.scatter(ATEList, avgVisList,marker='x')
         plt.plot(np.unique(ATEList), np.poly1d(np.polyfit(ATEList, avgVisList, 1))(np.unique(ATEList)))
-        plt.title("Trajectory " + trajectory + ", " + condition + ". Median ATE: " + str(medianATE))
+        plt.title("Trajectory " + trajectory + ", " + condition + ". Mean ATE: " + str(meanATE))
         plt.xlabel("Absolute Trajectory Error (m RMSE)")
         plt.ylabel("Average Visibility Score")
         plt.grid()
         plt.show()
     
+    
+    
+    fontSize=12
+    
+    fig, ax1 = plt.subplots(1, 1)
+    
+    # plot mean with error bars showing the min and max values
+    ax1.errorbar(conditionList, meanATEList, sdATEList, linestyle='None', marker='o',lw=1, fmt='.k')
+    ax1.title("MidAir, Trajectory " + trajectory)
+    ax1.set_xlabel('Condition', fontsize=fontSize)
+    ax1.set_ylabel('Absolute Trajectory Error', fontsize=fontSize)
+    right_side = ax1.spines["right"]
+    right_side.set_visible(False)
+    top_side = ax1.spines["top"]
+    top_side.set_visible(False)
+
+    # make x values equal to the integer test numbers
+    ax1.set_xticks(conditionList)
+    # limit y axis to appropriate range
+    #ax1.set_yticks(np.arange(0,np.max(scenarios)+1))
+    # only horizontal grid lines
+    ax1.grid()
+    # Set tick font size
+    for label in (ax1.get_xticklabels() + ax1.get_yticklabels()):
+    	label.set_fontsize(fontSize)
+    
+    
+    print(meanATEList)
+    print(meanSVEList)
     
 if __name__ == "__main__":
     main()

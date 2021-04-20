@@ -72,7 +72,7 @@ def main(*args):
     if timestampEst == -1:
         # e.g. if track never started
         return(-1, -1)
-    if (max(timestampEst) - min(timestampEst))/(max(timestampGT) - min(timestampGT)) < 0.5:
+    if (max(timestampEst) - min(timestampEst))/(max(timestampGT) - min(timestampGT)) < 0.1:
         # if the estimate didn't last longer than half the total time, its bad
         return(-1,-1)
     

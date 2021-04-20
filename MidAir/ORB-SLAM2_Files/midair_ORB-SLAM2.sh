@@ -6,18 +6,15 @@ killall -9 roscore # kill any roscore/master processes that are lingering
 killall -9 rosmaster
 killall -9 rosout
 
-sleep 10
+sleep 2
 
 # launch roscore
     # the & at the end moves the process to the background so we can play the bag file on top of it
 roscore & 
 
-# TODO: can we instead 'expect'
-sleep 30
-
 # a command to run ORB_SLAM2_SVE with the midair setup
-    # TODO: relative paths (../ should work?)
 poseCMD="rosrun ORB_SLAM2_SVE Mono ../../ORB_SLAM2_SVE/Vocabulary/ORBvoc.txt ../../ORB_SLAM2_SVE/Examples/Monocular/midair.yaml"
+
 eval $poseCMD &
 
 sleep 20
@@ -36,7 +33,7 @@ killall -9 roscore      # kill any roscore/master processes that are lingering
 killall -9 rosmaster
 killall -9 rosout
 
-sleep 5         # let process die
+sleep 2         # let process die
 
 processID=$(pidof Mono)
 kill -SIGINT $processID
