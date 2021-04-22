@@ -12,9 +12,16 @@
 """
 import importlib
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import re 
+import os
+import sys 
+
 def main():
+    # to fix an issue with the error bar caps
+    matplotlib.rcParams.update({'errorbar.capsize': 4})
+    
     # ask how many different bags will be tested
     numBags = int(input("How many .bag files would you like to test?\n"))
     bagFiles = [None] * numBags
@@ -22,13 +29,14 @@ def main():
     # get the list of bags to be tested
     for i in range(numBags):
         bagFiles[i] = input("Please paste the full path to .bag file {}\n".format(i))
-    
+        if not os.path.isfile(bagFiles[i]):
+            sys.exit("Cannot find the provided file")
+        
     # ask how many times each bag should be tested
     numLoops = int(input("How many times would you like to test each of these .bag files?\n"))
     
     # get the runner script
-    midairOnORB = importlib.import_module("midair_ORB-SLAM2")
-        
+    midairOnORB = importlib.import_module("midair_ORB-SLAM2") 
     
     meanATEList = []
     meanSVEList = []
@@ -100,15 +108,13 @@ def main():
         plt.grid()
         plt.show()
     
-    
-    
     fontSize=12
     
     fig, ax1 = plt.subplots(1, 1)
     
     # plot mean with error bars showing the min and max values
     ax1.errorbar(conditionList, meanATEList, sdATEList, linestyle='None', marker='o',lw=1, fmt='.k')
-    ax1.title("MidAir, Trajectory " + trajectory)
+    ax1.set_title("MidAir, Trajectory " + trajectory)
     ax1.set_xlabel('Condition', fontsize=fontSize)
     ax1.set_ylabel('Absolute Trajectory Error', fontsize=fontSize)
     right_side = ax1.spines["right"]
