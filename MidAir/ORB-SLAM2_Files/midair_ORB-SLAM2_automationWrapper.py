@@ -113,10 +113,10 @@ def main():
     fig, ax1 = plt.subplots(1, 1)
     
     # plot mean with error bars showing the min and max values
-    ax1.errorbar(conditionList, meanATEList, sdATEList, linestyle='None', marker='o',lw=1, fmt='.k')
+    ax1.errorbar(conditionList, meanSVEList, sdSVEList, linestyle='None', marker='o',lw=1, fmt='.k')
     ax1.set_title("MidAir, Trajectory " + trajectory)
     ax1.set_xlabel('Condition', fontsize=fontSize)
-    ax1.set_ylabel('Absolute Trajectory Error', fontsize=fontSize)
+    ax1.set_ylabel('Visibility Estimate', fontsize=fontSize)
     right_side = ax1.spines["right"]
     right_side.set_visible(False)
     top_side = ax1.spines["top"]

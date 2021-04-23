@@ -49,35 +49,53 @@ def main(*args):
     
     # we have a shell file that controls the terminal commands for running this .bag file
     shellFile = os.path.abspath(os.getcwd() + "/midair_ORB-SLAM2.sh")
+    print("\n")
+    printStatus("Execution Begin...")
     
     # make the shell file executable
-    subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash')
+    subprocess.run(["chmod", "+x", shellFile], shell=True, executable='/bin/bash', stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # run the shell file with the selected bag file as an input argument
-    subprocess.run(shellFile + " " + bagFilePath, shell=True, executable='/bin/bash')
+    subprocess.run(shellFile + " " + bagFilePath, shell=True, executable='/bin/bash', stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+    printStatus("Execution End...")
     
     # get the trajectory number from the provided .bag file name
     trajectory = re.search("trajectory_(.*?)_", bagFilePath).group(1)
     camera = re.search("color_(.*?).bag", bagFilePath).group(1)
+
+    condition = re.search(".*/(.*?)/trajectory", bagFilePath).group(1)
+    environment = re.search(".*/MidAir/(.*?)/{}".format(condition), bagFilePath).group(1)
     
     # define the path to the folder containing our sensor records and get ground truth
     sensorRecordsPath = os.path.abspath(os.path.dirname(bagFilePath))  
     sensorRecords = h5py.File(sensorRecordsPath + '/sensor_records.hdf5','r+')   
     
+    printStatus("Getting Ground Truth...")
     # extract the ground truth data from the sensor records file for this trajectory
     groundTruth = getGroundTruth(sensorRecords, trajectory)
     
+    groundTruthStartTime = groundTruth.Timestamp.iloc[0]
+    groundTruthEndTime = groundTruth.Timestamp.iloc[-1]
+    
+    printStatus("Getting Estimate...")
     # ORB-SLAM2 writes the pose estimate to a .txt file after completion
     # extract the timestamped pose estimate from the ORB-SLAM2 output file
         # returns -1, -1 if error
     trajectoryEstimateFile = os.getcwd() + "/KeyFrameTrajectory.txt"
     estimate = getEstimate(trajectoryEstimateFile)
     if not isinstance(estimate, pd.DataFrame):
+        printStatus("No Output Recorded. Exiting.")
         # e.g. if track never started
         return(-1, -1, -1)
     if (max(estimate.Timestamp) - min(estimate.Timestamp))/(max(groundTruth.Timestamp) - min(groundTruth.Timestamp)) < 0.5:
+        printStatus("Output Not Maintained For Long Enough. Exiting.")
         # if the estimate didn't last longer than half the total time, its bad
         return(-1, -1, -1)
     
+    estimateStartTime = estimate.Timestamp.iloc[0]
+    estimateEndTime = estimate.Timestamp.iloc[-1]
+    
+    printStatus("Aligning Ground Truth with Estimate...")
     estimate = matchAxisConventions(camera, estimate)
     
     # the estimate won't start/end at bounds of ground truth
@@ -100,45 +118,32 @@ def main(*args):
     # ORB-SLAM2 SVE writes the estimated visibility parameters to this .txt file
     SVEPath = os.getcwd() + "/SceneVisibilityEstimation.txt"
     
-    # open the .txt file and grab the lines of output
-    with open(SVEPath, "r") as f3:
-        SVE_timeSeries = f3.read().splitlines()
-    
-    # split into lists by comma
-    SVE_timeSeries = [line.split(' ') for line in SVE_timeSeries]
-    
-    SVE_stats = [None] * 4    # empty array to store visibility estimation
-    
-    # format (0)timestamp (1)visibility (2)SVE_a (3)SVE_b (4)SVE_c
-    SVE_t = [(float(row[0]) - 100000) for row in SVE_timeSeries]
-    SVE_stats[1] = [float(row[2]) for row in SVE_timeSeries]
-    SVE_stats[2] = [float(row[3]) for row in SVE_timeSeries]
-    SVE_stats[3] = [float(row[4]) for row in SVE_timeSeries]
-    
-    ka = 0.2
-    kb = 0.4
-    kc = 0.4
-    
-    # (a)*(kb*b + kc*c)
-    SVE_stats[0] = [ka*float(row[2]) + kb*float(row[3]) + kc*float(row[4]) for row in SVE_timeSeries]
-    
-    # reduce to only keyframes to dampen the noise in the values
-    #idxList = [np.around(SVE_t,2).tolist().index(a) for a in np.around(SVE_t,2).tolist() if a in np.around(estimate.Timestamp,2).tolist()]
-    #SVE_t = np.array(SVE_t)[idxList].tolist()
-    #SVE_stats[0] = np.array(SVE_stats[0])[idxList].tolist()    
-    #SVE_stats[1] = np.array(SVE_stats[1])[idxList].tolist()
-    #SVE_stats[2] = np.array(SVE_stats[2])[idxList].tolist()
-    #SVE_stats[3] = np.array(SVE_stats[3])[idxList].tolist()
+    printStatus("Getting Scene Visibility Estimation...")
+    SVE = getSceneVisibilityEstimate(SVEPath)
     
     # get the visibility timestamps that correspond to the start/end of the estimation
-    firstTimestampIdx = SVE_t.index(min(SVE_t, key=lambda x:abs(x-estimate.Timestamp[0])))
-    lastTimestampIdx = SVE_t.index(min(SVE_t, key=lambda x:abs(x-estimate.Timestamp.iloc[-1])))
+    startIdx = SVE.Timestamp.tolist().index(min(SVE.Timestamp, key=lambda x:abs(x-estimate.Timestamp[0])))
+    endIdx = SVE.Timestamp.tolist().index(min(SVE.Timestamp, key=lambda x:abs(x-estimate.Timestamp.iloc[-1])))
     
-    SVE_t = SVE_t[firstTimestampIdx:lastTimestampIdx]
-    SVE_stats = [line[firstTimestampIdx:lastTimestampIdx] for line in SVE_stats]
+    #startIdx = groundTruthDF.isin([groundTruthMatchedStart])['Timestamp'][groundTruthDF.isin([groundTruthMatchedStart])['Timestamp'] == True].index[0]
+    #endIdx = groundTruthDF.isin([groundTruthMatchedEnd])['Timestamp'][groundTruthDF.isin([groundTruthMatchedEnd])['Timestamp'] == True].index[0]
+ 
+    untrackedTime = 0
+    for i in range(1, len(SVE)):
+        if SVE.c.iloc[i] == 0:
+            untrackedTime += (SVE.Timestamp.iloc[i] - SVE.Timestamp.iloc[i-1])
+            
+    percentageTracked = 100 * (1 - (untrackedTime / (groundTruthEndTime - groundTruthStartTime)))
+ 
+    SVE = SVE.truncate(startIdx, endIdx)   
+    
+    SVE.index = [a - SVE.index[0] for a in SVE.index]
+    
+    printStatus("Calculating Trajectory Error...")
     
     matchedPoseGT = [[None] * len(estimate['Timestamp']) for _ in range(3)]
     
+    ### ERROR CALCULATIONS
     # for each estimated position, get the closest ground truth
     for i in range(len(estimate.Timestamp)):
         minTimeDiff = min(groundTruth.Timestamp, key=lambda x:abs(x-estimate.Timestamp[i]))
@@ -153,6 +158,8 @@ def main(*args):
     # find absolute position error in the estimate
     for i in range(len(matchedPoseGT[0])):
         errList[i] = math.sqrt(pow((estimate.x[i]-matchedPoseGT[0][i]), 2) + pow((estimate.y[i]-matchedPoseGT[1][i]), 2) + pow((estimate.z[i]-matchedPoseGT[2][i]), 2))
+    
+    printStatus("Plotting Results...")
     
     ### PLOTS ###
     # TODO: move plots into their own functions and neaten up
@@ -188,20 +195,21 @@ def main(*args):
     plt.show()
     
     # plot the change in visibility over time
-    fig3, axs3 = plt.subplots(5,1)
+    fig3, axs3 = plt.subplots(3,1)
     
     axs3[0].plot(estimate.Timestamp, errList)
     axs3[0].grid()
+    axs3[0].set_xticklabels([])
     
-    axs3[1].plot(SVE_t, SVE_stats[0], label='SVE')
-    axs3[2].plot(SVE_t, SVE_stats[1], label='a')
-    axs3[3].plot(SVE_t, SVE_stats[2], label='b')
-    axs3[4].plot(SVE_t, SVE_stats[3], label='c')
+    axs3[1].plot(SVE.Timestamp, SVE.SVE, label='SVE')
+    axs3[1].set_xticklabels([])
+    axs3[2].plot(SVE.Timestamp, SVE.a, label='a')
+    axs3[2].plot(SVE.Timestamp, SVE.b, label='b')
+    axs3[2].plot(SVE.Timestamp, SVE.c, label='c')
     axs3[1].grid()
     axs3[2].grid()
-    axs3[3].grid()
-    axs3[4].grid()
-    #axs3[1].legend(loc="upper left")
+    axs3[2].legend(loc="upper left")
+    axs3[2].set(xlabel="Time (s)")
     
     plt.show()
     
@@ -209,13 +217,16 @@ def main(*args):
     
     ATE = np.sqrt(np.mean(np.array(errList)**2))
 
-    print("Absolute Trajectory Error: {}".format(ATE))
-    
-    meanVis = statistics.mean(SVE_stats[0])
-    
-    print("Mean Visibility: {}".format(meanVis))
-    
-    meanSVEStats = [statistics.mean(component) for component in SVE_stats]
+    meanVis = statistics.mean(SVE.SVE)
+
+    meanSVEStats = [statistics.mean(SVE.iloc[:,i]) for i in range(1,5)]
+
+    printStatus("\n\n")
+    print("Environment: {} | Trajectory: {} | Condition: {} \n".format(environment, trajectory, condition))
+    print("Absolute Trajectory Error: {:.3f}m".format(ATE))
+    print("Mean Visibility: {:.3f}".format(meanVis))
+    print("Estimate Start: {:.2f}s | Estimate End: {:.2f}s | Percentage Tracked: {:.2f}%".format(estimateStartTime, estimateEndTime, percentageTracked))
+    # TODO: print tracking start, end, total duration (%)
     
     return(ATE, meanVis, meanSVEStats)
 
@@ -307,7 +318,10 @@ def matchAxisConventions(camera, estimateDF):
         R_orb_midair = np.array([[0,0,1],[1,0,0],[0,1,0]])
     elif camera=='down':
         R_orb_midair = np.array([[0,-1,0],[1,0,0],[0,0,1]])
-    
+    else:
+        print("Camera Not Supported")
+        sys.exit(0)
+        
     # rearrange the pose est into [x,y,z][x,y,z].. instead of [x,x,..][y,y,..][z,z,..]
     xyz = [[estimateDF.x[a], 
             estimateDF.y[a], 
@@ -334,11 +348,9 @@ def truncateGroundTruth(estimateDF, groundTruthDF):
     startIdx = groundTruthDF.isin([groundTruthMatchedStart])['Timestamp'][groundTruthDF.isin([groundTruthMatchedStart])['Timestamp'] == True].index[0]
     endIdx = groundTruthDF.isin([groundTruthMatchedEnd])['Timestamp'][groundTruthDF.isin([groundTruthMatchedEnd])['Timestamp'] == True].index[0]
     
-    # truncate the ground truth lists to the defined temporal window
-    for i in range(8):
-        groundTruthDF.iloc[:,i] = groundTruthDF.iloc[:,i][startIdx:endIdx]
-        
-    groundTruthDF = groundTruthDF.dropna()
+    # truncate the ground truth to the defined temporal window
+    groundTruthDF = groundTruthDF.truncate(startIdx,endIdx)
+
     groundTruthDF.index = [a - groundTruthDF.index[0] for a in groundTruthDF.index]
     
     return(estimateDF, groundTruthDF)
@@ -378,6 +390,46 @@ def alignReferenceFrames(estimateDF, groundTruthDF):
     ###
     
     return(estimateDF, groundTruthDF)
+
+def getSceneVisibilityEstimate(SVEPath):
     
+    # create an empty dataframe for the ground truth with time, position, orientation columns
+    sveDF = pd.DataFrame(columns=['Timestamp', 'a', 'b', 'c', 'SVE'])
+    
+    # open the .txt file and grab the lines of output
+    with open(SVEPath, "r") as f3:
+        SVE_timeSeries = f3.read().splitlines()
+    
+    # split into lists by comma
+    SVE_timeSeries = [line.split(' ') for line in SVE_timeSeries]
+
+    # format (0)timestamp (1)visibility (2)SVE_a (3)SVE_b (4)SVE_c
+    sveDF.Timestamp = [(float(row[0]) - 100000) for row in SVE_timeSeries]
+    sveDF.a = [float(row[2]) for row in SVE_timeSeries]
+    sveDF.b = [float(row[3]) for row in SVE_timeSeries]
+    sveDF.c = [float(row[4]) for row in SVE_timeSeries]
+    
+    ka = 0.2
+    kb = 0.4
+    kc = 0.4
+    
+    # (a)*(kb*b + kc*c)
+    sveDF.SVE = [ka*float(row[2]) + kb*float(row[3]) + kc*float(row[4]) for row in SVE_timeSeries]
+    
+    # reduce to only keyframes to dampen the noise in the values
+    #idxList = [np.around(SVE_t,2).tolist().index(a) for a in np.around(SVE_t,2).tolist() if a in np.around(estimate.Timestamp,2).tolist()]
+    #idxList = [np.around(sveDF.Timestamp,2).tolist().index(a) for a in np.around(sveDF.Timestamp,2).tolist() if (a/0.1)%1==0]
+    #for i in range(5):
+    #    sveDF.iloc[:,i] = np.array(sveDF.iloc[:,i])[idxList]
+    
+    #sveDF = sveDF.dropna()
+    #sveDF.index = [a - sveDF.index[0] for a in sveDF.index]
+    
+    return(sveDF)
+
+def printStatus(statusMsg):
+    statusMsg = "\r" + statusMsg + "            "
+    print(statusMsg, end = '', flush=True)
+
 if __name__ == "__main__":
     main()

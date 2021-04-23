@@ -10,7 +10,7 @@ sleep 5
 
 # launch roscore
     # the & at the end moves the process to the background so we can play the bag file on top of it
-roscore &
+roscore & sleep 10
 
 # a command to run ORB_SLAM2_SVE with the midair setup
 poseCMD="rosrun ORB_SLAM2_SVE Mono ../../ORB_SLAM2_SVE/Vocabulary/ORBvoc.txt ../../ORB_SLAM2_SVE/Examples/Monocular/midair.yaml"
