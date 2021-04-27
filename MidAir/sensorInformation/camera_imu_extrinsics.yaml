@@ -21,9 +21,9 @@ Time Offset Between Camera and IMU: 0.0
 
 # camera down / IMU
 Extrinsic Transformation:
-[ 0.0, 0.0, 1.0, 0.0
-  0.0, 1.0, 0.0, 0.0
- -1.0, 0.0, 0.0, 0.0
+[ 0.0, -1.0, 0.0, 0.0
+  1.0, 0.0, 0.0, 0.0
+  0.0, 0.0, 1.0, 0.0
   0.0, 0.0, 0.0, 1.0]
 
 Time Offset Between Camera and IMU: 0.0
