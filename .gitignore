@@ -9,3 +9,6 @@
 
 ORB_SLAM2_SVE/
 ORB_SLAM3_SVE/
+
+*results.txt
+*.eps

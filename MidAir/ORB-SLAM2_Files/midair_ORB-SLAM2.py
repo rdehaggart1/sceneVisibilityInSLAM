@@ -220,7 +220,10 @@ def main(*args):
     meanVis = statistics.mean(SVE.SVE)
 
     meanSVEStats = [statistics.mean(SVE.iloc[:,i]) for i in range(1,5)]
-
+    
+    with open("results.txt", 'a') as writer:
+        writer.write("Env: {}, Traj: {}, Cond: {}, ATE: {:.3f}m, SVE: {:.3f}, SVE_a: {:.3f}, SVE_b: {:.3f}, SVE_c: {:.3f}, %Tr: {}\n".format(environment,trajectory,condition,ATE,meanVis,meanSVEStats[0],meanSVEStats[1],meanSVEStats[2],percentageTracked))
+    
     printStatus("\n\n")
     print("Environment: {} | Trajectory: {} | Condition: {} \n".format(environment, trajectory, condition))
     print("Absolute Trajectory Error: {:.3f}m".format(ATE))
@@ -405,16 +408,10 @@ def getSceneVisibilityEstimate(SVEPath):
 
     # format (0)timestamp (1)visibility (2)SVE_a (3)SVE_b (4)SVE_c
     sveDF.Timestamp = [(float(row[0]) - 100000) for row in SVE_timeSeries]
+    sveDF.SVE = [float(row[1]) for row in SVE_timeSeries]
     sveDF.a = [float(row[2]) for row in SVE_timeSeries]
     sveDF.b = [float(row[3]) for row in SVE_timeSeries]
     sveDF.c = [float(row[4]) for row in SVE_timeSeries]
-    
-    ka = 0.2
-    kb = 0.4
-    kc = 0.4
-    
-    # (a)*(kb*b + kc*c)
-    sveDF.SVE = [ka*float(row[2]) + kb*float(row[3]) + kc*float(row[4]) for row in SVE_timeSeries]
     
     # reduce to only keyframes to dampen the noise in the values
     #idxList = [np.around(SVE_t,2).tolist().index(a) for a in np.around(SVE_t,2).tolist() if a in np.around(estimate.Timestamp,2).tolist()]
