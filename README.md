@@ -79,6 +79,8 @@ To check if you have python on your Linux machine:
 python3 --version
 ```
 
+If you don't have Python3: 
+
 <b>Ubuntu 18.04 and Above</b>
 ```
 sudo apt-get update
@@ -95,7 +97,7 @@ sudo apt-get install python3.8 python3-pip
 <a name="PyPackPreq"/>
 
 ### Python Packages
-In processing the datasets and the results, particular packages are used for the Python scripting which you will need to download to your machine. Some of these packages are common, and so you may already have them installed. Due to the number of packages and their crossovers, it is possible that not all dependencies are listed here. I have tried to be as complete as possible, but if you are prompted for an extra package install, please mark this as an issue in the repository so I can address this.
+In processing the datasets and the results, particular packages are used for the Python scripting which you will need to install. Some of these packages are common, and so you may already have them installed. Due to the number of packages and their crossovers, it is possible that not all dependencies are listed here. I have tried to be as complete as possible, but if you are prompted for an extra package install, please mark this as an issue in the repository so I can address this.
 
 To make Python package installation easier, install the Python package manager
 ```
@@ -166,13 +168,13 @@ git clone https://github.com/rdehaggart1/ORB_SLAM2_SVE.git  # ORB-SLAM2 SVE
 git clone https://github.com/rdehaggart1/ORB_SLAM3_SVE.git  # ORB-SLAM3 SVE
 ```
 
-So the path to the modified repository should be `<PATH>/sceneVisibilityInSLAM/ORB_SLAMX_SVE` where X is the ORB-SLAM version.
+So the path to the modified repository should be `<PATH>/sceneVisibilityInSLAM/ORB_SLAMx_SVE` where `x` is the ORB-SLAM version.
 
 <a name="packageORB2"/>
 
 ### Adding ROS Package
 
-You should now have a local repository of the modified ORB-SLAM(s) code. The original systems each have a ROS package of the same name, and similarly, the modified version has a ROS package of the name <i>ORB_SLAMX_SVE</i>. ROS needs access to this new package, so you must edit your `.bashrc` file to allow for this. This can be done using a text editor like nano to open this file in the following way:
+You should now have a local repository of the modified ORB-SLAMx code. The original systems each have a ROS package of the same name, and similarly, the modified version has a ROS package of the name <i>ORB_SLAMx_SVE</i>. ROS needs access to this new package, so you must edit your `.bashrc` file to allow for this. This can be done using a text editor like nano to open this file in the following way:
 
 ```
 cd
@@ -203,7 +205,7 @@ and in the string that is returned, you should see the path to the new package.
 <a name="buildingORB2"/>
 
 ### Building
-Finally, you need to build the modified ORB-SLAMX code for ROS. This means first building the codebase by moving to the root level of the modified `ORB_SLAMX_SVE` repository and running:
+Finally, you need to build the modified ORB-SLAMx code for ROS. This means first building the codebase by moving to the root level of the modified `ORB_SLAMx_SVE` repository and running:
 
 ```
 chmod +x build.sh   # make the build file executable
@@ -217,7 +219,7 @@ chmod +x build_ros.sh
 ./build_ros.sh
 ```
 
-Once this has completed, restart your terminal again and run the following to verify that the ORB_SLAMX_SVE package is now available to ROS:
+Once this has completed, restart your terminal again and run the following to verify that the ORB_SLAMx_SVE package is now available to ROS:
 
 ```
 rospack list
