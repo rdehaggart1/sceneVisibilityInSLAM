@@ -112,6 +112,7 @@ pip3 list
 #### rosbag
 The ROS Python API is used to create a .bag file from image and IMU data 
 ```
+sudo apt-get install -y python-rosbag
 ```
 #### sensor_msgs
 In support of the above, this package is used to format messages as per the ROS standards. Here, `<distro>` is the installed ROS distribution (e.g. melodic)

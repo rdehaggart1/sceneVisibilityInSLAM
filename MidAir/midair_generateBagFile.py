@@ -34,9 +34,17 @@ import sys
 # for some file representation stuff
 from pathlib import Path
 
-def main():
-    # enter function to ask for specific trajectory to bagify and return selection
-    [environment, condition, trajectory, camera] = userInput()  
+def main(*args):
+    
+    # the input argument is the path to the bag file that is being run in this test
+    if len(args) == 0:
+        # enter function to ask for specific trajectory to bagify and return selection
+        [environment, condition, trajectory, camera] = userInput()  
+    else:
+        environment = args[0]
+        condition = args[1]
+        trajectory = args[2]
+        camera = args[3]
     
     # use the selection to find the appropriate sensor records file
     sensorRecordsPath = os.path.abspath(os.getcwd() + "/MidAir/" + environment + '/' + condition)
