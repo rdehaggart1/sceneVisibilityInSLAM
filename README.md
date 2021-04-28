@@ -2,7 +2,7 @@
 As part of the final year research project with the University of Sheffield with the above title, this repository contains supplementary code
 to format data and present results. 
 ## Summary
-This project was primarily surrounding simultaneous localisation and mapping (SLAM) systems, and how to estimate the visibility of the scene to a camera in a SLAM system. If the visibility is low, the tracking may decrease in accuracy or be lost entirely. If the visibility can be estimated in some way, the effect that visibility has on the tracking accuracy can be better understood. This could then potentially be used to provide user-facing feedback to take corrective action to improve the visibility, or to develop the path planning strategy in an autonomous system.
+This project was primarily surrounding simultaneous localisation and mapping (SLAM) systems, and how to estimate the visibility of the scene to a camera in a SLAM system. If the visibility is low, the tracking may decrease in accuracy or be lost entirely. If the visibility can be estimated in some way, the effect that visibility has on the system can be better understood. This could then potentially be used to provide user-facing feedback to take corrective action to improve the visibility, or to develop the path planning strategy in an autonomous system.
 
 Link to final paper:
 
@@ -25,6 +25,10 @@ Link to final paper:
     - [Configuring Datasets for Testing](#configData)
         - [MidAir](#configMidair)
         - [InteriorNet](#configInterior)
+- [3. Usage](#usage)
+    - [Run Manually](#manual)
+    - [Run Automatically](#automatic)
+    - [Run Automatically with Results Plotting and Analysis](#automaticWithResults)
 
 <a name="prereq"/>
 
@@ -252,8 +256,12 @@ Once the data are downloaded and the archives uncompressed, as per the above ins
     └── ...
 ```
 
+<a name="usage"/>
+
 # 3. Usage
 To run one of the datasets through the modified ORB-SLAMx algorithm, you have several options
+
+<a name="manual"/>
 
 ## Run Manually
 This method is similar to the method provided by the original ORB-SLAMx documentation. 
@@ -286,6 +294,8 @@ rosbag play --pause <BAG_PATH>
 
 Then in this third tab, simply hit 'space' when prompted to start playing the .bag file. The visualiser will then show you the progress throughout execution.
 
+<a name="automatic"/>
+
 ## Run Automatically
 For simplicity, it can be useful to perform all of the above operations in a single command
 
@@ -297,6 +307,8 @@ chmod +x <dataset>_ORB-SLAMx.sh     # for example, 'chmod +x midair_ORB-SLAM2.sh
 <dataset>_ORB-SLAMx.sh <BAG_PATH>   # for example, 'midair_ORB-SLAM2.sh <PATH>/sceneVisibilityInSLAM/MidAir/MidAir/Kite_training/sunny/trajectory_0021_color_left.bag'
 ```
 
+<a name="automaticWithResults"/>
+
 ## Run Automatically with Results Plotting and Analysis
 
 # 4. Contact
@@ -304,6 +316,6 @@ Rory Haggart - [rdeh10@googlemail.com](mailto:rdeh10@googlemail.com)
 
 # Acknowledgements
 - **The Authors of ORB-SLAM2:** [Raúl Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan Domingo Tardós Solano](http://webdiis.unizar.es/~jdtardos/), [José María Martínez Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Gálvez-López](http://doriangalvez.com/).
-- **The Authors of ORB-SLAM3:** Carlos Campos, Richard Elvira, Juan J. Gómez Rodríguez, [José M. M. Montiel](http://webdiis.unizar.es/~josemari/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/).
-- **The Authors of the MidAir Dataset:** Michaël Fonder, Marc Van Droogenbroeck.
+- **The Authors of ORB-SLAM3:** [Carlos Campos Martinez](https://scholar.google.es/citations?user=QI9psw0AAAAJ&hl=es), Richard Elvira, [Juan J. Gómez Rodríguez](https://scholar.google.com/citations?user=jOKMlwsAAAAJ), [José María Martínez Montiel](http://webdiis.unizar.es/~josemari/), [Juan Domingo Tardós Solano](http://webdiis.unizar.es/~jdtardos/).
+- **The Authors of the MidAir Dataset:** [Michaël Fonder](https://people.montefiore.uliege.be/mfonder/index.html), [Marc Van Droogenbroeck](http://www.telecom.ulg.ac.be/people/MarcVanDroogenbroeck.html).
 - **The Authors of the InteriorNet Dataset:**
