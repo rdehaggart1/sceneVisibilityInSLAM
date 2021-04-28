@@ -20,11 +20,11 @@ Link to final paper:
         - [Adding ROS Package](#packageORB2)
         - [Building](#buildingORB2)
     - [Getting Datasets](#gettingData)
-        - [InteriorNet](#getInterior)
         - [MidAir](#getMidair)
+        - [InteriorNet](#getInterior)
     - [Configuring Datasets for Testing](#configData)
-        - [InteriorNet](#configInterior)
         - [MidAir](#configMidair)
+        - [InteriorNet](#configInterior)
 
 <a name="prereq"/>
 
@@ -151,26 +151,10 @@ rospack list
 <a name="gettingData"/>
 
 ## Getting Datasets
-Through the development of this work, two datasets were used for analyses, namely InteriorNet ([website](https://interiornet.org/), [paper](https://interiornet.org/items/interiornet_paper.pdf)) and MidAir ([website](https://midair.ulg.ac.be/), [paper](https://ieeexplore.ieee.org/document/9025697)).
+Through the development of this work, two datasets were used for analyses, namely MidAir ([website](https://midair.ulg.ac.be/), [paper](https://ieeexplore.ieee.org/document/9025697)), and InteriorNet ([website](https://interiornet.org/), [paper](https://interiornet.org/items/interiornet_paper.pdf)).
 
-Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the InteriorNet and MidAir datasets to run the code on
+Once you have this repository on your machine and the modified SLAM algorithm(s), you will need some data from the MidAir and InteriorNet datasets to run the code on
 
-<a name="getInterior"/>
-
-### InteriorNet
-To download some data for the InteriorNet dataset:
-1. Go to the following Google Form to agree to the terms of use and get the dataset link: [https://docs.google.com/forms/d/15sjV-CAud1ENBxK-hJSSrweE7IGc8VXWDbgZiq1trGc](https://docs.google.com/forms/d/15sjV-CAud1ENBxK-hJSSrweE7IGc8VXWDbgZiq1trGc), and then click through to the dataset Google Drive folder, which contains <b>a lot</b> of data.
-2. Now, it's quite difficult to understand what each trajectory contains. Once I have found some that are particularly well suited to this application, I will provide a list here. For now, your best best is to grab some random trajectories from this drive. Each trajectory (e.g. HD5/3FO4KA6US640) contains 3 different extracts each repeated in 'original' and 'random' lighting conditions. 
-3. Download the zipped files into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder
-4. To get the ground truth for your particular trajectories, you should then go to the `GroundTruth_HD1-HD6` folder and find the .zip archives with the exact same name as the trajectory folders that you just downloaded. The best way to do this is simply to sort the files alphabetically and look for the match (this can be quite tedious, so be prepared!). Download the zipped ground truth into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder, too and name it <trajectory>_groundTruth.zip (e.g. 3FO4KA6US640_groundTruth.zip)
-5. The trajectory archives include data for multiple cameras (panoramic, fisheye, depth, etc.), extracting all of these could take some time, especially if you're processing multiple trajectories. This work only makes use of the `cam0` data (the pre-rectified RGB image set), so to limit the extraction time and minimise the space requirements on your machine, open a terminal in the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder and run the following command:
-    ```c
-    find . -name "*.zip" | while read filename; do unzip -o "$filename" "*/cam0/*"; done;
-    ```
-7. Finally, unzip the ground truth folders using the following command. This will extract the compressed files into the same folder as the trajectory data, so everything is all together.
-    ```c
-    find . -name "*_groundTruth.zip" | while read filename; do unzip -o "$filename"; done;
-    ```
 <a name="getMidair"/>
 
 ### MidAir
@@ -191,28 +175,26 @@ To download some data for the MidAir dataset:
     find . -name "*.zip" | while read filename; do unzip -o -d $(dirname "$filename") "$filename"; done;
     ```
 
+<a name="getInterior"/>
+
+### InteriorNet
+To download some data for the InteriorNet dataset:
+1. Go to the following Google Form to agree to the terms of use and get the dataset link: [https://docs.google.com/forms/d/15sjV-CAud1ENBxK-hJSSrweE7IGc8VXWDbgZiq1trGc](https://docs.google.com/forms/d/15sjV-CAud1ENBxK-hJSSrweE7IGc8VXWDbgZiq1trGc), and then click through to the dataset Google Drive folder, which contains <b>a lot</b> of data.
+2. Now, it's quite difficult to understand what each trajectory contains. Once I have found some that are particularly well suited to this application, I will provide a list here. For now, your best best is to grab some random trajectories from this drive. Each trajectory (e.g. HD5/3FO4KA6US640) contains 3 different extracts each repeated in 'original' and 'random' lighting conditions. 
+3. Download the zipped files into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder
+4. To get the ground truth for your particular trajectories, you should then go to the `GroundTruth_HD1-HD6` folder and find the .zip archives with the exact same name as the trajectory folders that you just downloaded. The best way to do this is simply to sort the files alphabetically and look for the match (this can be quite tedious, so be prepared!). Download the zipped ground truth into the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder, too and name it <trajectory>_groundTruth.zip (e.g. 3FO4KA6US640_groundTruth.zip)
+5. The trajectory archives include data for multiple cameras (panoramic, fisheye, depth, etc.), extracting all of these could take some time, especially if you're processing multiple trajectories. This work only makes use of the `cam0` data (the pre-rectified RGB image set), so to limit the extraction time and minimise the space requirements on your machine, open a terminal in the `sceneVisibilityInSLAM/InteriorNet/InteriorNet` folder and run the following command:
+    ```c
+    find . -name "*.zip" | while read filename; do unzip -o "$filename" "*/cam0/*"; done;
+    ```
+7. Finally, unzip the ground truth folders using the following command. This will extract the compressed files into the same folder as the trajectory data, so everything is all together.
+    ```c
+    find . -name "*_groundTruth.zip" | while read filename; do unzip -o "$filename"; done;
+    ```
+
 <a name="configData"/>
 
 ## Configuring Datasets for Testing
-
-<a name="configInterior"/>
-
-### InteriorNet
-Once the data are downloaded and the archives uncompressed, as per the above instructions, the files should be presented as displayed below.
-```   
-    .
-    ├── ...
-    ├── InteriorNet                         # All data live in the 'InteriorNet' folder
-    │   ├── trajectory                      # The particular trajectory ID (e.g. 3FO4K7IRNF5D, 3FO4KA6US640, ...)
-    │       ├── extract                     # The extract within this trajectory with some associated lighting (e.g. original_1_1, random_1_1, original_3_3, ...)
-    │           ├── camera                  # The data for different cameras (e.g. cam0, cam0_pano, motion0, ...)
-    │               ├── data.csv            # A .csv file containing the filename for each image and the associated timestamp in ns since extract start
-    │               ├── data                # The folder containing all the .png images for this extract
-    │                   ├── 0000000000031666668.png # The .png image files for the selected extract
-    │                   ├── 0000000000071666664.png
-    │                   └── ...
-    └── ...
-```
 
 <a name="configMidair"/>
 
@@ -251,31 +233,50 @@ As we have described, the format used in the development of this work was ROS .b
 
 [e.g. copying the config files, creating .cc, rebuilding, etc]
 
+<a name="configInterior"/>
+
+### InteriorNet
+Once the data are downloaded and the archives uncompressed, as per the above instructions, the files should be presented as displayed below.
+```   
+    .
+    ├── ...
+    ├── InteriorNet                         # All data live in the 'InteriorNet' folder
+    │   ├── trajectory                      # The particular trajectory ID (e.g. 3FO4K7IRNF5D, 3FO4KA6US640, ...)
+    │       ├── extract                     # The extract within this trajectory with some associated lighting (e.g. original_1_1, random_1_1, original_3_3, ...)
+    │           ├── camera                  # The data for different cameras (e.g. cam0, cam0_pano, motion0, ...)
+    │               ├── data.csv            # A .csv file containing the filename for each image and the associated timestamp in ns since extract start
+    │               ├── data                # The folder containing all the .png images for this extract
+    │                   ├── 0000000000031666668.png # The .png image files for the selected extract
+    │                   ├── 0000000000071666664.png
+    │                   └── ...
+    └── ...
+```
+
 # 3. Usage
-To run one of the datasets through the modified ORB-SLAM2 algorithm, you have several options
+To run one of the datasets through the modified ORB-SLAMx algorithm, you have several options
 
 ## Run Manually
-This method is similar to the method provided by the original ORB-SLAMX documentation. 
+This method is similar to the method provided by the original ORB-SLAMx documentation. 
 
-Move your terminal to the `ORB_SLAMX_SVE` folder and open 3 terminal tabs.
+Open 3 terminal tabs in the `ORB_SLAMx_SVE` folder.
 
 In the first terminal tab, execute `roscore` to begin the process and allow ROS nodes to communicate with one another:
 ```
 roscore
 ```
 
-In the second terminal tab, execute `rosrun` to run the executable in the ORB_SLAMX_SVE ROS package, using the provided setup file for the dataset under test. This will setup the algorithm for use and open the visualiser.
+In the second terminal tab, execute `rosrun` to run the executable in the ORB_SLAMx_SVE ROS package, using the provided setup file for the dataset under test. This will setup the algorithm for use and open the visualiser.
 
 For ORB-SLAM2, the command is as shown below:
 ```
-rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/interiornet.yaml   # for the InteriorNet dataset
 rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/midair.yaml        # for the MidAir dataset
+rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/interiornet.yaml   # for the InteriorNet dataset
 ```
 
 For ORB-SLAM3, the command is as shown below:
 ```
-rosrun ORB_SLAM3_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/interiornet.yaml  # for the InteriorNet dataset
 rosrun ORB_SLAM3_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/midair.yaml       # for the MidAir dataset
+rosrun ORB_SLAM3_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/interiornet.yaml  # for the InteriorNet dataset
  ```
 
 And finally, in the third terminal, execute `rosbag play` to playback the .bag file containing all of the dataset extract information, where `<BAG_PATH>` is the full file path to the .bag file of the particular extract of the dataset under test:
@@ -290,10 +291,10 @@ For simplicity, it can be useful to perform all of the above operations in a sin
 
 TODO: this may change if i move the .sh file to a common location
 
-Move to the `sceneVisibilityInSLAM/<dataset>/ORB-SLAMX_Files` folder, and then run the following commands to make the shell file executable, and then to run the shell file. The result is simply a single command that controls the same processes as in the manual section above 
+Move to the `sceneVisibilityInSLAM/<dataset>/ORB-SLAMx_Files` folder, and then run the following commands to make the shell file executable, and then to run the shell file. The result is simply a single command that controls the same processes as in the manual section above 
 ```
-chmod +x <dataset>_ORB-SLAMX.sh     # for example, 'chmod +x midair_ORB-SLAM2.sh' for running midair on ORB-SLAM2
-<dataset>_ORB-SLAMX.sh <BAG_PATH>   # for example, 'midair_ORB-SLAM2.sh <PATH>/sceneVisibilityInSLAM/MidAir/MidAir/Kite_training/sunny/trajectory_0021_color_left.bag'
+chmod +x <dataset>_ORB-SLAMx.sh     # for example, 'chmod +x midair_ORB-SLAM2.sh' for running midair on ORB-SLAM2
+<dataset>_ORB-SLAMx.sh <BAG_PATH>   # for example, 'midair_ORB-SLAM2.sh <PATH>/sceneVisibilityInSLAM/MidAir/MidAir/Kite_training/sunny/trajectory_0021_color_left.bag'
 ```
 
 ## Run Automatically with Results Plotting and Analysis
@@ -303,6 +304,6 @@ Rory Haggart - [rdeh10@googlemail.com](mailto:rdeh10@googlemail.com)
 
 # Acknowledgements
 - **The Authors of ORB-SLAM2:** [Raúl Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan Domingo Tardós Solano](http://webdiis.unizar.es/~jdtardos/), [José María Martínez Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Gálvez-López](http://doriangalvez.com/).
-- **The Authors of ORB-SLAM3:**
+- **The Authors of ORB-SLAM3:** Carlos Campos, Richard Elvira, Juan J. Gómez Rodríguez, [José M. M. Montiel](http://webdiis.unizar.es/~josemari/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/).
+- **The Authors of the MidAir Dataset:** Michaël Fonder, Marc Van Droogenbroeck.
 - **The Authors of the InteriorNet Dataset:**
-- **The Authors of the MidAir Dataset:** 

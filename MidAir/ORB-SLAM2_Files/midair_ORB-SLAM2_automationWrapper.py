@@ -117,7 +117,7 @@ def main():
     
     # plot mean with error bars showing the min and max values
     #ax1.errorbar(conditionList, meanSVEList, sdSVEList, linestyle='None', marker='o',lw=1, fmt='.k')
-    ax1.set_title("MidAir, VO_test, Trajectory " + int(trajectory[1:]))
+    ax1.set_title("MidAir, VO_test, Trajectory " + str(int(trajectory[1:])))
     ax1.set_xlabel('Condition', fontsize=fontSize)
     ax1.set_ylabel('Visibility Estimate', fontsize=fontSize)
     right_side = ax1.spines["right"]
