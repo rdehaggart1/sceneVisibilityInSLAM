@@ -42,24 +42,95 @@ The method of running datasets for this work was using the [Robot Operating Syst
 <a name="ORB-SLAM2Preq"/>
 
 ## Prerequisites associated with ORB-SLAM2
-[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code relies on the same dependencies as the original, and so these should be installed as per the original repository instructions.
-
-[Cite paper]
+[ORB-SLAM2](https://github.com/raulmur/ORB_SLAM2) is the V-SLAM algorithm that was selected for modifications in support of this project. The modified source code developed for this project relies on the same dependencies as the original, and so these should be installed as per the original repository instructions.
+```
+@article{murORB2,
+  title={{ORB-SLAM2}: an Open-Source {SLAM} System for Monocular, Stereo and {RGB-D} Cameras},
+  author={Mur-Artal, Ra\'ul and Tard\'os, Juan D.},
+  journal={IEEE Transactions on Robotics},
+  volume={33},
+  number={5},
+  pages={1255--1262},
+  doi = {10.1109/TRO.2017.2705103},
+  year={2017}
+}
+```
 
 <a name="ORB-SLAM3Preq"/>
 
 ## Prerequisites associated with ORB-SLAM3
+[ORB-SLAM3](https://github.com/UZ-SLAMLab/ORB_SLAM3) is the VI-SLAM algorithm that was selected for modifications in support of this project. The modified source code developed for this project relies on the same dependencies as the original, and so these should be installed as per the original repository instructions. <b>NOTE: the prerequisites for ORB-SLAM3 are very similar to ORB-SLAM2</b>
+```
+@article{ORBSLAM3_2020,
+  title={{ORB-SLAM3}: An Accurate Open-Source Library for Visual, Visual-Inertial and Multi-Map {SLAM}},
+  author={Campos, Carlos AND Elvira, Richard AND G\´omez, Juan J. AND Montiel, Jos\'e M. M. AND Tard\'os, Juan D.},
+  journal={arXiv preprint arXiv:2007.11898},
+  year={2020}
+}
+```
 
 <a name="PythonPreq"/>
 
-## Python
+## Python3
 The files for processing or formatting the datasets in this repository are primarily Python files, and so you will need a Python compiler on your machine to run them.
 
-[version?]
+To check if you have python on your Linux machine:
+```
+python3 --version
+```
+
+<b>Ubuntu 18.04 and Above</b>
+```
+sudo apt-get update
+sudo apt-get install python3.8 python3-pip
+```
+
+<b>Linux Mint and Ubuntu 17 and Below</b>
+```
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update
+sudo apt-get install python3.8 python3-pip
+```
 
 <a name="PyPackPreq"/>
 
 ### Python Packages
+In processing the datasets and the results, particular packages are used for the Python scripting which you will need to download to your machine. Some of these packages are common, and so you may already have them installed. Due to the number of packages and their crossovers, it is possible that not all dependencies are listed here. I have tried to be as complete as possible, but if you are prompted for an extra package install, please mark this as an issue in the repository so I can address this.
+
+To make Python package installation easier, install the Python package manager
+```
+sudo apt-get install python3-pip
+```
+
+To check which Python packages are available to you, run the following command in your terminal
+```
+pip3 list
+``` 
+
+#### rosbag
+The ROS Python API is used to create a .bag file from image and IMU data 
+```
+```
+#### sensor_msgs
+In support of the above, this package is used to format messages as per the ROS standards. Here, `<distro>` is the installed ROS distribution (e.g. melodic)
+```
+sudo apt-get install ros-<distro>-sensor-msgs
+```
+#### OpenCV
+Prior to formatting for ROS image message, OpenCV is used to interpret and manipulate the image stream.
+```
+pip3 install opencv-python
+```
+#### h5py
+To process .hdf5 filetypes.
+```
+pip3 install h5py
+```
+#### pyquaternion
+To handle orientation data in quaternion format.
+```
+pip3 install pyquaternion
+```
 
 <a name="PreqNotes"/>
 
