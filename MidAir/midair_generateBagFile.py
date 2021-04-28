@@ -101,6 +101,8 @@ def main(*args):
     imHeight = 1024
     imWidth = 1024
     
+    print("")
+    
     for line in imagePaths:
         absImg = sensorRecordsPath + "/" + line # get the absolute file path
         
@@ -108,7 +110,7 @@ def main(*args):
         # if the image exists and isn't a dud
         if (os.path.isfile(absImg)) and (os.stat(absImg).st_size != 0):
     
-            print("Adding Image: {}/{}".format(seq+1, len(imagePaths)))
+            print("\rAdding Image: {}/{}    ".format(seq+1, len(imagePaths)), end='')
     
             # read the image
             image = cv2.imread(absImg)

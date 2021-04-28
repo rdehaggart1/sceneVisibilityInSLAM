@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import importlib
 import cv2 
+from PIL import Image
 
 def main():
     # enter function to ask for specific trajectory to bagify and return selection
@@ -30,37 +31,55 @@ def main():
             print("I did not find the file: " + sensorRecordsFile)
         sys.exit(0)
     
+    print("\nPlease choose how to reduce the visibility:\n1. Add Noise\n2. Add Dirt")
+    reduction = int(input(""))
+    
+    if reduction == 1:
+        detriment = "noisy"
+    elif reduction == 2:
+        detriment = "dirty"
+    else:
+        sys.exit(0)
+    
     # create a new path name for the noisy data to be stored in
-    noisyCondition = os.path.dirname(sensorRecordsPath) + "/noisy_{}".format(condition)
+    worseCondition = os.path.dirname(sensorRecordsPath) + "/{}_{}".format(detriment, condition)
     
     # create the path if it doesn't already exist
-    if not os.path.isdir(noisyCondition):
-        os.mkdir(noisyCondition)
+    if not os.path.isdir(worseCondition):
+        os.mkdir(worseCondition)
 
     # copy the sensor data into the new file
-    shutil.copyfile(sensorRecordsFile, noisyCondition + "/sensor_records.hdf5")
+    shutil.copyfile(sensorRecordsFile, worseCondition + "/sensor_records.hdf5")
     
     # the folder in which the original images are stored
     images = sensorRecordsPath + "/" + camera + "/trajectory_{}".format(trajectory)
     
     # create a new path name for the noisy images to be stored in
-    noisyImageFolder = noisyCondition + "/" + camera + "/trajectory_{}".format(trajectory)
+    worseImageFolder = worseCondition + "/" + camera + "/trajectory_{}".format(trajectory)
     
+    print("\nAdding {} images to {}".format(detriment, worseImageFolder))
     # copy the full image folder over to the new location
-    if not os.path.isdir(noisyImageFolder):
-        shutil.copytree(images, noisyImageFolder)
+    if not os.path.isdir(worseImageFolder):
+        shutil.copytree(images, worseImageFolder)
 
-    imageList = [os.path.abspath(noisyImageFolder) + "/" + img for img in os.listdir(os.path.abspath(noisyImageFolder)) if "zip" not in img]
+    imageList = [os.path.abspath(worseImageFolder) + "/" + img for img in os.listdir(os.path.abspath(worseImageFolder)) if "zip" not in img]
 
     for img in imageList:
-        rawImg = mpimg.imread(img)
-
-        noisyImg = noisy(rawImg)
+        if detriment == "noisy":
+            worseImg = noisy(img)
+        elif detriment == "dirty":
+            worseImg = dirty(img)
+            
+        #imgplot = plt.imshow(mpimg.imread(img))
+        #plt.show()
+        #imgplot = plt.imshow(worseImg)
+        #plt.show()
         
-        cv2.imwrite(img, cv2.cvtColor(noisyImg, cv2.COLOR_RGB2BGR))
-     
+        cv2.imwrite(img, cv2.cvtColor(worseImg, cv2.COLOR_RGB2BGR))
+    
+    print("Generating .bag file for new data")
     bagify = importlib.import_module("midair_generateBagFile")     
-    bagify.main(environment, "/noisy_{}".format(condition), trajectory, camera)
+    bagify.main(environment, "/{}_{}".format(detriment, condition), trajectory, camera)
     ## TODO: prompt to create bag file at the end    
 
 # global flags for selection prompts
@@ -308,7 +327,8 @@ def trajPrinter(trajSearchPath, trajRange):
     return(trajNo, camera)
 
 #https://stackoverflow.com/questions/22937589/how-to-add-noise-gaussian-salt-and-pepper-etc-to-image-in-python-with-opencv
-def noisy(image):
+def noisy(img):
+    image = mpimg.imread(img)
     row,col,ch = image.shape
     s_vs_p = 0.5
     amount = 0.05
@@ -325,6 +345,17 @@ def noisy(image):
             for i in image.shape]
     out[tuple(coords)] = 0
     return out
+
+def dirty(img):
+    # Open input images, background and overlay
+    back   = Image.open(img)
+    over = Image.open("dirtyLens.png")
+    
+    # Paste overlay onto background using overlay alpha as mask
+    back.paste(over, mask=over)
+    soiled_img = np.array(back.copy())
+    
+    return soiled_img
 
 if __name__ == "__main__":
     main()
