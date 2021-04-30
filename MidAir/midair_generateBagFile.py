@@ -160,7 +160,7 @@ def main(*args):
     # the update rate of the IMU is 100Hz
     imuRate = 100
     
-    print("Adding IMU Data")
+    print("\nAdding IMU Data")
     
     for accelLine, gyroLine, attitudeLine in zip(accelerometerData, gyroscopeData, groundTruthAttitude):
         

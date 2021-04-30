@@ -331,7 +331,7 @@ def noisy(img):
     image = mpimg.imread(img)
     row,col,ch = image.shape
     s_vs_p = 0.5
-    amount = 0.05
+    amount = 0.008
     out = np.copy(image)
     # Salt mode
     num_salt = np.ceil(amount * image.size * s_vs_p)

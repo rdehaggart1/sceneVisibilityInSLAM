@@ -164,54 +164,112 @@ def main(*args):
     ### PLOTS ###
     # TODO: move plots into their own functions and neaten up
     # plot a 3D representation of the trajectory ground truth and estimate
+    fontSize = 15
+    
     trajAx = plt.axes(projection='3d')
     trajAx.plot3D(estimate.x, estimate.y, estimate.z, 'blue', label='EST')
     trajAx.plot3D(groundTruth.x, groundTruth.y, groundTruth.z, 'red', label='GT')
     trajAx.legend()
+    trajAx.view_init(40, 45)
+    trajAx.set_xlabel('X (m)', fontsize=fontSize, labelpad=10)
+    trajAx.set_ylabel('Y (m)', fontsize=fontSize, labelpad=10)
+    trajAx.set_zlabel('Z (m)', fontsize=fontSize, labelpad=10)
+    trajAx.dist = 11
     plt.show()
+    fig = trajAx.get_figure()
+    fig.savefig("Plot_3D.eps",format='eps') 
     
     # 3x2 grid of subplots for pose time series comparison
     fig, axs = plt.subplots(3, 1)   
-    
+
     # plot the pose graph ground truths 
     for plotIdx in range(3):
         axs[plotIdx].plot(groundTruth.Timestamp, groundTruth.iloc[:,(plotIdx % 3) + 1], 'red', label='GT')
         axs[plotIdx].plot(estimate.Timestamp, estimate.iloc[:,(plotIdx % 3) + 1], 'blue', label='EST')
         axs[plotIdx].grid()
         axs[plotIdx].set_ylim([min(min(groundTruth.iloc[:,(plotIdx % 3) + 1]), min(estimate.iloc[:,(plotIdx % 3) + 1])) -1, max(max(groundTruth.iloc[:,(plotIdx % 3) + 1]), max(estimate.iloc[:,(plotIdx % 3) + 1])) + 1])
-        axs[plotIdx].legend(loc="upper left")
+        axs[plotIdx].legend(loc='upper left')
 
     # set the various titles and axis labels
     #axs[0][0].set(title="Position Ground Truths", ylabel="X Position (m)")
     #axs[1][1].set(title="Position Estimates")
-    axs[0].set(ylabel="X Position (m)")
-    axs[1].set(ylabel="Y Position (m)")
-    axs[2].set(ylabel="Z Position (m)", xlabel="Time (s)")
+    axs[0].set_ylabel("X (m)", fontsize=fontSize)
+    axs[1].set_ylabel("Y (m)", fontsize=fontSize)
+    axs[2].set_ylabel("Z (m)", fontsize=fontSize)
+    axs[2].set_xlabel("Time (s)", fontsize=fontSize)
+    
+    axs[0].get_yaxis().set_label_coords(-0.12,0.5)
+    axs[1].get_yaxis().set_label_coords(-0.12,0.5)
+    axs[2].get_yaxis().set_label_coords(-0.12,0.5)
+    
+    plt.subplots_adjust(left=0.2, hspace = 0.1)
     
     # turn off the tick labels for non-edge plots to avoid clipping
     axs[0].set_xticklabels([])
     axs[1].set_xticklabels([])
     
     plt.show()
+    fig.savefig("Plot_separate.eps",format='eps') 
     
     # plot the change in visibility over time
-    fig3, axs3 = plt.subplots(3,1)
+    fig3 = plt.figure(figsize=(15,10))
+    plt.subplots_adjust(wspace = 0.35)
+    fontSize = 40
     
-    axs3[0].plot(estimate.Timestamp, errList)
-    axs3[0].grid()
-    axs3[0].set_xticklabels([])
+    ax1 = fig3.add_subplot(2,2,1)
+    ax2 = fig3.add_subplot(2,2,3)
     
-    axs3[1].plot(SVE.Timestamp, SVE.SVE, label='SVE')
-    axs3[1].set_xticklabels([])
-    axs3[2].plot(SVE.Timestamp, SVE.a, label='a')
-    axs3[2].plot(SVE.Timestamp, SVE.b, label='b')
-    axs3[2].plot(SVE.Timestamp, SVE.c, label='c')
-    axs3[1].grid()
-    axs3[2].grid()
-    axs3[2].legend(loc="upper left")
-    axs3[2].set(xlabel="Time (s)")
+    ax3 = fig3.add_subplot(3,2,2)
+    ax4 = fig3.add_subplot(3,2,4)
+    ax5 = fig3.add_subplot(3,2,6)
+
+    ax1.plot(estimate.Timestamp, errList, color='black', linewidth='4')
+    ax1.grid()
+    ax1.get_yaxis().set_label_coords(-0.17,0.5)
+    ax1.set_ylabel("|Error| (m)", fontsize=fontSize)
+    ax1.set_xticklabels([])
+    ax1.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax1.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax2.plot(SVE.Timestamp, SVE.SVE, label='SVE', color='black', linewidth='4')
+    ax2.set_ylabel("SVE", fontsize=fontSize)
+    ax2.get_yaxis().set_label_coords(-0.17,0.5)
+    ax2.set_ylim([0,1.2])
+    ax2.grid()
+    ax2.set_xlabel("Time (s)", fontsize=fontSize)
+    ax2.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax2.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax3.plot(SVE.Timestamp, SVE.a, label='a', color='black', linewidth='4')
+    ax3.set_xticklabels([])
+    h = ax3.set_ylabel("a", fontsize = fontSize)
+    h.set_rotation(0)
+    ax3.get_yaxis().set_label_coords(-0.22,0.5)
+    ax3.grid()
+    ax3.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax3.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax4.plot(SVE.Timestamp, SVE.b, label='b', color='black', linewidth='4')
+    ax4.set_xticklabels([])
+    h = ax4.set_ylabel("b", fontsize = fontSize)
+    h.set_rotation(0)
+    ax4.get_yaxis().set_label_coords(-0.22,0.5)
+    ax4.grid()
+    ax4.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax4.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax5.plot(SVE.Timestamp, SVE.c, label='c', color='black', linewidth='4')
+    ax5.set_xlabel("Time(s)", fontsize = fontSize)
+    h = ax5.set_ylabel("c", fontsize = fontSize)
+    h.set_rotation(0)
+    ax5.get_yaxis().set_label_coords(-0.22,0.5)
+    ax5.grid()
+    ax5.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax5.tick_params(axis='both', which='minor', labelsize=fontSize-15)
     
     plt.show()
+    
+    fig3.savefig("Visibility.eps",format='eps') 
     
     sensorRecords.close()  # close the .hdf5 file we opened
     
