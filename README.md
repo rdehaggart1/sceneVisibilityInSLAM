@@ -349,16 +349,16 @@ roscore
 
 In the second terminal tab, execute `rosrun` to run the executable in the ORB_SLAMx_SVE ROS package, using the provided setup file for the dataset under test. This will setup the algorithm for use and open the visualiser.
 
-For ORB-SLAM2, the command is as shown below:
+For ORB-SLAM2 (Monocular V-SLAM), the command is as shown below:
 ```
 rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/midair.yaml        # for the MidAir dataset
 rosrun ORB_SLAM2_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular/interiornet.yaml   # for the InteriorNet dataset
 ```
 
-For ORB-SLAM3, the command is as shown below:
+For ORB-SLAM3 (Monocular-Inertial VI-SLAM), the command is as shown below:
 ```
-rosrun ORB_SLAM3_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/midair.yaml       # for the MidAir dataset
-rosrun ORB_SLAM3_SVE Mono Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/interiornet.yaml  # for the InteriorNet dataset
+rosrun ORB_SLAM3_SVE Mono_Inertial Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/midair.yaml       # for the MidAir dataset
+rosrun ORB_SLAM3_SVE Mono_Inertial Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/interiornet.yaml  # for the InteriorNet dataset
  ```
 
 And finally, in the third terminal, execute `rosbag play` to playback the .bag file containing all of the dataset extract information, where `<BAG_PATH>` is the full file path to the .bag file of the particular extract of the dataset under test:

@@ -12,8 +12,8 @@ sleep 5
     # the & at the end moves the process to the background so we can play the bag file on top of it
 roscore & sleep 10
 
-# a command to run ORB_SLAM2_SVE with the midair setup
-poseCMD="rosrun ORB_SLAM3_SVE Mono ../../ORB_SLAM3_SVE/Vocabulary/ORBvoc.txt ../../ORB_SLAM3_SVE/Examples/Monocular-Inertial/midair.yaml"
+# a command to run ORB_SLAM3_SVE with the midair setup
+poseCMD="rosrun ORB_SLAM3 Mono_Inertial ../../ORB_SLAM3_SVE/Vocabulary/ORBvoc.txt ../../ORB_SLAM3_SVE/Examples/Monocular-Inertial/midair.yaml"
 
 eval $poseCMD &
 
@@ -35,7 +35,7 @@ killall -9 rosout
 
 sleep 2         # let process die
 
-processID=$(pidof Mono)
+processID=$(pidof Mono_Inertial)
 kill -SIGINT $processID
 
 echo -ne "\n\n" # move down to a new prompt
