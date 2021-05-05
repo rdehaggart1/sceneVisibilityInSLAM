@@ -66,13 +66,14 @@ def main():
 
     # get ground truth timestamps
     timestampGT = [float(row[0]) for row in GPSData[1:]]
-
+    timestampGT = [val - timestampGT[0] for val in timestampGT]
+    
     poseGT = [None] * 3 # initialise a list for the ground truth pose graphs
     
     # get the position data and extract x, y, z
-    poseGT[0] = [float(row[8]) for row in GPSData[1:]]  # x
-    poseGT[1] = [float(row[9]) for row in GPSData[1:]]  # y
-    poseGT[2] = [float(row[10]) for row in GPSData[1:]] # z
+    poseGT[0] = [float(row[10]) for row in GPSData[1:]]  # x
+    poseGT[1] = [-1*float(row[9]) for row in GPSData[1:]]  # y
+    poseGT[2] = [-1*float(row[8]) for row in GPSData[1:]] # z
     
     # Get the rotation data so we can compensate the estimation
     IMUFile = extractFolder + "/malaga-urban-dataset-extract-{}_all-sensors_IMU.txt".format(extractNumber)
@@ -92,9 +93,9 @@ def main():
     bearingGT = [None] * 3 # initialise a list for the ground truth bearing
     
     # get the rotation information
-    bearingGT[0] = [float(row[12]) for row in IMUData[1:]]  # x
-    bearingGT[1] = [float(row[11]) for row in IMUData[1:]]  # y
-    bearingGT[2] = [float(row[10]) for row in IMUData[1:]]  # z
+    bearingGT[0] = [float(row[11]) for row in IMUData[1:]]  # x
+    bearingGT[1] = [float(row[10]) for row in IMUData[1:]]  # y
+    bearingGT[2] = [float(row[12]) for row in IMUData[1:]]  # z
     
     # the .sh script writes the pose estimate to this .txt file
     poseGraphPath = os.getcwd() + "/KeyFrameTrajectory.txt"
@@ -113,6 +114,7 @@ def main():
     
     # format: (0)time, (1)x, (2)y, (3)z, (4)qx, (5)qy, (6)qz, (7)qw
     timestampEst = [float(row[0]) for row in poseGraphEstimate]
+    timestampEst = [val - timestampEst[0] for val in timestampEst]
     poseEst[0] = [float(row[1]) for row in poseGraphEstimate]
     poseEst[1] = [float(row[2]) for row in poseGraphEstimate]
     poseEst[2] = [float(row[3]) for row in poseGraphEstimate]
@@ -150,15 +152,15 @@ def main():
     SVE = getSceneVisibilityEstimate(SVEPath)
     
     # get the visibility timestamps that correspond to the start/end of the estimation
-    #startIdx = SVE.Timestamp.tolist().index(min(SVE.Timestamp, key=lambda x:abs(x-estimate.Timestamp[0])))
-    #endIdx = SVE.Timestamp.tolist().index(min(SVE.Timestamp, key=lambda x:abs(x-estimate.Timestamp.iloc[-1])))
+    startIdx = SVE.Timestamp.tolist().index(min(SVE.Timestamp, key=lambda x:abs(x-timestampEst[0])))
+    endIdx = SVE.Timestamp.tolist().index(min(SVE.Timestamp, key=lambda x:abs(x-timestampEst[-1])))
 
     untrackedTime = 0
     for i in range(1, len(SVE)):
         if SVE.c.iloc[i] == 0:
             untrackedTime += (SVE.Timestamp.iloc[i] - SVE.Timestamp.iloc[i-1])
             
-    #SVE = SVE.truncate(startIdx, endIdx)   
+    SVE = SVE.truncate(startIdx, endIdx)   
     
     SVE.index = [a - SVE.index[0] for a in SVE.index]
 
@@ -171,11 +173,13 @@ def main():
     
     trajAx = plt.axes(projection='3d')
     trajAx.plot3D(poseEst[0], poseEst[1], poseEst[2], 'blue', label='EST')
+    trajAx.plot3D(poseGT[0], poseGT[1], poseGT[2], 'red', label='GT')
     trajAx.view_init(40, 45)
     trajAx.set_xlabel('X (m)', fontsize=fontSize, labelpad=10)
     trajAx.set_ylabel('Y (m)', fontsize=fontSize, labelpad=10)
     trajAx.set_zlabel('Z (m)', fontsize=fontSize, labelpad=10)
     trajAx.dist = 11
+    plt.legend()
     plt.show()
     fig = trajAx.get_figure()
     fig.savefig("Plot_3D.eps",format='eps') 
@@ -186,8 +190,10 @@ def main():
     # plot the pose graph ground truths 
     for plotIdx in range(3):
         axs[plotIdx].plot(timestampEst, poseEst[plotIdx], 'blue', label='EST')
+        axs[plotIdx].plot(timestampGT, poseGT[plotIdx], 'red', label='GT')
         axs[plotIdx].grid()
-
+        axs[plotIdx].legend()
+        
     # set the various titles and axis labels
     #axs[0][0].set(title="Position Ground Truths", ylabel="X Position (m)")
     #axs[1][1].set(title="Position Estimates")
@@ -214,20 +220,20 @@ def main():
     plt.subplots_adjust(wspace = 0.35)
     fontSize = 40
     
-    ax1 = fig3.add_subplot(2,2,1)
-    ax2 = fig3.add_subplot(2,2,3)
+    #ax1 = fig3.add_subplot(1,2,1)
+    ax2 = fig3.add_subplot(1,2,1)
     
     ax3 = fig3.add_subplot(3,2,2)
     ax4 = fig3.add_subplot(3,2,4)
     ax5 = fig3.add_subplot(3,2,6)
 
     #ax1.plot(estimate.Timestamp, errList, color='black', linewidth='4')
-    ax1.grid()
-    ax1.get_yaxis().set_label_coords(-0.17,0.5)
-    ax1.set_ylabel("|Error| (m)", fontsize=fontSize)
-    ax1.set_xticklabels([])
-    ax1.tick_params(axis='both', which='major', labelsize=fontSize-15)
-    ax1.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    #ax1.grid()
+    #ax1.get_yaxis().set_label_coords(-0.17,0.5)
+    #ax1.set_ylabel("|Error| (m)", fontsize=fontSize)
+    #ax1.set_xticklabels([])
+    #ax1.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    #ax1.tick_params(axis='both', which='minor', labelsize=fontSize-15)
     
     ax2.plot(SVE.Timestamp, SVE.SVE, label='SVE', color='black', linewidth='4')
     ax2.set_ylabel("SVE", fontsize=fontSize)
@@ -290,7 +296,7 @@ def getSceneVisibilityEstimate(SVEPath):
     SVE_timeSeries = [line.split(' ') for line in SVE_timeSeries]
 
     # format (0)timestamp (1)visibility (2)SVE_a (3)SVE_b (4)SVE_c
-    sveDF.Timestamp = [(float(row[0]) - 100000) for row in SVE_timeSeries]
+    sveDF.Timestamp = [(float(row[0]) - float(SVE_timeSeries[0][0])) for row in SVE_timeSeries]
     sveDF.SVE = [float(row[1]) for row in SVE_timeSeries]
     sveDF.a = [float(row[2]) for row in SVE_timeSeries]
     sveDF.b = [float(row[3]) for row in SVE_timeSeries]

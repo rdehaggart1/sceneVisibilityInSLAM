@@ -92,6 +92,9 @@ def main(*args):
     scaleFactor = (max(poseGT[0])-min(poseGT[0]))/(max(poseEst[0])-min(poseEst[0]))
     poseEst = [[j*scaleFactor for j in i] for i in poseEst]
     
+    timestampGT = [a - timestampGT[0] for a in timestampGT]
+    timestampEst = [a - timestampEst[0] for a in timestampEst]
+    
     # ORB-SLAM2 SVE writes the estimated visibility parameters to this .txt file
     SVEPath = os.getcwd() + "/SceneVisibilityEstimation.txt"
     
@@ -124,6 +127,8 @@ def main(*args):
     SVE_t = SVE_t[firstTimestampIdx:lastTimestampIdx]
     SVE_stats = [line[firstTimestampIdx:lastTimestampIdx] for line in SVE_stats]
     
+    SVE_t = [a - SVE_t[0] for a in SVE_t]
+    
     matchedPoseGT = [[None] * len(timestampEst) for _ in range(3)]
     
     # for each estimated position, get the closest ground truth
@@ -147,6 +152,8 @@ def main(*args):
     trajAx.plot3D(poseGT[0], poseGT[1], poseGT[2], 'red', label='GT')
     trajAx.legend()
     plt.show()
+    fig = trajAx.get_figure()
+    fig.savefig("Plot_3D.eps",format='eps') 
     
     # 3x2 grid of subplots for pose time series comparison
     fig, axs = plt.subplots(3, 1)   
@@ -169,26 +176,68 @@ def main(*args):
     # turn off the tick labels for non-edge plots to avoid clipping
     axs[0].set_xticklabels([])
     axs[1].set_xticklabels([])
-    
+    fig.savefig("Plot_separate.eps",format='eps') 
     plt.show()
     
     # plot the change in visibility over time
-    fig3, axs3 = plt.subplots(5,1)
+    fig3 = plt.figure(figsize=(15,10))
+    plt.subplots_adjust(wspace = 0.35)
+    fontSize = 40
     
-    axs3[0].plot(timestampEst, errList)
-    axs3[0].grid()
+    ax1 = fig3.add_subplot(2,2,1)
+    ax2 = fig3.add_subplot(2,2,3)
     
-    axs3[1].plot(SVE_t, SVE_stats[0], label='SVE')
-    axs3[2].plot(SVE_t, SVE_stats[1], label='a')
-    axs3[3].plot(SVE_t, SVE_stats[2], label='b')
-    axs3[4].plot(SVE_t, SVE_stats[3], label='c')
-    axs3[1].grid()
-    axs3[2].grid()
-    axs3[3].grid()
-    axs3[4].grid()
-    #axs3[1].legend(loc="upper left")
+    ax3 = fig3.add_subplot(3,2,2)
+    ax4 = fig3.add_subplot(3,2,4)
+    ax5 = fig3.add_subplot(3,2,6)
+
+    ax1.plot(timestampEst, errList, color='black', linewidth='4')
+    ax1.grid()
+    ax1.get_yaxis().set_label_coords(-0.17,0.5)
+    ax1.set_ylabel("|Error| (m)", fontsize=fontSize)
+    ax1.set_xticklabels([])
+    ax1.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax1.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax2.plot(SVE_t, SVE_stats[0], label='SVE', color='black', linewidth='4')
+    ax2.set_ylabel("SVE", fontsize=fontSize)
+    ax2.get_yaxis().set_label_coords(-0.17,0.5)
+    ax2.set_ylim([-1,1.2])
+    ax2.grid()
+    ax2.set_xlabel("Time (s)", fontsize=fontSize)
+    ax2.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax2.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax3.plot(SVE_t, SVE_stats[1], label='a', color='black', linewidth='4')
+    ax3.set_xticklabels([])
+    h = ax3.set_ylabel("a", fontsize = fontSize)
+    h.set_rotation(0)
+    ax3.get_yaxis().set_label_coords(-0.22,0.5)
+    ax3.grid()
+    ax3.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax3.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax4.plot(SVE_t, SVE_stats[2], label='b', color='black', linewidth='4')
+    ax4.set_xticklabels([])
+    h = ax4.set_ylabel("b", fontsize = fontSize)
+    h.set_rotation(0)
+    ax4.get_yaxis().set_label_coords(-0.22,0.5)
+    ax4.grid()
+    ax4.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax4.tick_params(axis='both', which='minor', labelsize=fontSize-15)
+    
+    ax5.plot(SVE_t, SVE_stats[3], label='c', color='black', linewidth='4')
+    ax5.set_xlabel("Time(s)", fontsize = fontSize)
+    h = ax5.set_ylabel("c", fontsize = fontSize)
+    h.set_rotation(0)
+    ax5.get_yaxis().set_label_coords(-0.22,0.5)
+    ax5.grid()
+    ax5.tick_params(axis='both', which='major', labelsize=fontSize-15)
+    ax5.tick_params(axis='both', which='minor', labelsize=fontSize-15)
     
     plt.show()
+    
+    fig3.savefig("Visibility.eps",format='eps') 
     
     ATE = np.sqrt(np.mean(np.array(errList)**2))
 

@@ -23,9 +23,9 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-environment = 'VO_test' # the environment of the simulation
+environment = 'Kite_training' # the environment of the simulation
 condition = 'sunny' # the weather we're interested in
-trajectory = '0000' # the particular trajectory number
+trajectory = '0021' # the particular trajectory number
 camera = 'color_left' # the camera that we're using
 
 # define the path to the folder containing our sensor records
